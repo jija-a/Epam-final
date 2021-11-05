@@ -64,7 +64,7 @@ create table `course_user`
             ON UPDATE cascade ON DELETE cascade
 );
 
-create table `test`
+create table `quiz`
 (
     `id`             int auto_increment,
     `title`          varchar(150) not null,
@@ -105,7 +105,7 @@ create table question
         foreign key (`question_type_id`) references question_type (`id`)
             ON UPDATE cascade ON DELETE cascade,
     constraint FK_question_test
-        foreign key (`test_id`) references test (`id`)
+        foreign key (`test_id`) references quiz (`id`)
             ON UPDATE cascade ON DELETE cascade
 );
 
@@ -134,7 +134,7 @@ create table `answer`
         foreign key (`question_id`) references question (`id`)
             ON UPDATE cascade ON DELETE cascade,
     constraint FK_test_question_test
-        foreign key (`test_id`) references test (`id`)
+        foreign key (`test_id`) references quiz (`id`)
             ON UPDATE cascade ON DELETE cascade
 );*/
 
@@ -152,7 +152,7 @@ create table `test_result`
         foreign key (`user_id`) references user (`id`)
             ON UPDATE cascade ON DELETE cascade,
     constraint FK_test_result_test
-        foreign key (`test_id`) references test (`id`)
+        foreign key (`test_id`) references quiz (`id`)
             ON UPDATE cascade ON DELETE cascade
 );
 

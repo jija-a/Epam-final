@@ -1,10 +1,10 @@
 package by.alex.testing.dao;
 
-import by.alex.testing.domain.Test;
+import by.alex.testing.domain.Quiz;
 
 import java.util.List;
 
-public interface TestDao extends Dao<Test, Long> {
+public interface TestDao extends Dao<Quiz, Long> {
 
-    List<Test> readAllTestsByCourseId(long id) throws DaoException;
+    List<Quiz> readAllTestsByCourseId(long id) throws DaoException;
 }

@@ -4,7 +4,7 @@ import by.alex.testing.dao.DaoException;
 import by.alex.testing.dao.TestDao;
 import by.alex.testing.dao.mysql.TestDaoImpl;
 import by.alex.testing.dao.pool.ConnectionPool;
-import by.alex.testing.domain.Test;
+import by.alex.testing.domain.Quiz;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.TestService;
 
@@ -14,59 +14,35 @@ import java.util.List;
 public class TestServiceImpl implements TestService {
 
     @Override
-    public List<Test> readAllTestsByCourseId(long courseId) throws ServiceException {
+    public Quiz readTestById(long testId) throws ServiceException {
         Connection connection = ConnectionPool.getInstance().getConnection();
         TestDao testDao = new TestDaoImpl(connection);
-        List<Test> tests;
+        Quiz quiz;
         try {
-            tests = testDao.readAllTestsByCourseId(courseId);
+            quiz = testDao.readById(testId);
         } catch (DaoException e) {
             throw new ServiceException("Exception in DAO layer: ", e);
         }
-        return tests;
+        return quiz;
     }
 
     @Override
-    public void removeTestFromCourse(long testId) throws ServiceException {
+    public void updateTestInfo(Quiz quiz) throws ServiceException {
         Connection connection = ConnectionPool.getInstance().getConnection();
         TestDao testDao = new TestDaoImpl(connection);
         try {
-            testDao.delete(testId);
-        } catch (DaoException e) {
-            throw new ServiceException("Exception in DAO layer: ", e);
-        }
-    }
-
-    @Override
-    public Test readTestById(long testId) throws ServiceException {
-        Connection connection = ConnectionPool.getInstance().getConnection();
-        TestDao testDao = new TestDaoImpl(connection);
-        Test test;
-        try {
-            test = testDao.readById(testId);
-        } catch (DaoException e) {
-            throw new ServiceException("Exception in DAO layer: ", e);
-        }
-        return test;
-    }
-
-    @Override
-    public void updateTestInfo(Test test) throws ServiceException {
-        Connection connection = ConnectionPool.getInstance().getConnection();
-        TestDao testDao = new TestDaoImpl(connection);
-        try {
-            testDao.update(test);
+            testDao.update(quiz);
         } catch (DaoException e) {
             throw new ServiceException("Exception in DAO layer: ", e);
         }
     }
 
     @Override
-    public void createTest(Test test) throws ServiceException {
+    public void createTest(Quiz quiz) throws ServiceException {
         Connection connection = ConnectionPool.getInstance().getConnection();
         TestDao testDao = new TestDaoImpl(connection);
         try {
-            testDao.create(test);
+            testDao.create(quiz);
         } catch (DaoException e) {
             throw new ServiceException("Exception in DAO layer: ", e);
         }

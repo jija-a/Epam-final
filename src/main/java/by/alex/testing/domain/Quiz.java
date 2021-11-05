@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class Test extends Entity {
+public class Quiz extends Entity {
 
     private String title;
     private List<Question> questions;

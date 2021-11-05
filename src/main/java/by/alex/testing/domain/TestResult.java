@@ -15,7 +15,7 @@ import java.util.Map;
 public class TestResult extends Entity {
 
     private User user;
-    private Test test;
+    private Quiz quiz;
     private Map<Answer, Boolean> answers;
     private Double percent;
     private Date testStarted;

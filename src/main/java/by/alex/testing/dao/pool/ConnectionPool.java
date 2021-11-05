@@ -16,7 +16,7 @@ public class ConnectionPool {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionPool.class);
 
     private static ConnectionPool instance;
-    private BlockingQueue<Connection> connections;
+    private BlockingQueue<ProxyConnection> connections;
     private static AtomicBoolean created = new AtomicBoolean(false);
     private static ReentrantLock lock = new ReentrantLock(true);
     private DatabaseConfig config;
@@ -62,15 +62,15 @@ public class ConnectionPool {
         }
     }
 
-    private Connection createConnection() throws SQLException {
+    private ProxyConnection createConnection() throws SQLException {
         Connection connection = DriverManager.getConnection(
                 config.getUrl() + config.getDbName(), config.getUser(), config.getPassword());
         LOGGER.trace("Connection created");
-        return connection;
+        return new ProxyConnection(connection);
     }
 
     public Connection getConnection() {
-        Connection connection = null;
+        ProxyConnection connection = null;
         try {
             connection = connections.take();
         } catch (InterruptedException e) {
@@ -81,11 +81,11 @@ public class ConnectionPool {
     }
 
     public void releaseConnection(Connection connection) {
-        if (connection != null) {
-            connections.add(connection);
-        } else {
-            LOGGER.warn("Can't return connection, possible connection leaking");
+        if (connection instanceof ProxyConnection) {
+            ProxyConnection con = (ProxyConnection) connection;
+            connections.add(con);
         }
+        LOGGER.warn("Can't return connection, possible connection leaking");
     }
 
     public void destroyPool() {
@@ -112,5 +112,4 @@ public class ConnectionPool {
             }
         });
     }
-
 }

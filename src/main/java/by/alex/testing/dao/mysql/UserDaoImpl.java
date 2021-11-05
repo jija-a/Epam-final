@@ -15,7 +15,7 @@ public class UserDaoImpl implements UserDao {
             "SELECT `user`.`id`, `user`.`login`, `user`.`first_name`, `user`.`last_name`, `user`.`password`, `user`.`role` FROM `user`";
 
     private static final String SQL_SELECT_BY_ID =
-            "SELECT `user`.`id`, `user`.`login`, `user`.`first_name`, `user`.`last_name`, `user`.`password`, `user`.`role` FROM `user` WHERE `user`.`login` = ?;";
+            "SELECT `user`.`id`, `user`.`login`, `user`.`first_name`, `user`.`last_name`, `user`.`password`, `user`.`role` FROM `user` WHERE `user`.`id` = ?;";
 
     private static final String SQL_CREATE =
             "INSERT INTO `user`(`login`, `first_name`, `last_name`, `password`, `role`) VALUES (?, ?, ?, ?, ?);";
@@ -28,6 +28,9 @@ public class UserDaoImpl implements UserDao {
 
     private static final String SQL_SELECT_BY_LOGIN =
             "SELECT `user`.`id`, `user`.`login`, `user`.`first_name`, `user`.`last_name`, `user`.`password`, `user`.`role` FROM `user` WHERE `user`.`login` = ?";
+
+    private static final String SQL_SELECT_BY_COURSE_ID =
+            "SELECT `user`.`id`,`user`.`login`,`user`.`first_name`,`user`.`last_name`,`user`.`password`,`user`.`role` FROM user INNER JOIN course_user on user.id = course_user.user_id JOIN course on course.id = course_user.course_id WHERE course.id = ?;";
 
     private final Connection connection;
 
@@ -114,6 +117,22 @@ public class UserDaoImpl implements UserDao {
             throw new DaoException("Exception while reading user by login: ", e);
         }
         return user;
+    }
+
+    @Override
+    public List<User> readByCourseId(Long id) throws DaoException {
+        List<User> users = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_COURSE_ID)) {
+            ps.setLong(1, id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                User user = this.mapToEntity(rs);
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while reading all users: ", e);
+        }
+        return users;
     }
 
     private User mapToEntity(ResultSet rs) throws SQLException {

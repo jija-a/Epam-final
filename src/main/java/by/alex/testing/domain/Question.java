@@ -17,4 +17,6 @@ public class Question extends Entity {
     private String body;
     private QuestionType type;
     private List<Answer> answers;
+    private Integer points;
+    private Long testId;
 }

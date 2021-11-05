@@ -6,39 +6,35 @@ import by.alex.testing.domain.Course;
 import by.alex.testing.domain.CourseCategory;
 import by.alex.testing.domain.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CourseDaoImpl implements CourseDao {
 
     private static final String SQL_SELECT_ALL =
-            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id`\n" +
-                    "FROM `course`";
+            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course`";
+
+    private static final String SQL_SELECT_BY_TITLE =
+            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`name` LIKE ?";
 
     private static final String SQL_SELECT_BY_ID =
-            SQL_SELECT_ALL + "\nWHERE `course`.`id` = ?;";
+            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`id` = ?;";
 
     private static final String SQL_CREATE =
-            "INSERT INTO `course`(`name`, `user_id`, `course_category_id`)\n" +
-                    "VALUES (?, ?, ?);";
+            "INSERT INTO `course`(`name`, `user_id`, `course_category_id`) VALUES (?, ?, ?);";
 
     private static final String SQL_UPDATE =
-            "UPDATE `course`\n" +
-                    "SET `course`.`name` = ?\n" +
-                    "    AND `course`.`user_id` = ?" +
-                    "    AND `course`.`course_category_id` = ?\n" +
-                    "WHERE `course`.`id` = ?;";
+            "UPDATE `course` SET `course`.`name` = ?, `course`.`user_id` = ?, `course`.`course_category_id` = ? WHERE `course`.`id` = ?;";
 
     private static final String SQL_DELETE =
-            "DELETE\n" +
-                    "FROM `course`\n" +
-                    "WHERE `course`.`id` = ?;";
+            "DELETE FROM `course` WHERE `course`.`id` = ?;";
 
-    private Connection connection;
+    private final Connection connection;
+
+    public CourseDaoImpl(Connection connection) {
+        this.connection = connection;
+    }
 
     @Override
     public List<Course> readAll() throws DaoException {
@@ -51,6 +47,22 @@ public class CourseDaoImpl implements CourseDao {
             }
         } catch (SQLException e) {
             throw new DaoException("Exception while reading all courses: ", e);
+        }
+        return courses;
+    }
+
+    @Override
+    public List<Course> readCourseByTitle(String title) throws DaoException {
+        List<Course> courses = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_TITLE)) {
+            ps.setString(1, "%" + title + "%");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Course course = this.mapToEntity(rs);
+                courses.add(course);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while reading courses by title: ", e);
         }
         return courses;
     }
@@ -74,6 +86,7 @@ public class CourseDaoImpl implements CourseDao {
     public void delete(Long id) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_DELETE)) {
             ps.setLong(1, id);
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException("Exception while deleting course: ", e);
         }
@@ -81,8 +94,14 @@ public class CourseDaoImpl implements CourseDao {
 
     @Override
     public void create(Course course) throws DaoException {
-        try (PreparedStatement ps = connection.prepareStatement(SQL_CREATE)) {
+        try (PreparedStatement ps = connection.prepareStatement(SQL_CREATE, Statement.RETURN_GENERATED_KEYS)) {
             this.mapFromEntity(ps, course);
+            if (ps.executeUpdate() > 0) {
+                ResultSet rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    course.setId(rs.getLong(1));
+                }
+            }
         } catch (SQLException e) {
             throw new DaoException("Exception while creating course: ", e);
         }
@@ -93,6 +112,7 @@ public class CourseDaoImpl implements CourseDao {
         try (PreparedStatement ps = connection.prepareStatement(SQL_UPDATE)) {
             this.mapFromEntity(ps, course);
             ps.setLong(4, course.getId());
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException("Exception while updating course: ", e);
         }

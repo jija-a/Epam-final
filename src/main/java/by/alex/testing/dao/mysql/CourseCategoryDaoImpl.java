@@ -4,31 +4,29 @@ import by.alex.testing.dao.CourseCategoryDao;
 import by.alex.testing.dao.DaoException;
 import by.alex.testing.domain.CourseCategory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CourseCategoryDaoImpl implements CourseCategoryDao {
 
     private static final String SQL_SELECT_ALL =
-            "SELECT `course_category`.`id`, `course_category`.`name`\n" +
-                    "FROM `course_category`";
+            "SELECT `course_category`.`id`, `course_category`.`name` FROM `course_category`";
 
     private static final String SQL_SELECT_BY_ID =
-            SQL_SELECT_ALL + "\n WHERE `course_category`.`id` = ?";
+            "SELECT `course_category`.`id`, `course_category`.`name` FROM `course_category` WHERE `course_category`.`id` = ?";
 
     private static final String SQL_CREATE =
             "INSERT INTO `course_category`(`name`) VALUE (?);";
 
     private static final String SQL_DELETE =
-            "DELETE\n" +
-                    "FROM `course_category`\n" +
-                    "WHERE `course_category`.`id` = ?;";
+            "DELETE FROM `course_category` WHERE `course_category`.`id` = ?;";
 
-    private Connection connection;
+    private final Connection connection;
+
+    public CourseCategoryDaoImpl(Connection connection) {
+        this.connection = connection;
+    }
 
     @Override
     public List<CourseCategory> readAll() throws DaoException {
@@ -64,6 +62,7 @@ public class CourseCategoryDaoImpl implements CourseCategoryDao {
     public void delete(Long id) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_DELETE)) {
             ps.setLong(1, id);
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException("Exception while deleting category: ", e);
         }
@@ -71,8 +70,14 @@ public class CourseCategoryDaoImpl implements CourseCategoryDao {
 
     @Override
     public void create(CourseCategory category) throws DaoException {
-        try (PreparedStatement ps = connection.prepareStatement(SQL_CREATE)) {
+        try (PreparedStatement ps = connection.prepareStatement(SQL_CREATE, Statement.RETURN_GENERATED_KEYS)) {
             this.mapFromEntity(ps, category);
+            if (ps.executeUpdate() > 0) {
+                ResultSet rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    category.setId(rs.getLong(1));
+                }
+            }
         } catch (SQLException e) {
             throw new DaoException("Exception while creating category: ", e);
         }

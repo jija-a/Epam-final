@@ -2,7 +2,7 @@ package by.alex.testing.dao.mysql;
 
 import by.alex.testing.dao.DaoException;
 import by.alex.testing.dao.TestResultDao;
-import by.alex.testing.domain.Test;
+import by.alex.testing.domain.Quiz;
 import by.alex.testing.domain.TestResult;
 import by.alex.testing.domain.User;
 
@@ -12,43 +12,40 @@ import java.util.List;
 
 public class TestResultDaoImpl implements TestResultDao {
 
-    private static final String SQL_SELECT_ALL =
-            "SELECT `test_result`.id, `test_result`.`test_id`, `test_result`.`user_id`, `test_result`.`score`, `test_result`.`date`\n" +
-                    "FROM `test_result`";
+    private static final String SQL_SELECT_BY_TEST_ID =
+            "SELECT `test_result`.`id`, `test_result`.`test_id`, `test_result`.`user_id`, `test_result`.`percent`, `test_result`.`test_started`, `test_result`.`test_ended` FROM `test_result` WHERE `test_result`.`test_id` = ?;";
 
     private static final String SQL_SELECT_BY_ID =
-            SQL_SELECT_ALL + "\n WHERE `test_result`.`id` = ?";
+            "SELECT `test_result`.`id`, `test_result`.`test_id`, `test_result`.`user_id`, `test_result`.`percent`, `test_result`.`test_started`, `test_result`.`test_ended` FROM `test_result` WHERE `test_result`.`id` = ?";
 
     private static final String SQL_CREATE =
-            "INSERT INTO test_result(test_id, user_id, score, date)\n" +
-                    "VALUES (?, ?, ?, ?);";
-
-    private static final String SQL_UPDATE =
-            "UPDATE `test_result`\n" +
-                    "SET `test_result`.`test_id` = ?\n" +
-                    "    AND `test_result`.`user_id` = ?\n" +
-                    "    AND `test_result`.`score` = ?\n" +
-                    "    AND `test_result`.`date` = ?\n" +
-                    "WHERE `test_result`.`id` = ?;";
+            "INSERT INTO `test_result`(test_id, user_id, percent, test_started, test_ended) VALUES (?, ?, ?, ?, ?);";
 
     private static final String SQL_DELETE =
-            "DELETE\n" +
-                    "FROM `test_result`\n" +
-                    "WHERE `test_result`.`id` = ?;";
+            "DELETE FROM `test_result` WHERE `test_result`.id = ?";
 
-    private Connection connection;
+    private final Connection connection;
+
+    public TestResultDaoImpl(Connection connection) {
+        this.connection = connection;
+    }
 
     @Override
     public List<TestResult> readAll() throws DaoException {
+        throw new UnsupportedOperationException("Reading all test results is unsupported");
+    }
+
+    @Override
+    public List<TestResult> readAllByTestId(long testId) throws DaoException {
         List<TestResult> testResults = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL)) {
+        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_TEST_ID)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 TestResult testResult = this.mapToEntity(rs);
                 testResults.add(testResult);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while reading all test results: ", e);
+            throw new DaoException("Exception while reading test results by test id: ", e);
         }
         return testResults;
     }
@@ -88,32 +85,29 @@ public class TestResultDaoImpl implements TestResultDao {
 
     @Override
     public void update(TestResult testResult) throws DaoException {
-        try (PreparedStatement ps = connection.prepareStatement(SQL_UPDATE)) {
-            this.mapFromEntity(ps, testResult);
-            ps.setLong(5, testResult.getId());
-        } catch (SQLException e) {
-            throw new DaoException("Exception while updating test: ", e);
-        }
+        throw new UnsupportedOperationException("Updating test result is not supported");
     }
 
     private TestResult mapToEntity(ResultSet rs) throws SQLException {
         return TestResult.builder()
                 .id(rs.getLong("test_result.id"))
-                .test(Test.builder()
+                .quiz(Quiz.builder()
                         .id(rs.getLong("test_result.test_id"))
                         .build())
                 .user(User.builder()
                         .id(rs.getLong("test_result.user_id"))
                         .build())
-                .score(rs.getDouble("test_result.score"))
-                .date(rs.getDate("test_result.date"))
+                .percent(rs.getDouble("test_result.percent"))
+                .testStarted(rs.getDate("test_result.test_started"))
+                .testEnded(rs.getDate("test_result.test_ended"))
                 .build();
     }
 
     private void mapFromEntity(PreparedStatement ps, TestResult result) throws SQLException {
-        ps.setLong(1, result.getTest().getId());
+        ps.setLong(1, result.getQuiz().getId());
         ps.setLong(2, result.getUser().getId());
-        ps.setDouble(3, result.getScore());
-        ps.setDate(4, (Date) result.getDate());
+        ps.setDouble(3, result.getPercent());
+        ps.setObject(4, result.getTestStarted());
+        ps.setObject(5, result.getTestEnded());
     }
 }

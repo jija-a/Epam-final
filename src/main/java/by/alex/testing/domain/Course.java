@@ -17,6 +17,6 @@ public class Course extends Entity {
     private String name;
     private User owner;
     private Map<User, UserCourseStatus> students;
-    private List<Test> tests;
+    private List<Quiz> quizzes;
     private CourseCategory category;
 }
