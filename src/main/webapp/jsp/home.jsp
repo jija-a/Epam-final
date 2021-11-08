@@ -3,16 +3,17 @@
 <html>
 <head>
     <title>Testing | Home</title>
+    <%@include file="/jsp/jspf/head.jspf" %>
 </head>
 <body>
-<jsp:include page="jspf/header.jspf"/>
+<%@include file="/jsp/jspf/header.jspf" %>
 
 <h1 align="center">Welcome!</h1>
-<h2>Show courses</h2>
+
 <form action="<c:url value="/controller"/>" method="get">
     <input type="hidden" name="command" value="show_courses">
-    <input type="submit" value="Find course users">
     <input type="text" placeholder="Course name" name="course_name">
+    <input type="submit" class="block" value="Find courses">
 </form>
 
 <jsp:include page="jspf/footer.jspf"/>

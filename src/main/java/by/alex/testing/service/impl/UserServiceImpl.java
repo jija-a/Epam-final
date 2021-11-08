@@ -5,9 +5,9 @@ import by.alex.testing.dao.UserDao;
 import by.alex.testing.dao.mysql.UserDaoImpl;
 import by.alex.testing.dao.pool.ConnectionPool;
 import by.alex.testing.domain.User;
+import by.alex.testing.service.HashService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.UserService;
-import com.lambdaworks.crypto.SCryptUtil;
 
 import java.sql.Connection;
 import java.util.List;
@@ -18,28 +18,22 @@ public class UserServiceImpl implements UserService {
     public User findUserByLogin(String login) throws ServiceException {
         Connection connection = ConnectionPool.getInstance().getConnection();
         UserDao userDao = new UserDaoImpl(connection);
-        User user = null;
-
         try {
-            user = userDao.readByLogin(login);
+            return userDao.readByLogin(login);
         } catch (DaoException e) {
             throw new ServiceException("Exception in DAO layer: ", e);
         }
-
-        return user;
     }
 
     @Override
     public List<User> readAllUsers() throws ServiceException {
         Connection connection = ConnectionPool.getInstance().getConnection();
         UserDao userDao = new UserDaoImpl(connection);
-        List<User> users;
         try {
-            users = userDao.readAll();
+            return userDao.readAll();
         } catch (DaoException e) {
             throw new ServiceException("Exception in DAO layer: ", e);
         }
-        return users;
     }
 
     @Override
@@ -70,8 +64,7 @@ public class UserServiceImpl implements UserService {
         UserDao userDao = new UserDaoImpl(connection);
         try {
             char[] password = user.getPassword();
-            String hashedPsw =
-                    SCryptUtil.scrypt(String.valueOf(password), 16, 16, 16);
+            String hashedPsw = HashService.hash(password);
             user.setPassword(hashedPsw.toCharArray());
             userDao.create(user);
         } catch (DaoException e) {
@@ -87,7 +80,7 @@ public class UserServiceImpl implements UserService {
         try {
             User userByLogin = userDao.readByLogin(login);
             if (userByLogin != null &&
-                    SCryptUtil.check(password, String.valueOf(userByLogin.getPassword()))) {
+                    HashService.check(password, userByLogin.getPassword()) ) {
                 user = userByLogin;
             }
             return user;

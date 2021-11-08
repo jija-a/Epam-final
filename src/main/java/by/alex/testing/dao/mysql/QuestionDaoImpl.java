@@ -2,7 +2,8 @@ package by.alex.testing.dao.mysql;
 
 import by.alex.testing.dao.DaoException;
 import by.alex.testing.dao.QuestionDao;
-import by.alex.testing.domain.*;
+import by.alex.testing.domain.Question;
+import by.alex.testing.domain.QuestionType;
 
 import java.sql.*;
 import java.util.ArrayList;

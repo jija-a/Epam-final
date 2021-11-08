@@ -1,29 +1,25 @@
-package by.alex.testing.controller.command.impl;
+package by.alex.testing.controller.command.impl.direct;
 
 import by.alex.testing.controller.PageConstant;
 import by.alex.testing.controller.RequestConstant;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.controller.resolver.ViewResolver;
 import by.alex.testing.domain.Course;
-import by.alex.testing.domain.User;
+import by.alex.testing.domain.CourseCategory;
 import by.alex.testing.service.CourseService;
-import by.alex.testing.service.CourseUserService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.impl.CourseServiceImpl;
-import by.alex.testing.service.impl.CourseUserServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
-public class ShowCourseUsers implements Command {
+public class ToUpdateCourseInfoPageCommand implements Command {
 
-    private final CourseUserService courseUserService;
-    private final CourseService courseService;
+    private final CourseService service;
 
-    public ShowCourseUsers() {
-        this.courseUserService = new CourseUserServiceImpl();
-        this.courseService = new CourseServiceImpl();
+    public ToUpdateCourseInfoPageCommand() {
+        this.service = new CourseServiceImpl();
     }
 
     @Override
@@ -33,11 +29,11 @@ public class ShowCourseUsers implements Command {
 
         String courseId = req.getParameter(RequestConstant.COURSE_ID);
 
-        Course course = courseService.readCourseById(Long.parseLong(courseId));
-        List<User> users = courseUserService.readUsersByCourseId(Long.parseLong(courseId));
+        Course course = service.readCourseById(Long.parseLong(courseId));
+        List<CourseCategory> categories = service.readAllCourseCategories();
 
         req.setAttribute(RequestConstant.COURSE, course);
-        req.setAttribute(RequestConstant.USERS, users);
-        return new ViewResolver(PageConstant.COURSE_USERS);
+        req.setAttribute(RequestConstant.COURSE_CATEGORIES, categories);
+        return new ViewResolver(PageConstant.UPDATE_COURSE);
     }
 }

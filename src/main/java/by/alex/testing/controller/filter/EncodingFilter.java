@@ -8,7 +8,6 @@ public class EncodingFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        // TODO document why this method is empty
     }
 
     @Override
@@ -30,6 +29,5 @@ public class EncodingFilter implements Filter {
 
     @Override
     public void destroy() {
-        // TODO document why this method is empty
     }
 }

@@ -14,8 +14,10 @@
             background-color: aquamarine;
         }
     </style>
+    <%@include file="/jsp/jspf/head.jspf" %>
 </head>
 <body>
+<%@include file="/jsp/jspf/header.jspf" %>
 
 <table width="80%" align="center">
     <tr>
@@ -44,6 +46,16 @@
                     <input type="hidden" name="command" value="show_course_tests">
                     <input type="hidden" name="course_id" value="${course.id}">
                     <input type="submit" value="Find course tests">
+                </form>
+                <form action="<c:url value="/controller"/>" method="get">
+                    <input type="hidden" name="command" value="sign_on_course">
+                    <input type="hidden" name="course_id" value="${course.id}">
+                    <input type="submit" value="Sign on course">
+                </form>
+                <form action="<c:url value="/controller"/>" method="get">
+                    <input type="hidden" name="command" value="to_update_course_info_page">
+                    <input type="hidden" name="course_id" value="${course.id}">
+                    <input type="submit" value="Update course">
                 </form>
             </td>
         </tr>

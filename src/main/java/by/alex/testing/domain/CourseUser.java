@@ -13,4 +13,5 @@ public class CourseUser{
 
     private final Course course;
     private final User user;
+    private UserCourseStatus status;
 }

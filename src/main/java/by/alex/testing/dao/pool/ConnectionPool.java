@@ -84,8 +84,9 @@ public class ConnectionPool {
         if (connection instanceof ProxyConnection) {
             ProxyConnection con = (ProxyConnection) connection;
             connections.add(con);
+        } else {
+            LOGGER.warn("Can't return connection, possible connection leaking");
         }
-        LOGGER.warn("Can't return connection, possible connection leaking");
     }
 
     public void destroyPool() {

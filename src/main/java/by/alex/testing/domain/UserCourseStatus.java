@@ -3,7 +3,7 @@ package by.alex.testing.domain;
 import java.io.Serializable;
 
 public enum UserCourseStatus implements Cloneable, Serializable {
-    AWAIT(0),
+    REQUESTED(0),
     ON_COURSE(1),
     FINISHED(2);
 
@@ -17,7 +17,7 @@ public enum UserCourseStatus implements Cloneable, Serializable {
         return this.id;
     }
 
-    public static UserCourseStatus resolveRoleById(int id) {
+    public static UserCourseStatus resolveStatusById(int id) {
         for (UserCourseStatus status : values()) {
             if (status.id == id) {
                 return status;

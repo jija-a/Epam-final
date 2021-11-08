@@ -3,8 +3,8 @@ package by.alex.testing.controller.command.impl;
 import by.alex.testing.controller.PageConstant;
 import by.alex.testing.controller.RequestConstant;
 import by.alex.testing.controller.command.Command;
+import by.alex.testing.controller.resolver.ViewResolver;
 import by.alex.testing.domain.Course;
-import by.alex.testing.domain.Quiz;
 import by.alex.testing.service.CourseService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.impl.CourseServiceImpl;
@@ -22,14 +22,14 @@ public class ShowCourses implements Command {
     }
 
     @Override
-    public String execute(HttpServletRequest req,
-                          HttpServletResponse resp)
+    public ViewResolver execute(HttpServletRequest req,
+                                HttpServletResponse resp)
             throws ServiceException {
 
         String courseTitle = req.getParameter(RequestConstant.COURSE_TITLE);
 
         List<Course> courses = service.readCourseByTitle(courseTitle);
         req.setAttribute(RequestConstant.COURSES, courses);
-        return PageConstant.COURSES;
+        return new ViewResolver(PageConstant.COURSES);
     }
 }

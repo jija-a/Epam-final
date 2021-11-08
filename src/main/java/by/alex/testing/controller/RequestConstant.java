@@ -7,6 +7,8 @@ public class RequestConstant {
     public static final String COURSE = "course";
     public static final String USER_ID = "user_id";
     public static final String TEST_ID = "test_id";
+    public static final String COURSE_CATEGORY_ID = "course_category_id";
+    public static final String COURSE_CATEGORIES = "course_categories";
 
     private RequestConstant() {
     }

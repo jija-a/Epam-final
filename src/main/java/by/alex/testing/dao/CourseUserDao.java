@@ -13,4 +13,6 @@ public interface CourseUserDao {
     void addUserToCourse(CourseUser courseUser) throws DaoException;
 
     void updateCourseUser(CourseUser courseUser) throws DaoException;
+
+    List<CourseUser> readAllUserCourses(Long userId) throws DaoException;
 }

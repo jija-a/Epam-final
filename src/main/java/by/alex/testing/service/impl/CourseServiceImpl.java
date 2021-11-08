@@ -8,6 +8,7 @@ import by.alex.testing.service.CourseService;
 import by.alex.testing.service.ServiceException;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CourseServiceImpl implements CourseService {
@@ -15,6 +16,7 @@ public class CourseServiceImpl implements CourseService {
     private CourseDao courseDao;
     private UserDao userDao;
     private CourseCategoryDao courseCategoryDao;
+    private CourseUserDao courseUserDao;
 
     public CourseServiceImpl() {
         // TODO document why this constructor is empty
@@ -29,25 +31,9 @@ public class CourseServiceImpl implements CourseService {
         try {
             List<Course> courses = courseDao.readCourseByTitle(title);
             for (Course course : courses) {
-                User user = userDao.readById(course.getOwner().getId());
-                CourseCategory category = courseCategoryDao.readById(course.getCategory().getId());
-                course.setOwner(user);
-                course.setCategory(category);
+                this.setCourseLinks(course);
             }
             return courses;
-        } catch (DaoException e) {
-            throw new ServiceException("DAO layer provided exception: ", e);
-        } finally {
-            ConnectionPool.getInstance().releaseConnection(connection);
-        }
-    }
-
-    @Override
-    public List<User> readUsersByCourseId(Long id) throws ServiceException {
-        Connection connection = ConnectionPool.getInstance().getConnection();
-        userDao = new UserDaoImpl(connection);
-        try {
-            return userDao.readByCourseId(id);
         } catch (DaoException e) {
             throw new ServiceException("DAO layer provided exception: ", e);
         } finally {
@@ -84,23 +70,6 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public void removeUserFromCourse(long userId, long courseId) throws ServiceException {
-        Connection connection = ConnectionPool.getInstance().getConnection();
-        CourseUserDao courseUserDao = new CourseUserDaoImpl(connection);
-        try {
-            CourseUser courseUser = new CourseUser(
-                    Course.builder().id(courseId).build(),
-                    User.builder().id(userId).build()
-            );
-            courseUserDao.removeUserFromCourse(courseUser);
-        } catch (DaoException e) {
-            throw new ServiceException("DAO layer provided exception: ", e);
-        } finally {
-            ConnectionPool.getInstance().releaseConnection(connection);
-        }
-    }
-
-    @Override
     public Course readCourseById(long courseId) throws ServiceException {
         Connection connection = ConnectionPool.getInstance().getConnection();
         userDao = new UserDaoImpl(connection);
@@ -108,10 +77,7 @@ public class CourseServiceImpl implements CourseService {
         courseCategoryDao = new CourseCategoryDaoImpl(connection);
         try {
             Course course = courseDao.readById(courseId);
-            User user = userDao.readById(course.getOwner().getId());
-            CourseCategory category = courseCategoryDao.readById(course.getCategory().getId());
-            course.setOwner(user);
-            course.setCategory(category);
+            this.setCourseLinks(course);
             return course;
         } catch (DaoException e) {
             throw new ServiceException("DAO layer provided exception: ", e);
@@ -120,4 +86,59 @@ public class CourseServiceImpl implements CourseService {
         }
     }
 
+    private void setCourseLinks(Course course) throws DaoException {
+        User user = userDao.readById(course.getOwner().getId());
+        CourseCategory category = courseCategoryDao.readById(course.getCategory().getId());
+        course.setOwner(user);
+        course.setCategory(category);
+    }
+
+    @Override
+    public void updateCourseInfo(Course course) throws ServiceException {
+        Connection connection = ConnectionPool.getInstance().getConnection();
+        courseDao = new CourseDaoImpl(connection);
+        try {
+            courseDao.update(course);
+        } catch (DaoException e) {
+            throw new ServiceException("DAO layer provided exception: ", e);
+        } finally {
+            ConnectionPool.getInstance().releaseConnection(connection);
+        }
+    }
+
+    @Override
+    public List<CourseCategory> readAllCourseCategories() throws ServiceException {
+        Connection connection = ConnectionPool.getInstance().getConnection();
+        courseCategoryDao = new CourseCategoryDaoImpl(connection);
+        try {
+            return courseCategoryDao.readAll();
+        } catch (DaoException e) {
+            throw new ServiceException("DAO layer provided exception: ", e);
+        } finally {
+            ConnectionPool.getInstance().releaseConnection(connection);
+        }
+    }
+
+    @Override
+    public List<Course> readUserCourses(Long userId) throws ServiceException {
+        Connection connection = ConnectionPool.getInstance().getConnection();
+        userDao = new UserDaoImpl(connection);
+        courseDao = new CourseDaoImpl(connection);
+        courseCategoryDao = new CourseCategoryDaoImpl(connection);
+        courseUserDao = new CourseUserDaoImpl(connection);
+        try {
+            List<Course> courses = new ArrayList<>();
+            List<CourseUser> userCourses = courseUserDao.readAllUserCourses(userId);
+            for (CourseUser courseUser : userCourses) {
+                Course course = courseDao.readById(courseUser.getCourse().getId());
+                this.setCourseLinks(course);
+                courses.add(course);
+            }
+            return courses;
+        } catch (DaoException e) {
+            throw new ServiceException("DAO layer provided exception: ", e);
+        } finally {
+            ConnectionPool.getInstance().releaseConnection(connection);
+        }
+    }
 }

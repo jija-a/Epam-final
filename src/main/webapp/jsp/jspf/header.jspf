@@ -1,0 +1,20 @@
+<div class="topnav">
+    <a class="active" href="<c:url value="/controller?command=to_home_page"/>">Home</a>
+
+    <c:if test="${user != null}">
+        <a href="<c:url value="/controller?command=show_user_courses"/>">My courses</a>
+        <a href="<c:url value="/controller?command=show_available_tests"/>">Available tests</a>
+        <a href="<c:url value="/controller?command=show_user_results"/>">My results</a>
+    </c:if>
+
+    <c:choose>
+        <c:when test="${user == null}">
+            <a href="<c:url value="/controller?command=to_register_page"/>">Sign Up</a>
+            <a href="<c:url value="/controller?command=to_login_page"/>">Sign In</a>
+        </c:when>
+        <c:otherwise>
+            <a href="<c:url value="/controller?command=logout"/>">Logout</a>
+        </c:otherwise>
+    </c:choose>
+</div>
+
