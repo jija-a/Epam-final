@@ -1,6 +1,6 @@
 package by.alex.testing.controller.command;
 
-import by.alex.testing.controller.resolver.ViewResolver;
+import by.alex.testing.controller.ViewResolver;
 import by.alex.testing.service.ServiceException;
 
 import javax.servlet.http.HttpServletRequest;

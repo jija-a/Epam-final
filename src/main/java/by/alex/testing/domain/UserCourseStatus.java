@@ -3,18 +3,24 @@ package by.alex.testing.domain;
 import java.io.Serializable;
 
 public enum UserCourseStatus implements Cloneable, Serializable {
-    REQUESTED(0),
-    ON_COURSE(1),
-    FINISHED(2);
+    REQUESTED(0, "Requested"),
+    ON_COURSE(1, "On course"),
+    FINISHED(2, "Finished");
 
     private final int id;
+    private final String name;
 
-    UserCourseStatus(int id) {
+    UserCourseStatus(int id, String name) {
         this.id = id;
+        this.name = name;
     }
 
-    public int getId(){
+    public int getId() {
         return this.id;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     public static UserCourseStatus resolveStatusById(int id) {

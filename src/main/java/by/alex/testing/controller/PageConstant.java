@@ -4,6 +4,8 @@ public class PageConstant {
 
 
     public static final String USER_COURSES = "/jsp/student/user-courses.jsp";
+    public static final String USER_RESULTS = "/jsp/student/user-results.jsp";
+    public static final String INDEX = "/index.jsp";
 
     private PageConstant(){
     }

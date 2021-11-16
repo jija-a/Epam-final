@@ -1,7 +1,8 @@
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<jsp:useBean id="tests" scope="request" type="java.util.List"/>
-<jsp:useBean id="course" scope="request" type="by.alex.testing.domain.Course"/>
+<fmt:setLocale value="${locale}"/>
+<fmt:setBundle basename="page_content"/>
 <html>
 <head>
     <title>Testing | Course tests</title>
@@ -43,7 +44,7 @@
                 <td>${test.timeToAnswer}</td>
                 <td>${test.maxScore}</td>
                 <td>
-                    <form action="<c:url value="/controller"/>" method="post">
+                    <form action="${pageContext.request.contextPath}/controller" method="post">
                         <input type="hidden" name="command" value="remove_test_from_course">
                         <input type="hidden" name="test_id" value="${test.id}">
                         <input style="display: block; margin: auto;" type="submit" value="Remove from course">
@@ -56,7 +57,7 @@
 <c:if test="${empty tests}">
     <h1 align="center">There is no tests on "${course.name}"</h1>
     <c:if test="${sessionScope.user.role.id == 1}">
-    <form action="<c:url value="/controller"/>" method="get">
+    <form action="${pageContext.request.contextPath}/controller" method="get">
         <input type="hidden" name="command" value="to_create_test_page">
         <input type="hidden" name="courseId" value="${course.id}">
         <input type="submit" value="Create test">

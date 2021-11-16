@@ -13,13 +13,18 @@ import java.util.List;
 
 public class CourseServiceImpl implements CourseService {
 
+    private static final CourseService instance = new CourseServiceImpl();
+
+    public static CourseService getInstance(){
+        return instance;
+    }
+
     private CourseDao courseDao;
     private UserDao userDao;
     private CourseCategoryDao courseCategoryDao;
     private CourseUserDao courseUserDao;
 
-    public CourseServiceImpl() {
-        // TODO document why this constructor is empty
+    private CourseServiceImpl() {
     }
 
     @Override
@@ -134,6 +139,22 @@ public class CourseServiceImpl implements CourseService {
                 this.setCourseLinks(course);
                 courses.add(course);
             }
+            return courses;
+        } catch (DaoException e) {
+            throw new ServiceException("DAO layer provided exception: ", e);
+        } finally {
+            ConnectionPool.getInstance().releaseConnection(connection);
+        }
+    }
+
+    @Override
+    public List<Course> readTeacherCourses(Long userId) throws ServiceException {
+        Connection connection = ConnectionPool.getInstance().getConnection();
+        userDao = new UserDaoImpl(connection);
+        courseDao = new CourseDaoImpl(connection);
+        courseCategoryDao = new CourseCategoryDaoImpl(connection);
+        try {
+            List<Course> courses = courseDao.readByOwnerId(userId);
             return courses;
         } catch (DaoException e) {
             throw new ServiceException("DAO layer provided exception: ", e);

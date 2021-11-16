@@ -7,4 +7,6 @@ import java.util.List;
 public interface CourseDao extends Dao<Course, Long> {
 
     List<Course> readCourseByTitle(String title) throws DaoException;
+
+    List<Course> readByOwnerId(Long userId) throws DaoException;
 }

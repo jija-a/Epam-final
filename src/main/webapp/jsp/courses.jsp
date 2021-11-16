@@ -1,66 +1,55 @@
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<fmt:setLocale value="${locale}"/>
+<fmt:setBundle basename="page_content"/>
 <html>
 <head>
     <title>Testing | Courses</title>
-    <style type="text/css">
-        table, td, tr {
-            border: 1px dashed black;
-            margin: 0 auto;
-            text-align: center;
-        }
-
-        .tHead {
-            background-color: aquamarine;
-        }
-    </style>
     <%@include file="/jsp/jspf/head.jspf" %>
 </head>
 <body>
 <%@include file="/jsp/jspf/header.jspf" %>
 
-<table width="80%" align="center">
-    <tr>
-        <td class="tHead"><strong>Id</strong></td>
-        <td class="tHead"><strong>Title</strong></td>
-        <td class="tHead"><strong>Owner name</strong></td>
-        <td class="tHead"><strong>Owner lastname</strong></td>
-        <td class="tHead"><strong>Category</strong></td>
-        <td class="tHead"><strong>Action</strong></td>
-    </tr>
-    <jsp:useBean id="courses" scope="request" type="java.util.List"/>
-    <c:forEach items="${courses}" var="course">
-        <tr>
-            <td>${course.id}</td>
-            <td>${course.name}</td>
-            <td>${course.owner.firstName}</td>
-            <td>${course.owner.lastName}</td>
-            <td>${course.category.name}</td>
-            <td>
-                <form action="<c:url value="/controller"/>" method="get">
-                    <input type="hidden" name="command" value="show_course_users">
-                    <input type="hidden" name="course_id" value="${course.id}">
-                    <input type="submit" value="Find course users">
-                </form>
-                <form action="<c:url value="/controller"/>" method="get">
-                    <input type="hidden" name="command" value="show_course_tests">
-                    <input type="hidden" name="course_id" value="${course.id}">
-                    <input type="submit" value="Find course tests">
-                </form>
-                <form action="<c:url value="/controller"/>" method="get">
-                    <input type="hidden" name="command" value="sign_on_course">
-                    <input type="hidden" name="course_id" value="${course.id}">
-                    <input type="submit" value="Sign on course">
-                </form>
-                <form action="<c:url value="/controller"/>" method="get">
-                    <input type="hidden" name="command" value="to_update_course_info_page">
-                    <input type="hidden" name="course_id" value="${course.id}">
-                    <input type="submit" value="Update course">
-                </form>
-            </td>
-        </tr>
-    </c:forEach>
-</table>
+<c:if test="${not empty courses}">
+    <div class="container" style="padding-top: 60px">
+        <h1 class="text-center">Courses</h1>
+        <c:if test="${not empty message}">
+            <h3 class="text-center text-success">${message}</h3>
+        </c:if>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Title</th>
+                <th scope="col">Owner</th>
+                <th scope="col">Category</th>
+                <th scope="col">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <c:forEach items="${courses}" var="course">
+                <tr>
+                    <td>${course.id}</td>
+                    <td>${course.name}</td>
+                    <td>${course.owner.firstName} ${course.owner.lastName}</td>
+                    <td>${course.category.name}</td>
+                    <td><a href="<c:url value="/controller?command=to_course&course_id=${course.id}"/>"
+                           class="btn btn-primary ">To course</a></td>
+                    <c:if test="${user.role.id == 2}">
+                        <a href="<c:url value="/controller?command=to_course&course_id=${course.id}"/>"
+                           class="btn btn-success">Apply</a>
+                    </c:if>
+                </tr>
+            </c:forEach>
+            </tbody>
+        </table>
+    </div>
+</c:if>
+
+<c:if test="${empty courses}">
+    <h1 align="center">Courses not found</h1>
+</c:if>
 
 </body>
 </html>

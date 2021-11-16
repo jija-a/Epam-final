@@ -21,6 +21,9 @@ public class CourseDaoImpl implements CourseDao {
     private static final String SQL_SELECT_BY_ID =
             "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`id` = ?;";
 
+    private static final String SQL_SELECT_BY_OWNER_ID =
+            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`user_id` = ?;";
+
     private static final String SQL_CREATE =
             "INSERT INTO `course`(`name`, `user_id`, `course_category_id`) VALUES (?, ?, ?);";
 
@@ -63,6 +66,22 @@ public class CourseDaoImpl implements CourseDao {
             }
         } catch (SQLException e) {
             throw new DaoException("Exception while reading courses by title: ", e);
+        }
+        return courses;
+    }
+
+    @Override
+    public List<Course> readByOwnerId(Long userId) throws DaoException {
+        List<Course> courses = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_OWNER_ID)) {
+            ps.setLong(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Course course = this.mapToEntity(rs);
+                courses.add(course);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while reading courses by owner id: ", e);
         }
         return courses;
     }

@@ -1,4 +1,4 @@
-package by.alex.testing.controller.resolver;
+package by.alex.testing.controller;
 
 public class ViewResolver {
     public enum ResolveAction {

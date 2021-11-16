@@ -21,6 +21,9 @@ public class TestResultDaoImpl implements TestResultDao {
     private static final String SQL_SELECT_BY_ID =
             "SELECT `test_result`.`id`, `test_result`.`test_id`, `test_result`.`user_id`, `test_result`.`percent`, `test_result`.`test_started`, `test_result`.`test_ended` FROM `test_result` WHERE `test_result`.`id` = ?";
 
+    private static final String SQL_SELECT_BY_USER_ID =
+            "SELECT `test_result`.`id`, `test_result`.`test_id`, `test_result`.`user_id`, `test_result`.`percent`, `test_result`.`test_started`, `test_result`.`test_ended` FROM `test_result` WHERE `test_result`.`user_id` = ?";
+
     private static final String SQL_CREATE =
             "INSERT INTO `test_result`(test_id, user_id, percent, test_started, test_ended) VALUES (?, ?, ?, ?, ?);";
 
@@ -42,6 +45,22 @@ public class TestResultDaoImpl implements TestResultDao {
     public List<TestResult> readAllByTestId(long testId) throws DaoException {
         List<TestResult> testResults = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_TEST_ID)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                TestResult testResult = this.mapToEntity(rs);
+                testResults.add(testResult);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while reading test results by test id: ", e);
+        }
+        return testResults;
+    }
+
+    @Override
+    public List<TestResult> readAllByUserId(long userId) throws DaoException {
+        List<TestResult> testResults = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_USER_ID)) {
+            ps.setLong(1, userId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 TestResult testResult = this.mapToEntity(rs);
@@ -94,20 +113,20 @@ public class TestResultDaoImpl implements TestResultDao {
     private TestResult mapToEntity(ResultSet rs) throws SQLException {
         return TestResult.builder()
                 .id(rs.getLong("test_result.id"))
-                .quiz(Quiz.builder()
+                .test(Quiz.builder()
                         .id(rs.getLong("test_result.test_id"))
                         .build())
                 .user(User.builder()
                         .id(rs.getLong("test_result.user_id"))
                         .build())
                 .percent(rs.getDouble("test_result.percent"))
-                .testStarted(rs.getDate("test_result.test_started"))
-                .testEnded(rs.getDate("test_result.test_ended"))
+                .testStarted(rs.getTimestamp("test_result.test_started").toLocalDateTime())
+                .testEnded(rs.getTimestamp("test_result.test_ended").toLocalDateTime())
                 .build();
     }
 
     private void mapFromEntity(PreparedStatement ps, TestResult result) throws SQLException {
-        ps.setLong(1, result.getQuiz().getId());
+        ps.setLong(1, result.getTest().getId());
         ps.setLong(2, result.getUser().getId());
         ps.setDouble(3, result.getPercent());
         ps.setObject(4, result.getTestStarted());

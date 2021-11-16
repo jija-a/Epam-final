@@ -1,8 +1,8 @@
 package by.alex.testing.controller.command.impl.direct;
 
 import by.alex.testing.controller.PageConstant;
+import by.alex.testing.controller.ViewResolver;
 import by.alex.testing.controller.command.Command;
-import by.alex.testing.controller.resolver.ViewResolver;
 import by.alex.testing.service.ServiceException;
 
 import javax.servlet.http.HttpServletRequest;

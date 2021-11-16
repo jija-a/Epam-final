@@ -56,6 +56,7 @@ public class ConnectionPool {
         for (int i = 0; i < config.getPoolSize(); i++) {
             try {
                 connections.add(this.createConnection());
+                LOGGER.info("Connection {} added", i + 1);
             } catch (SQLException e) {
                 throw new InitializingError("Database connection failed: ", e);
             }
@@ -65,7 +66,7 @@ public class ConnectionPool {
     private ProxyConnection createConnection() throws SQLException {
         Connection connection = DriverManager.getConnection(
                 config.getUrl() + config.getDbName(), config.getUser(), config.getPassword());
-        LOGGER.trace("Connection created");
+        LOGGER.info("Connection created");
         return new ProxyConnection(connection);
     }
 

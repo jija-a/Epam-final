@@ -1,24 +1,23 @@
 package by.alex.testing.controller.command.impl;
 
-import by.alex.testing.controller.PageConstant;
-import by.alex.testing.controller.RequestConstant;
+import by.alex.testing.controller.*;
 import by.alex.testing.controller.command.Command;
-import by.alex.testing.controller.resolver.ViewResolver;
 import by.alex.testing.domain.User;
 import by.alex.testing.domain.UserRole;
 import by.alex.testing.service.ServiceException;
+import by.alex.testing.service.ServiceFactory;
 import by.alex.testing.service.UserService;
-import by.alex.testing.service.impl.UserServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 public class RegisterCommand implements Command {
 
-    private final UserService service;
+    private final UserService userService;
 
     public RegisterCommand() {
-        this.service = new UserServiceImpl();
+        this.userService = ServiceFactory.getInstance().getUserService();
     }
 
     @Override
@@ -26,25 +25,39 @@ public class RegisterCommand implements Command {
                                 HttpServletResponse resp)
             throws ServiceException {
 
+        ViewResolver resolver;
         String login = req.getParameter(RequestConstant.LOGIN);
-        User existing = service.findUserByLogin(login);
+        String password = req.getParameter(RequestConstant.PASSWORD);
+        String confPassword = req.getParameter(RequestConstant.CONFIRM_PASSWORD);
+        if (!password.equals(confPassword)){
+            req.setAttribute(RequestConstant.ERROR,
+                    MessageManager.INSTANCE.getMessage(MessageConstant.PASSWORD_NOT_MATCHES));
+            return new ViewResolver(PageConstant.SIGN_UP_PAGE);
+        }
+        User existing = userService.findUserByLogin(login);
 
         if (existing == null) {
-            String password = req.getParameter(RequestConstant.PASSWORD);
             String firstName = req.getParameter(RequestConstant.FIRST_NAME);
             String lastName = req.getParameter(RequestConstant.LAST_NAME);
             int roleId = Integer.parseInt(req.getParameter(RequestConstant.USER_ROLE));
             UserRole role = UserRole.resolveRoleById(roleId);
-            System.out.println(role.toString());
+
             User user = new User(login, firstName, lastName, password.toCharArray(), role);
 
-            service.register(user);
-            req.getSession(false).setAttribute(RequestConstant.USER, user);
+            List<String> errors = userService.register(user);
+            if (errors.isEmpty()) {
+                req.getSession(false).setAttribute(RequestConstant.USER, user);
+                resolver = new ViewResolver(PageConstant.HOME_PAGE, ViewResolver.ResolveAction.REDIRECT);
+            } else {
+                req.setAttribute(RequestConstant.ERRORS, errors);
+                resolver = new ViewResolver(PageConstant.SIGN_UP_PAGE);
+            }
         } else {
-            req.setAttribute(RequestConstant.ERROR, "Login is taken");
-            return new ViewResolver(PageConstant.SIGN_UP_PAGE);
+            req.setAttribute(RequestConstant.ERROR,
+                    MessageManager.INSTANCE.getMessage(MessageConstant.LOGIN_TAKEN));
+            resolver = new ViewResolver(PageConstant.SIGN_UP_PAGE);
         }
 
-        return new ViewResolver(PageConstant.HOME_PAGE, ViewResolver.ResolveAction.REDIRECT);
+        return resolver;
     }
 }

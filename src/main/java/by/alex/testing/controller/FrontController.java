@@ -1,8 +1,7 @@
 package by.alex.testing.controller;
 
 import by.alex.testing.controller.command.Command;
-import by.alex.testing.controller.command.CommandFactory;
-import by.alex.testing.controller.resolver.ViewResolver;
+import by.alex.testing.controller.command.CommandProvider;
 import by.alex.testing.service.ServiceException;
 import com.mysql.cj.util.StringUtils;
 import org.slf4j.Logger;
@@ -47,7 +46,7 @@ public class FrontController extends HttpServlet {
         }
 
         try {
-            Command command = CommandFactory.resolveCommand(commandName);
+            Command command = CommandProvider.resolveCommand(commandName);
             ViewResolver resolver = command.execute(req, resp);
             this.dispatch(req, resp, resolver);
         } catch (ServiceException e) {

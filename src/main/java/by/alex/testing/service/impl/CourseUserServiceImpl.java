@@ -13,14 +13,20 @@ import java.util.List;
 
 public class CourseUserServiceImpl implements CourseUserService {
 
+    private static final CourseUserService instance = new CourseUserServiceImpl();
+
     private CourseDao courseDao;
     private UserDao userDao;
     private CourseCategoryDao courseCategoryDao;
     private CourseUserDao courseUserDao;
 
-    public CourseUserServiceImpl() {
-        // TODO document why this constructor is empty
+    private CourseUserServiceImpl() {
     }
+
+    public static CourseUserService getInstance() {
+        return instance;
+    }
+
     @Override
     public List<User> readUsersByCourseId(Long id) throws ServiceException {
         Connection connection = ConnectionPool.getInstance().getConnection();

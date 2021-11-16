@@ -2,15 +2,14 @@ package by.alex.testing.controller.command.impl;
 
 import by.alex.testing.controller.PageConstant;
 import by.alex.testing.controller.RequestConstant;
+import by.alex.testing.controller.ViewResolver;
 import by.alex.testing.controller.command.Command;
-import by.alex.testing.controller.resolver.ViewResolver;
 import by.alex.testing.domain.Course;
 import by.alex.testing.domain.User;
 import by.alex.testing.service.CourseService;
 import by.alex.testing.service.CourseUserService;
 import by.alex.testing.service.ServiceException;
-import by.alex.testing.service.impl.CourseServiceImpl;
-import by.alex.testing.service.impl.CourseUserServiceImpl;
+import by.alex.testing.service.ServiceFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,8 +21,9 @@ public class ShowCourseUsers implements Command {
     private final CourseService courseService;
 
     public ShowCourseUsers() {
-        this.courseUserService = new CourseUserServiceImpl();
-        this.courseService = new CourseServiceImpl();
+        this.courseUserService =
+                ServiceFactory.getInstance().getCourseUserService();
+        this.courseService = ServiceFactory.getInstance().getCourseService();
     }
 
     @Override

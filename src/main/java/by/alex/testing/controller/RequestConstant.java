@@ -9,6 +9,14 @@ public class RequestConstant {
     public static final String TEST_ID = "test_id";
     public static final String COURSE_CATEGORY_ID = "course_category_id";
     public static final String COURSE_CATEGORIES = "course_categories";
+    public static final String RESULTS = "results";
+    public static final String LOCALE = "locale";
+    public static final String LANG = "lang";
+    public static final String COOKIE_LOCALE = "cookie_locale";
+    public static final String COUNTRY = "country";
+    public static final String MESSAGE = "message";
+    public static final String ERRORS = "errors";
+    public static final String CONFIRM_PASSWORD = "conf_password";
 
     private RequestConstant() {
     }

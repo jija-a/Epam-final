@@ -2,8 +2,8 @@ package by.alex.testing.controller.command.impl;
 
 import by.alex.testing.controller.PageConstant;
 import by.alex.testing.controller.RequestConstant;
+import by.alex.testing.controller.ViewResolver;
 import by.alex.testing.controller.command.Command;
-import by.alex.testing.controller.resolver.ViewResolver;
 import by.alex.testing.service.ServiceException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +20,7 @@ public class LogoutCommand implements Command {
         HttpSession session = req.getSession(false);
         if (session != null) {
             session.removeAttribute(RequestConstant.USER);
+            session.invalidate();
         }
 
         return new ViewResolver(PageConstant.HOME_PAGE);

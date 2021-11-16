@@ -5,6 +5,7 @@ import by.alex.testing.dao.TestDao;
 import by.alex.testing.domain.Quiz;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,9 @@ public class TestDaoImpl implements TestDao {
     private static final String SQL_DELETE =
             "DELETE FROM `test` WHERE `test`.`id` = ?;";
 
+    private static final String SQL_SELECT_ALL_BY_USER_ID_SORTED_BY_DATE =
+            "SELECT `test`.`id`, `test`.`title`, `test`.`course_id`, `test`.attempts, `test`.start_date, `test`.`end_date`, `test`.`time_to_answer`, `test`.`max_score` FROM `test` join course_user cu on test.course_id = cu.course_id WHERE user_id = ? AND `test`.`end_date` < ? ORDER BY `test`.`end_date` LIMIT ?;";
+
     private final Connection connection;
 
     public TestDaoImpl(Connection connection) {
@@ -41,6 +45,24 @@ public class TestDaoImpl implements TestDao {
         List<Quiz> quizzes = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL_BY_COURSE_ID)) {
             ps.setLong(1, courseId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Quiz quiz = this.mapToEntity(rs);
+                quizzes.add(quiz);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while reading all tests by course id: ", e);
+        }
+        return quizzes;
+    }
+
+    @Override
+    public List<Quiz> readAllTestsByUserIdSortedByDate(long userId, int limit) throws DaoException {
+        List<Quiz> quizzes = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL_BY_USER_ID_SORTED_BY_DATE)) {
+            ps.setLong(1, userId);
+            ps.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setLong(3, limit);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Quiz quiz = this.mapToEntity(rs);
@@ -109,8 +131,8 @@ public class TestDaoImpl implements TestDao {
                 .title(rs.getString("test.title"))
                 .courseId(rs.getLong("test.course_id"))
                 .attempts(rs.getInt("test.attempts"))
-                .startDate(rs.getDate("test.start_date"))
-                .endDate(rs.getDate("test.end_date"))
+                .startDate(rs.getTimestamp("test.start_date").toLocalDateTime())
+                .endDate(rs.getTimestamp("test.end_date").toLocalDateTime())
                 .timeToAnswer(rs.getInt("test.time_to_answer"))
                 .maxScore(rs.getInt("test.max_score"))
                 .build();

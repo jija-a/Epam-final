@@ -21,4 +21,6 @@ public interface CourseService {
     List<CourseCategory> readAllCourseCategories() throws ServiceException;
 
     List<Course> readUserCourses(Long userId) throws ServiceException;
+
+    List<Course> readTeacherCourses(Long userId) throws ServiceException;
 }

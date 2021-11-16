@@ -3,6 +3,7 @@ package by.alex.testing.domain;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Map;
 
@@ -15,9 +16,10 @@ import java.util.Map;
 public class TestResult extends Entity {
 
     private User user;
-    private Quiz quiz;
+    private Quiz test;
     private Map<Answer, Boolean> answers;
     private Double percent;
-    private Date testStarted;
-    private Date testEnded;
+    private LocalDateTime testStarted;
+    private LocalDateTime testEnded;
+    private Long score;
 }

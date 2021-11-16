@@ -33,9 +33,7 @@ public class TestDaoImplTest {
     @Test
     public void testCreateSuccess() throws DaoException, ParseException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        Quiz expected = new Quiz("title", new ArrayList<>(), 1,
-                (df.parse("2021-10-27 08:00:00")), df.parse("2021-10-30 08:00:00"),
-                600, 10, 4L);
+        Quiz expected = null;
         testDao.create(expected);
         Assert.assertNotNull(expected.getId());
     }
