@@ -3,7 +3,8 @@ package by.alex.testing.domain;
 public enum UserRole {
     ADMIN(0, "admin"),
     TEACHER(1, "teacher"),
-    STUDENT(2, "student");
+    STUDENT(2, "student"),
+    GUEST(3, "guest");
 
     private final int id;
     private final String name;

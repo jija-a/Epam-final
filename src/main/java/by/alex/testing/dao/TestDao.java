@@ -4,7 +4,7 @@ import by.alex.testing.domain.Quiz;
 
 import java.util.List;
 
-public interface TestDao extends Dao<Quiz, Long> {
+public interface TestDao {
 
     List<Quiz> readAllTestsByCourseId(long id) throws DaoException;
 

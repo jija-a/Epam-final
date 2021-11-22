@@ -2,5 +2,14 @@ package by.alex.testing.dao;
 
 import by.alex.testing.domain.CourseCategory;
 
-public interface CourseCategoryDao extends Dao<CourseCategory, Long> {
+import java.util.List;
+
+public interface CourseCategoryDao {
+    Integer count() throws DaoException;
+
+    Integer count(String search) throws DaoException;
+
+    List<CourseCategory> readByTitle(int start, int recOnPage, String search) throws DaoException;
+
+    List<CourseCategory> readAll(int start, int recOnPage) throws DaoException;
 }

@@ -42,6 +42,10 @@ public class ProxyConnection implements Connection, Comparable<ProxyConnection> 
         ConnectionPool.getInstance().releaseConnection(this);
     }
 
+    public void reallyClose() throws SQLException {
+        this.close();
+    }
+
     @Override
     public void commit() throws SQLException {
         connection.commit();

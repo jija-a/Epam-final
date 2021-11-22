@@ -1,0 +1,12 @@
+<div class="row justify-content-md-center">
+    <div class="col col-lg-2">
+        <div class="input-group">
+            <input type="search" class="form-control rounded" placeholder="<fmt:message key="button.search"/>"
+                   value="${search}"
+                   name="search"
+                   aria-label="Search"
+                   aria-describedby="search-addon"/>
+            <button type="submit" class="btn btn-outline-primary"><fmt:message key="button.search"/></button>
+        </div>
+    </div>
+</div>

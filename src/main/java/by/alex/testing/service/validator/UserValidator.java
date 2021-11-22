@@ -16,10 +16,10 @@ public class UserValidator {
     public static List<String> validate(User user) {
         List<String> errors = new ArrayList<>();
         if (!validateLogin(user.getLogin())) {
-            errors.add(MessageManager.INSTANCE.getMessage(MessageConstant.WRONG_LOGIN));
+            errors.add(MessageManager.INSTANCE.getMessage(MessageConstant.LOGIN_PATTERN_ERROR));
         }
         if (!validatePassword(user.getPassword())) {
-            errors.add(MessageManager.INSTANCE.getMessage(MessageConstant.WRONG_PASSWORD));
+            errors.add(MessageManager.INSTANCE.getMessage(MessageConstant.PASSWORD_PATTERN_ERROR));
         }
         return errors;
     }

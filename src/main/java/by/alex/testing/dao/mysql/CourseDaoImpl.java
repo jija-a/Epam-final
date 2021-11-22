@@ -1,22 +1,29 @@
 package by.alex.testing.dao.mysql;
 
+import by.alex.testing.dao.AbstractDao;
 import by.alex.testing.dao.CourseDao;
 import by.alex.testing.dao.DaoException;
 import by.alex.testing.domain.Course;
 import by.alex.testing.domain.CourseCategory;
 import by.alex.testing.domain.User;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CourseDaoImpl implements CourseDao {
+public class CourseDaoImpl extends AbstractDao<Course, Long> implements CourseDao {
 
     private static final String SQL_SELECT_ALL =
             "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course`";
 
+    private static final String SQL_SELECT_ALL_WITH_LIMIT =
+            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` LIMIT ?, ?;";
+
     private static final String SQL_SELECT_BY_TITLE =
-            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`name` LIKE ?";
+            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`name` LIKE ? LIMIT ?, ?;";
 
     private static final String SQL_SELECT_BY_ID =
             "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`id` = ?;";
@@ -33,10 +40,13 @@ public class CourseDaoImpl implements CourseDao {
     private static final String SQL_DELETE =
             "DELETE FROM `course` WHERE `course`.`id` = ?;";
 
-    private final Connection connection;
+    private static final String SQL_COUNT_ALL =
+            "SELECT COUNT(*) FROM `course`;";
 
-    public CourseDaoImpl(Connection connection) {
-        this.connection = connection;
+    private static final String SQL_COUNT_ALL_BY_NAME =
+            "SELECT COUNT(*) FROM `course` WHERE `name` LIKE ?;";
+
+    protected CourseDaoImpl() {
     }
 
     @Override
@@ -55,10 +65,12 @@ public class CourseDaoImpl implements CourseDao {
     }
 
     @Override
-    public List<Course> readCourseByTitle(String title) throws DaoException {
+    public List<Course> readCourseByTitle(String title, int start, int recOnPage) throws DaoException {
         List<Course> courses = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_TITLE)) {
             ps.setString(1, "%" + title + "%");
+            ps.setInt(2, start);
+            ps.setInt(3, recOnPage);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Course course = this.mapToEntity(rs);
@@ -84,6 +96,52 @@ public class CourseDaoImpl implements CourseDao {
             throw new DaoException("Exception while reading courses by owner id: ", e);
         }
         return courses;
+    }
+
+    @Override
+    public List<Course> readAll(int start, int recOnPage) throws DaoException {
+        List<Course> courses = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL_WITH_LIMIT)) {
+            ps.setInt(1, start);
+            ps.setInt(2, recOnPage);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Course course = this.mapToEntity(rs);
+                courses.add(course);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while reading all courses: ", e);
+        }
+        return courses;
+    }
+
+    @Override
+    public Integer count() throws DaoException {
+        int count = 0;
+        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_ALL)) {
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while counting all courses: ", e);
+        }
+        return count;
+    }
+
+    @Override
+    public Integer count(String search) throws DaoException {
+        int count = 0;
+        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_ALL_BY_NAME)) {
+            ps.setString(1, "%" + search + "%");
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while counting all courses by search: ", e);
+        }
+        return count;
     }
 
     @Override

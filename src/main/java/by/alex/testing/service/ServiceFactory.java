@@ -1,8 +1,6 @@
 package by.alex.testing.service;
 
 import by.alex.testing.service.impl.CourseServiceImpl;
-import by.alex.testing.service.impl.CourseUserServiceImpl;
-import by.alex.testing.service.impl.TestServiceImpl;
 import by.alex.testing.service.impl.UserServiceImpl;
 
 public class ServiceFactory {
@@ -20,14 +18,15 @@ public class ServiceFactory {
         return CourseServiceImpl.getInstance();
     }
 
-    public CourseUserService getCourseUserService() {
-        return CourseUserServiceImpl.getInstance();
-    }
+    /*
+      public CourseUserService getCourseUserService() {
+          return CourseUserServiceImpl.getInstance();
+      }
 
-    public TestService getTestService() {
-        return TestServiceImpl.getInstance();
-    }
-
+      public TestService getTestService() {
+          return TestServiceImpl.getInstance();
+      }
+  */
     public UserService getUserService() {
         return UserServiceImpl.getInstance();
     }

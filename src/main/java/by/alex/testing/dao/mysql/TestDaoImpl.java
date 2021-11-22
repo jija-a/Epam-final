@@ -1,5 +1,6 @@
 package by.alex.testing.dao.mysql;
 
+import by.alex.testing.dao.AbstractDao;
 import by.alex.testing.dao.DaoException;
 import by.alex.testing.dao.TestDao;
 import by.alex.testing.domain.Quiz;
@@ -9,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestDaoImpl implements TestDao {
+public class TestDaoImpl extends AbstractDao<Quiz, Long> implements TestDao {
 
     private static final String SQL_SELECT_ALL_BY_COURSE_ID =
             "SELECT `test`.`id`, `test`.`title`, `test`.`course_id`, `test`.attempts, `test`.start_date, `test`.`end_date`, `test`.`time_to_answer`, `test`.`max_score` FROM `test` WHERE `course_id` = ?";
@@ -29,10 +30,7 @@ public class TestDaoImpl implements TestDao {
     private static final String SQL_SELECT_ALL_BY_USER_ID_SORTED_BY_DATE =
             "SELECT `test`.`id`, `test`.`title`, `test`.`course_id`, `test`.attempts, `test`.start_date, `test`.`end_date`, `test`.`time_to_answer`, `test`.`max_score` FROM `test` join course_user cu on test.course_id = cu.course_id WHERE user_id = ? AND `test`.`end_date` < ? ORDER BY `test`.`end_date` LIMIT ?;";
 
-    private final Connection connection;
-
-    public TestDaoImpl(Connection connection) {
-        this.connection = connection;
+    protected TestDaoImpl() {
     }
 
     @Override

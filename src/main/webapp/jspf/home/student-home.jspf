@@ -1,0 +1,28 @@
+<main class="flex-shrink-0">
+    <div class="container">
+        <div class="row row-striped">
+
+            <c:forEach items="${courses}" var="course">
+                <div class="col-2 text-right">
+                    <h1 class="display-4"><span class="badge badge-secondary" style="color: black;">23</span></h1>
+                    <h2>OCT</h2>
+                </div>
+
+                <div class="col-10">
+                    <h3 class="text-uppercase"><strong>Ice Cream Social</strong></h3>
+                    <ul class="list-inline">
+                        <li class="list-inline-item"><i class="fa fa-calendar-o" aria-hidden="true"></i> Monday</li>
+                        <li class="list-inline-item"><i class="fa fa-clock-o" aria-hidden="true"></i> 12:30 PM - 2:00 PM
+                        </li>
+                        <li class="list-inline-item"><i class="fa fa-location-arrow" aria-hidden="true"></i> Cafe</li>
+                    </ul>
+                    <a class="btn btn-info" href="#">View course</a>
+                    <a class="btn btn-primary" href="#">View test</a>
+                </div>
+
+                <div class="b-example-divider"></div>
+            </c:forEach>
+
+        </div>
+    </div>
+</main>

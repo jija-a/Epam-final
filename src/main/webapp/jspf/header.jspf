@@ -1,0 +1,45 @@
+<div class="container">
+    <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+
+        <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0" id="navbarNavDarkDropdown">
+            <li><a href="<c:url value="/controller?command=to_home_page"/>" class="nav-link px-2 link-dark">
+                <fmt:message key="head.title.home"/></a></li>
+            <li><a href="<c:url value="/controller?command=show_courses"/>" class="nav-link px-2 link-dark">
+                <fmt:message key="head.title.courses_list"/></a></li>
+            <c:if test="${user.role.id == 0}">
+                <li><a href="<c:url value="/controller?command=show_users"/>" class="nav-link px-2 link-dark">
+                    <fmt:message key="head.title.users_list"/></a></li>
+                <li><a href="<c:url value="/controller?command=show_course_categories"/>"
+                       class="nav-link px-2 link-dark">
+                    <fmt:message key="head.title.course_categories"/></a></li>
+            </c:if>
+            <c:if test="${user.role.id == 2}">
+                <li><a href="<c:url value="/controller?command=show_results"/>" class="nav-link px-2 link-dark">
+                    <fmt:message key="head.title.test_results"/></a></li>
+            </c:if>
+            <li><a href="<c:url value="/controller?command=to_profile_page"/>"
+                   class="nav-link px-2 link-dark"><fmt:message key="head.title.profile"/></a></li>
+            <li><a href="<c:url value="/controller?command=to_home_page"/>"
+                   class="nav-link px-2 link-secondary">${user.role.name}</a></li>
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDarkDropdownMenuLink" data-bs-toggle="dropdown"
+                   aria-expanded="false"><fmt:message key="header.lang"/></a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink">
+                    <li><a class="dropdown-item"
+                           href="<c:url value="/controller?command=change_locale&locale=en&lang_url=${pageContext.request.requestURL}&lang_params=${pageContext.request.getQueryString()}"/>">
+                        <fmt:message key="button.lang.en"/></a>
+                    </li>
+                    <li><a class="dropdown-item"
+                           href="<c:url value="/controller?command=change_locale&locale=ru&lang_url=${pageContext.request.requestURL}&lang_params=${pageContext.request.getQueryString()}"/>">
+                        <fmt:message key="button.lang.ru"/></a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+
+        <div class="col-md-3 text-end">
+            <a href="<c:url value="/controller?command=logout"/>" type="button" class="btn btn-primary">Logout</a>
+        </div>
+    </header>
+</div>

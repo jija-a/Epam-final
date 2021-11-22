@@ -1,5 +1,6 @@
 package by.alex.testing.dao.mysql;
 
+import by.alex.testing.dao.AbstractDao;
 import by.alex.testing.dao.CourseUserDao;
 import by.alex.testing.dao.DaoException;
 import by.alex.testing.domain.Course;
@@ -11,7 +12,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CourseUserDaoImpl implements CourseUserDao {
+public class CourseUserDaoImpl extends AbstractDao<CourseUser, Long> implements CourseUserDao {
 
     private static final String SQL_SELECT_ALL_COURSE_USERS =
             "SELECT `course_user`.`user_id`, `course_user`.`course_id`, `course_user`.`status` FROM `course_user` WHERE `course_user`.`course_id` = ?;";
@@ -28,10 +29,9 @@ public class CourseUserDaoImpl implements CourseUserDao {
     private static final String SQL_UPDATE_COURSE_USER =
             "UPDATE `course_user` SET `course_user`.`course_id` = ?, `course_user`.`user_id` = ?, `course_user`.`status` = ? WHERE `course_user`.`user_id` = ?";
 
-    private final Connection connection;
+    private Connection connection;
 
-    public CourseUserDaoImpl(Connection connection) {
-        this.connection = connection;
+    protected CourseUserDaoImpl() {
     }
 
     @Override
@@ -112,5 +112,30 @@ public class CourseUserDaoImpl implements CourseUserDao {
         ps.setLong(1, courseUser.getCourse().getId());
         ps.setLong(2, courseUser.getUser().getId());
         ps.setInt(3, courseUser.getStatus().getId());
+    }
+
+    @Override
+    public List<CourseUser> readAll() throws DaoException {
+        return null;
+    }
+
+    @Override
+    public CourseUser readById(Long id) throws DaoException {
+        return null;
+    }
+
+    @Override
+    public void create(CourseUser entity) throws DaoException {
+
+    }
+
+    @Override
+    public void update(CourseUser entity) throws DaoException {
+
+    }
+
+    @Override
+    public void delete(Long id) throws DaoException {
+
     }
 }

@@ -1,15 +1,19 @@
 package by.alex.testing.dao.mysql;
 
 
+import by.alex.testing.dao.AbstractDao;
 import by.alex.testing.dao.AnswerDao;
 import by.alex.testing.dao.DaoException;
 import by.alex.testing.domain.Answer;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AnswerDaoImpl implements AnswerDao {
+public class AnswerDaoImpl extends AbstractDao<Answer, Long> implements AnswerDao {
 
     private static final String SQL_SELECT_BY_QUESTION_ID =
             "SELECT `answer`.`id`, `answer`.`title`, `answer`.`is_right`, `answer`.`percent`, `answer`.`question_id` FROM `answer` WHERE `answer`.`question_id` = ?";
@@ -26,10 +30,7 @@ public class AnswerDaoImpl implements AnswerDao {
     private static final String SQL_DELETE =
             "DELETE FROM `answer` WHERE `answer`.`id` = ?";
 
-    private final Connection connection;
-
-    public AnswerDaoImpl(Connection connection) {
-        this.connection = connection;
+    protected AnswerDaoImpl() {
     }
 
     @Override

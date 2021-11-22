@@ -1,19 +1,19 @@
 package by.alex.testing.dao.mysql;
 
+import by.alex.testing.dao.AbstractDao;
 import by.alex.testing.dao.DaoException;
 import by.alex.testing.dao.TestResultDao;
 import by.alex.testing.domain.Quiz;
 import by.alex.testing.domain.TestResult;
 import by.alex.testing.domain.User;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestResultDaoImpl implements TestResultDao {
+public class TestResultDaoImpl extends AbstractDao<TestResult, Long> implements TestResultDao {
 
     private static final String SQL_SELECT_BY_TEST_ID =
             "SELECT `test_result`.`id`, `test_result`.`test_id`, `test_result`.`user_id`, `test_result`.`percent`, `test_result`.`test_started`, `test_result`.`test_ended` FROM `test_result` WHERE `test_result`.`test_id` = ?;";
@@ -30,10 +30,7 @@ public class TestResultDaoImpl implements TestResultDao {
     private static final String SQL_DELETE =
             "DELETE FROM `test_result` WHERE `test_result`.id = ?";
 
-    private final Connection connection;
-
-    public TestResultDaoImpl(Connection connection) {
-        this.connection = connection;
+    protected TestResultDaoImpl() {
     }
 
     @Override

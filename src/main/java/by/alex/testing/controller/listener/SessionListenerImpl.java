@@ -1,12 +1,15 @@
 package by.alex.testing.controller.listener;
 
-import by.alex.testing.controller.RequestConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.*;
-import java.util.Locale;
+import javax.servlet.annotation.WebListener;
+import javax.servlet.http.HttpSessionAttributeListener;
+import javax.servlet.http.HttpSessionBindingEvent;
+import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionListener;
 
+@WebListener
 public class SessionListenerImpl implements HttpSessionListener, HttpSessionAttributeListener {
 
     private static final Logger logger =
@@ -31,13 +34,13 @@ public class SessionListenerImpl implements HttpSessionListener, HttpSessionAttr
     }
 
     @Override
-    public void sessionCreated(HttpSessionEvent sessionEvent) {
-        logger.info("Default locale set");
+    public void sessionCreated(HttpSessionEvent event) {
+        logger.debug("Session created");
     }
 
     @Override
-    public void sessionDestroyed(HttpSessionEvent httpSessionEvent) {
-        httpSessionEvent.getSession().invalidate();
-        logger.info("Session destroyed");
+    public void sessionDestroyed(HttpSessionEvent event) {
+        event.getSession().invalidate();
+        logger.debug("Session destroyed");
     }
 }
