@@ -1,6 +1,5 @@
 package by.alex.testing.dao.pool;
 
-import by.alex.testing.dao.InitializingError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +33,7 @@ public class DatabaseConfig {
             PASSWORD = rb.getString("db.password");
             POOL_SIZE = Integer.parseInt(rb.getString("db.pool_size"));
         } catch (ExceptionInInitializerError | MissingResourceException e) {
-            throw new InitializingError("Error while initializing database configuration", e);
+            throw new InitializingException("Error while initializing database configuration", e);
         }
     }
 

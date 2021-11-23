@@ -19,4 +19,10 @@ public class Course extends Entity {
     private Map<User, UserCourseStatus> students;
     private List<Quiz> quizzes;
     private CourseCategory category;
+
+    public Course(String name, User owner, CourseCategory category){
+        this.name = name;
+        this.owner = owner;
+        this.category = category;
+    }
 }

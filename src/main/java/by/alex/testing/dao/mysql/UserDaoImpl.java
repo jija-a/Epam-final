@@ -4,6 +4,7 @@ import by.alex.testing.dao.AbstractDao;
 import by.alex.testing.dao.DaoException;
 import by.alex.testing.dao.UserDao;
 import by.alex.testing.domain.User;
+import by.alex.testing.domain.UserCourseStatus;
 import by.alex.testing.domain.UserRole;
 
 import java.sql.PreparedStatement;
@@ -27,8 +28,11 @@ public class UserDaoImpl extends AbstractDao<User, Long> implements UserDao {
     private static final String SQL_SELECT_BY_LOGIN =
             "SELECT `user`.`id`, `user`.`login`, `user`.`first_name`, `user`.`last_name`, `user`.`password`, `user`.`role` FROM `user` WHERE `user`.`login` = ?";
 
+    private static final String SQL_SELECT_BY_COURSE_ID_AND_NAME =
+            "SELECT `user`.`id`,`user`.`login`,`user`.`first_name`,`user`.`last_name`,`user`.`password`,`user`.`role` FROM user INNER JOIN course_user on user.id = course_user.user_id JOIN course on course.id = course_user.course_id WHERE course.id = ? AND course_user.status = ? AND (first_name LIKE ? or last_name LIKE ? or login LIKE ?) GROUP BY `user`.`id` LIMIT ?, ?;";
+
     private static final String SQL_SELECT_BY_COURSE_ID =
-            "SELECT `user`.`id`,`user`.`login`,`user`.`first_name`,`user`.`last_name`,`user`.`password`,`user`.`role` FROM user INNER JOIN course_user on user.id = course_user.user_id JOIN course on course.id = course_user.course_id WHERE course.id = ?;";
+            "SELECT `user`.`id`,`user`.`login`,`user`.`first_name`,`user`.`last_name`,`user`.`password`,`user`.`role` FROM user INNER JOIN course_user on user.id = course_user.user_id JOIN course on course.id = course_user.course_id WHERE course.id = ? AND course_user.status = ? GROUP BY `user`.`id` LIMIT ?, ?;";
 
     private static final String SQL_SELECT_BY_NAME =
             "SELECT `user`.`id`, `user`.`login`, `user`.`first_name`, `user`.`last_name`, `user`.`password`, `user`.`role` FROM `user` WHERE first_name LIKE ? or last_name LIKE ? or login LIKE ? LIMIT ?, ? ";
@@ -87,10 +91,12 @@ public class UserDaoImpl extends AbstractDao<User, Long> implements UserDao {
     public List<User> readByName(int start, int total, String name) throws DaoException {
         List<User> users = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_NAME)) {
-            ps.setString(1, "%" + name + "%");
-            ps.setString(2, "%" + name + "%");
-            ps.setInt(3, start);
-            ps.setInt(4, total);
+            String param = "%" + name + "%";
+            ps.setString(1, param);
+            ps.setString(2, param);
+            ps.setString(3, param);
+            ps.setInt(4, start);
+            ps.setInt(5, total);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 User user = this.mapToEntity(rs);
@@ -132,6 +138,48 @@ public class UserDaoImpl extends AbstractDao<User, Long> implements UserDao {
             throw new DaoException("Exception while reading all users: ", e);
         }
         return count;
+    }
+
+    @Override
+    public List<User> readByCourseId(int start, int total, long courseId, String search) throws DaoException {
+        List<User> users = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_COURSE_ID_AND_NAME)) {
+            String param = "%" + search + "%";
+            ps.setLong(1, courseId);
+            ps.setLong(2, UserCourseStatus.ON_COURSE.getId());
+            ps.setString(3, param);
+            ps.setString(4, param);
+            ps.setString(5, param);
+            ps.setInt(6, start);
+            ps.setInt(7, total);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                User user = this.mapToEntity(rs);
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while reading all users: ", e);
+        }
+        return users;
+    }
+
+    @Override
+    public List<User> readByCourseId(int start, int total, long courseId) throws DaoException {
+        List<User> users = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_COURSE_ID)) {
+            ps.setLong(1, courseId);
+            ps.setLong(2, UserCourseStatus.ON_COURSE.getId());
+            ps.setInt(3, start);
+            ps.setInt(4, total);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                User user = this.mapToEntity(rs);
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while reading all users: ", e);
+        }
+        return users;
     }
 
     @Override
@@ -203,7 +251,7 @@ public class UserDaoImpl extends AbstractDao<User, Long> implements UserDao {
     @Override
     public List<User> readByCourseId(Long id) throws DaoException {
         List<User> users = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_COURSE_ID)) {
+        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_COURSE_ID_AND_NAME)) {
             ps.setLong(1, id);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {

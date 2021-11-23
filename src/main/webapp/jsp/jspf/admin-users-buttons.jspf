@@ -1,0 +1,11 @@
+<c:choose>
+    <c:when test="${student.role.id == 0}">
+        <a class="btn btn-danger disabled" href="#"><fmt:message key="label.delete"/></a>
+    </c:when>
+    <c:otherwise>
+        <a class="btn btn-danger"
+           href="<c:url value="/controller?command=delete_user&user_id=${student.id}"/>"><fmt:message
+                key="label.delete"/></a>
+        <input name="">
+    </c:otherwise>
+</c:choose>

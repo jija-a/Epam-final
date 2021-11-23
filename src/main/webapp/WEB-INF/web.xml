@@ -23,8 +23,8 @@
         </taglib>
         <jsp-property-group>
             <url-pattern>*.jsp</url-pattern>
-            <include-prelude>/jspf/directive.jspf</include-prelude>
-            <include-prelude>/jspf/head.jspf</include-prelude>
+            <include-prelude>/jsp/jspf/directive.jspf</include-prelude>
+            <include-prelude>/jsp/jspf/head.jspf</include-prelude>
         </jsp-property-group>
     </jsp-config>
 

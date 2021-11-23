@@ -13,6 +13,17 @@ public class RequestConstant {
     public static final String COURSE_ID = "course_id";
     public static final String COURSE_CATEGORIES = "course_categories";
     public static final String COURSE_CATEGORY_ID = "category_id";
+    public static final String TESTS = "tests";
+    public static final String COURSE_CATEGORY_NAME = "category_name";
+    public static final String COURSE_NAME = "course_name";
+    public static final String COURSE = "course";
+    public static final String TEST_TITLE = "title";
+    public static final String TEST_ATTEMPTS = "attempts";
+    public static final String TEST_START_DATE = "start_date";
+    public static final String TEST_END_DATE = "end_date";
+    public static final String TEST_TIME_TO_ANSWER = "time_to_answer";
+    public static final String TEST_MAX_SCORE = "max_score";
+    public static final String TEST_ID = "test_id";
 
     private RequestConstant() {
     }

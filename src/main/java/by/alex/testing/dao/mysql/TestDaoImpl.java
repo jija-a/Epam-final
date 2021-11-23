@@ -30,6 +30,9 @@ public class TestDaoImpl extends AbstractDao<Quiz, Long> implements TestDao {
     private static final String SQL_SELECT_ALL_BY_USER_ID_SORTED_BY_DATE =
             "SELECT `test`.`id`, `test`.`title`, `test`.`course_id`, `test`.attempts, `test`.start_date, `test`.`end_date`, `test`.`time_to_answer`, `test`.`max_score` FROM `test` join course_user cu on test.course_id = cu.course_id WHERE user_id = ? AND `test`.`end_date` < ? ORDER BY `test`.`end_date` LIMIT ?;";
 
+    private static final String SQL_COUNT_ALL =
+            "SELECT COUNT(*) FROM `test` WHERE course_id = ?;";
+
     protected TestDaoImpl() {
     }
 
@@ -39,7 +42,7 @@ public class TestDaoImpl extends AbstractDao<Quiz, Long> implements TestDao {
     }
 
     @Override
-    public List<Quiz> readAllTestsByCourseId(long courseId) throws DaoException {
+    public List<Quiz> readAllTestsByCourseId(long courseId, int start, int recOnPage) throws DaoException {
         List<Quiz> quizzes = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL_BY_COURSE_ID)) {
             ps.setLong(1, courseId);
@@ -70,6 +73,21 @@ public class TestDaoImpl extends AbstractDao<Quiz, Long> implements TestDao {
             throw new DaoException("Exception while reading all tests by course id: ", e);
         }
         return quizzes;
+    }
+
+    @Override
+    public Integer count(long courseId) throws DaoException {
+        int count = 0;
+        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_ALL)) {
+            ps.setLong(1, courseId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while reading all course tests: ", e);
+        }
+        return count;
     }
 
     @Override

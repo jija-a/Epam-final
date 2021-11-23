@@ -40,7 +40,6 @@ public class SessionListenerImpl implements HttpSessionListener, HttpSessionAttr
 
     @Override
     public void sessionDestroyed(HttpSessionEvent event) {
-        event.getSession().invalidate();
         logger.debug("Session destroyed");
     }
 }

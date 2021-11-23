@@ -16,6 +16,7 @@ public class ContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        //todo call service
         ConnectionPool.getInstance();
         LOGGER.debug("Context listener initialized");
     }

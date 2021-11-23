@@ -45,7 +45,8 @@ public class DeleteUserCommand implements Command {
                 return new ShowUsersCommand().execute(req, resp);
             }
             userService.deleteUser(id);
-
+            req.getSession().setAttribute(RequestConstant.SUCCESS,
+                    MessageManager.INSTANCE.getMessage(MessageConstant.DELETED));
         }
 
         String page = createRedirectURL(req, CommandName.SHOW_USERS);

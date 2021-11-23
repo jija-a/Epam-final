@@ -1,15 +1,19 @@
 package by.alex.testing.service;
 
+import by.alex.testing.domain.Course;
 import by.alex.testing.domain.Quiz;
-import by.alex.testing.domain.TestResult;
 
 import java.util.List;
 
 public interface TestService {
 
-    List<TestResult> showUserResults(long userId) throws ServiceException;
+    List<Quiz> readAllCourseTests(int start, int recOnPage, long courseId) throws ServiceException;
 
-    List<TestResult> showUserTests(long userId, int limit) throws ServiceException;
+    Quiz readTestById(long testId) throws ServiceException;
 
-    List<Quiz> showUserNearestTests(long userId, int homePageTestsLimit) throws ServiceException;
+    void deleteTest(long parseLong) throws ServiceException;
+
+    Integer countAllTests(long courseId) throws ServiceException;
+
+    List<String> updateTest(Quiz course) throws ServiceException;
 }

@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface UserDao {
 
+    List<User> readByCourseId(int start, int total, long courseId) throws DaoException;
+
     User readByLogin(String login) throws DaoException;
 
     List<User> readByCourseId(Long id) throws DaoException;
@@ -17,4 +19,6 @@ public interface UserDao {
     Integer count() throws DaoException;
 
     Integer count(String search) throws DaoException;
+
+    List<User> readByCourseId(int start, int recOnPage, long courseId, String search) throws DaoException;
 }

@@ -17,11 +17,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 /*@WebFilter(filterName = "CommandFilter",
-        urlPatterns = "/controller?")*/
+        urlPatterns = "/controller")*/
 public class CommandFilter extends BaseFilter {
 
     private static final Logger logger =
             LoggerFactory.getLogger(CommandFilter.class);
+
+    private static final Set<String> GUEST_COMMANDS = initGuestCommands();
 
     private static final Set<String> COMMON_COMMANDS = initCommonCommands();
 
@@ -39,17 +41,17 @@ public class CommandFilter extends BaseFilter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
+        logger.debug("Command Filter processing");
+
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
         HttpSession session = req.getSession();
 
         User user = (User) session.getAttribute(RequestConstant.USER);
         UserRole role = user != null ? user.getRole() : UserRole.GUEST;
+        logger.info("User role is: {}", role);
         Set<String> accessibleCommands;
         switch (role) {
-            case GUEST:
-                accessibleCommands = COMMON_COMMANDS;
-                break;
             case STUDENT:
                 accessibleCommands = STUDENT_COMMANDS;
                 break;
@@ -60,18 +62,24 @@ public class CommandFilter extends BaseFilter {
                 accessibleCommands = ADMIN_COMMANDS;
                 break;
             default:
-                accessibleCommands = COMMON_COMMANDS;
+                accessibleCommands = GUEST_COMMANDS;
         }
 
         String commandName = req.getParameter(RequestConstant.COMMAND);
 
         if (!StringUtils.isNullOrEmpty(commandName)) {
             if (accessibleCommands.contains(commandName)) {
-                logger.info("User have permission");
+                logger.info("User HAVE permission to '{}' command", commandName);
                 chain.doFilter(request, response);
             } else {
-                logger.info("User do not have permission");
-                String page = req.getContextPath() + req.getServletPath() + "?" + RequestConstant.COMMAND + "=" + CommandName.TO_LOGIN_PAGE;
+                logger.info("User DO NOT have permission to '{}' command", commandName);
+                String page;
+                if (role.equals(UserRole.GUEST)) {
+                    page = req.getContextPath() + req.getServletPath() + "?" + RequestConstant.COMMAND + "=" + CommandName.TO_LOGIN_PAGE;
+                } else {
+                    page = req.getContextPath() + req.getServletPath() + "?" + RequestConstant.COMMAND + "=" + CommandName.TO_HOME_PAGE;
+                }
+                logger.info("Redirecting to: '{}'", page);
                 res.sendRedirect(page);
             }
         }
@@ -84,6 +92,19 @@ public class CommandFilter extends BaseFilter {
 
     private static Set<String> initCommonCommands() {
         Set<String> commands = new HashSet<>();
+        commands.add(CommandName.CHANGE_LOCALE);
+        commands.add(CommandName.LOGOUT);
+        commands.add(CommandName.SHOW_TESTS);
+        commands.add(CommandName.SHOW_COURSE_USERS);
+        commands.add(CommandName.SHOW_USERS);
+        commands.add(CommandName.TO_PROFILE_PAGE);
+        commands.add(CommandName.UPDATE_PROFILE);
+        commands.add(CommandName.TO_HOME_PAGE);
+        return commands;
+    }
+
+    private static Set<String> initGuestCommands() {
+        Set<String> commands = new HashSet<>();
         commands.add(CommandName.TO_LOGIN_PAGE);
         commands.add(CommandName.TO_REGISTRATION_PAGE);
         commands.add(CommandName.REGISTER);
@@ -92,26 +113,33 @@ public class CommandFilter extends BaseFilter {
     }
 
     private static Set<String> initStudentCommands() {
-        Set<String> commands = new HashSet<>();
-        commands.add(CommandName.TO_HOME_PAGE);
-        commands.add(CommandName.LOGOUT);
-        commands.add(CommandName.CHANGE_LOCALE);
+        Set<String> commands = new HashSet<>(COMMON_COMMANDS);
+        commands.add(CommandName.SHOW_COURSES);
+        commands.add(CommandName.REQUEST_SIGN_ON_COURSE);
         return commands;
     }
 
     private static Set<String> initTeacherCommands() {
-        Set<String> commands = new HashSet<>();
-        commands.add(CommandName.TO_HOME_PAGE);
-        commands.add(CommandName.LOGOUT);
-        commands.add(CommandName.CHANGE_LOCALE);
+        Set<String> commands = new HashSet<>(COMMON_COMMANDS);
+        commands.add(CommandName.ADD_STUDENT_ON_COURSE);
+        commands.add(CommandName.CREATE_COURSE);
+        commands.add(CommandName.DELETE_COURSE);
+        commands.add(CommandName.DELETE_USER_FROM_COURSE);
+        commands.add(CommandName.SHOW_COURSE_REQUESTS);
+        commands.add(CommandName.SHOW_TEACHER_COURSES);
+        commands.add(CommandName.UPDATE_COURSE);
         return commands;
     }
 
     private static Set<String> initAdminCommands() {
-        Set<String> commands = new HashSet<>();
-        commands.add(CommandName.TO_HOME_PAGE);
-        commands.add(CommandName.LOGOUT);
-        commands.add(CommandName.CHANGE_LOCALE);
+        Set<String> commands = new HashSet<>(COMMON_COMMANDS);
+        commands.add(CommandName.CREATE_COURSE_CATEGORY);
+        commands.add(CommandName.DELETE_COURSE_CATEGORY);
+        commands.add(CommandName.DELETE_COURSE);
+        commands.add(CommandName.DELETE_USER);
+        commands.add(CommandName.SHOW_COURSES);
+        commands.add(CommandName.SHOW_COURSE_CATEGORIES);
+        commands.add(CommandName.UPDATE_COURSE_CATEGORY);
         return commands;
     }
 }

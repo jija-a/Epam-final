@@ -26,7 +26,7 @@ public class ChangeLocaleCommand implements Command {
         String lang = req.getParameter(RequestConstant.LOCALE);
         Locale locale = LocaleManager.resolveLocale(lang);
 
-        Cookie cookie = new Cookie(RequestConstant.LOCALE, locale.getLanguage() + "_" + locale.getCountry());
+        Cookie cookie = new Cookie(RequestConstant.LOCALE, locale.getLanguage());
         cookie.setMaxAge(MAX_AGE);
         cookie.setPath(req.getContextPath());
         resp.addCookie(cookie);

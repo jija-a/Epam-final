@@ -1,0 +1,19 @@
+<form action="<c:url value="/controller"/>">
+    <input type="hidden" name="command" value="create_course">
+    <th scope="row">#</th>
+    <td><input type="text" minlength="5" maxlength="150" name="course_name" placeholder="Course Name"></td>
+    <td></td>
+    <td>
+        <select name="category_id"
+                class="form-select form-select-sm"
+                aria-label=".form-select-sm example">
+            <c:forEach items="${course_categories}" var="category">
+                <option value="${category.id}">${category.name}</option>
+            </c:forEach>
+        </select>
+    </td>
+    <td>
+        <input type="submit" class="btn btn-primary"
+               value="<fmt:message key="label.create"/>">
+    </td>
+</form>

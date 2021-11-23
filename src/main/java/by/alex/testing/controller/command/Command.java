@@ -34,10 +34,10 @@ public interface Command {
         Integer numberOfPages = entitiesQty % pageLimit != 0 ?
                 entitiesQty / pageLimit + 1 : entitiesQty / pageLimit;
 
-        logger.debug("Pages - {}, page - {}", numberOfPages, page);
         req.setAttribute(RequestConstant.NUMBER_OF_PAGES, numberOfPages);
         req.setAttribute(RequestConstant.PAGE, page);
 
         return start;
     }
+
 }

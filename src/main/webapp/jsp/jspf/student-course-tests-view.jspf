@@ -1,0 +1,14 @@
+<tr>
+    <th scope="row">${st.count}</th>
+    <td><c:out value="${test.title}"/></td>
+    <td><c:out value="${test.attempts}"/></td>
+    <td><crt:formatDate value="${test.startDate}" pattern="dd-MM-yyyy HH:mm"/></td>
+    <td><crt:formatDate value="${test.endDate}" pattern="dd-MM-yyyy HH:mm"/></td>
+    <td><c:out value="${test.timeToAnswer}"/></td>
+    <td><c:out value="${test.maxScore}"/></td>
+    <td>
+        <c:if test="${sessionScope.user.role.id == 1}">
+            <%@include file="../jspf/teacher-course-tests-buttons.jspf"%>
+        </c:if>
+    </td>
+</tr>

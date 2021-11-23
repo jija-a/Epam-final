@@ -1,0 +1,3 @@
+<a class="btn btn-danger"
+   href="<c:url value="/controller?command=delete_course&course_id=${course.id}"/>"><fmt:message
+        key="label.delete"/></a>

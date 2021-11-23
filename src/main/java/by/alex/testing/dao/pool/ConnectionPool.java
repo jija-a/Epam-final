@@ -1,6 +1,5 @@
 package by.alex.testing.dao.pool;
 
-import by.alex.testing.dao.InitializingError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,17 +44,17 @@ public class ConnectionPool {
         return instance;
     }
 
-    private void init() throws InitializingError {
+    private void init() throws InitializingException {
         logger.trace("Initializing connection pool");
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
-            throw new InitializingError("Initializing connection pool failed", e);
+            throw new InitializingException("Initializing connection pool failed", e);
         }
         initConnectionPool();
     }
 
-    private void initConnectionPool() throws InitializingError {
+    private void initConnectionPool() throws InitializingException {
         this.config = DatabaseConfig.getInstance();
         this.availableConnections = new ArrayBlockingQueue<>(config.getPoolSize());
         this.takenConnections = new ArrayDeque<>();
@@ -64,11 +63,11 @@ public class ConnectionPool {
                 availableConnections.add(this.createConnection());
                 logger.info("Connection {} added", i + 1);
             } catch (SQLException e) {
-                throw new InitializingError("Database connection failed: ", e);
+                throw new InitializingException("Database connection failed: ", e);
             }
         }
         if (availableConnections.isEmpty()) {
-            throw new InitializingError("Pool isn't created");
+            throw new InitializingException("Pool isn't created");
         }
         checkConnectionsSize();
     }

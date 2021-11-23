@@ -1,0 +1,3 @@
+<a class="btn btn-info"
+   href="<c:url value="/controller?command=request_sign_on_course&course_id=${course.id}"/>">
+    <fmt:message key="label.request"/></a>

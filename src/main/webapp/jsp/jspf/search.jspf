@@ -1,0 +1,17 @@
+<div class="row justify-content-md-center">
+    <div class="col col-lg-2">
+        <div class="input-group">
+            <%--@declare id="searchform"--%>
+            <input type="search" class="form-control rounded" placeholder="<fmt:message key="button.search"/>"
+                   form="searchForm"
+                   minlength="1"
+                   maxlength="256"
+                   value="${search}"
+                   name="search"
+                   aria-label="Search"
+                   aria-describedby="search-addon"/>
+            <button type="submit" class="btn btn-outline-primary" form="searchForm"><fmt:message
+                    key="button.search"/></button>
+        </div>
+    </div>
+</div>

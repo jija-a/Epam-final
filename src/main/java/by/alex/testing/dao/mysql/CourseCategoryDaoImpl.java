@@ -23,11 +23,17 @@ public class CourseCategoryDaoImpl extends AbstractDao<CourseCategory, Long> imp
     private static final String SQL_SELECT_ALL_WITH_LIMIT =
             "SELECT `course_category`.`id`, `course_category`.`name` FROM `course_category` LIMIT ?, ?;";
 
+    private static final String SQL_SELECT_BY_TITLE_WITH_LIMIT =
+            "SELECT `course_category`.`id`, `course_category`.`name` FROM `course_category` WHERE name LIKE ? LIMIT ?, ?;";
+
     private static final String SQL_SELECT_BY_TITLE =
-            "SELECT `course_category`.`id`, `course_category`.`name` FROM `course_category` WHERE name = ? LIMIT ?, ?;";
+            "SELECT `course_category`.`id`, `course_category`.`name` FROM `course_category` WHERE name = ?;";
 
     private static final String SQL_CREATE =
             "INSERT INTO `course_category`(`name`) VALUE (?);";
+
+    private static final String SQL_UPDATE =
+            "UPDATE `course_category` SET `course_category`.name = ? WHERE `course_category`.`id` = ?;";
 
     private static final String SQL_DELETE =
             "DELETE FROM `course_category` WHERE `course_category`.`id` = ?;";
@@ -98,7 +104,13 @@ public class CourseCategoryDaoImpl extends AbstractDao<CourseCategory, Long> imp
 
     @Override
     public void update(CourseCategory category) throws DaoException {
-        throw new UnsupportedOperationException("Updating category isn't supported");
+        try (PreparedStatement ps = connection.prepareStatement(SQL_UPDATE)) {
+            this.mapFromEntity(ps, category);
+            ps.setLong(2, category.getId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException("Exception while creating category: ", e);
+        }
     }
 
     private CourseCategory mapToEntity(ResultSet rs) throws SQLException {
@@ -144,8 +156,8 @@ public class CourseCategoryDaoImpl extends AbstractDao<CourseCategory, Long> imp
     @Override
     public List<CourseCategory> readByTitle(int start, int recOnPage, String search) throws DaoException {
         List<CourseCategory> categories = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_TITLE)) {
-            ps.setString(1, search);
+        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_TITLE_WITH_LIMIT)) {
+            ps.setString(1, "%" + search + "%");
             ps.setInt(2, start);
             ps.setInt(3, recOnPage);
             ResultSet rs = ps.executeQuery();
@@ -174,5 +186,20 @@ public class CourseCategoryDaoImpl extends AbstractDao<CourseCategory, Long> imp
             throw new DaoException("Exception while reading all categories: ", e);
         }
         return categories;
+    }
+
+    @Override
+    public CourseCategory readByTitle(String name) throws DaoException {
+        CourseCategory category = null;
+        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_TITLE)) {
+            ps.setString(1, name);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                category = this.mapToEntity(rs);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while reading all categories: ", e);
+        }
+        return category;
     }
 }

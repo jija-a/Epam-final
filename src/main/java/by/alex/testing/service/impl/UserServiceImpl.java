@@ -100,21 +100,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<String> updateUserProfile(User user) throws ServiceException {
-        List<String> errors = UserValidator.validate(user);
-        if (errors.isEmpty()) {
-            logger.info("Reading users");
-            try {
-                handler.begin(userDao);
-                userDao.update(user);
-                handler.commit();
-            } catch (DaoException e) {
-                throw new ServiceException(e.getMessage(), e);
-            } finally {
-                handler.end();
-            }
+    public boolean updateUserProfile(User user) throws ServiceException {
+        try {
+            handler.begin(userDao);
+            userDao.update(user);
+            handler.commit();
+            return true;
+        } catch (DaoException e) {
+            throw new ServiceException(e.getMessage(), e);
+        } finally {
+            handler.end();
         }
-        return errors;
     }
 
     @Override
@@ -183,5 +179,4 @@ public class UserServiceImpl implements UserService {
             handler.end();
         }
     }
-
 }

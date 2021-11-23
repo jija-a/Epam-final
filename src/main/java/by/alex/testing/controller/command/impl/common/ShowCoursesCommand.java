@@ -5,6 +5,8 @@ import by.alex.testing.controller.RequestConstant;
 import by.alex.testing.controller.ViewResolver;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.domain.Course;
+import by.alex.testing.domain.CourseCategory;
+import by.alex.testing.service.CourseCategoryService;
 import by.alex.testing.service.CourseService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
@@ -17,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ShowCoursesCommand implements Command {
+public class    ShowCoursesCommand implements Command {
 
     private static final Logger logger =
             LoggerFactory.getLogger(ShowCoursesCommand.class);
@@ -25,9 +27,11 @@ public class ShowCoursesCommand implements Command {
     private static final int DEFAULT_PAGINATION_LIMIT = 5;
 
     private final CourseService courseService;
+    private final CourseCategoryService courseCategoryService;
 
     public ShowCoursesCommand() {
         courseService = ServiceFactory.getInstance().getCourseService();
+        this.courseCategoryService = ServiceFactory.getInstance().getCourseCategoryService();
     }
 
     @Override
@@ -47,14 +51,16 @@ public class ShowCoursesCommand implements Command {
         int page = reqPage != null ? Integer.parseInt(reqPage) : 1;
 
         if (!StringUtils.isNullOrEmpty(search)) {
-            logger.debug("Search courses request by '{}' received", search);
+            logger.debug("Search courses by '{}'", search);
             courses = this.searchByName(search, page, req, recOnPage);
         }
         if (courses.isEmpty()) {
-            logger.debug("Search all courses request received");
+            logger.debug("Search all courses");
             courses = this.searchAll(page, req, recOnPage);
         }
 
+        List<CourseCategory> categories = courseCategoryService.readAllCourseCategories();
+        req.setAttribute(RequestConstant.COURSE_CATEGORIES, categories);
         req.setAttribute(RequestConstant.COURSES, courses);
         return new ViewResolver(PageConstant.COURSES_LIST_PAGE);
     }

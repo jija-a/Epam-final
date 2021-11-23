@@ -3,6 +3,7 @@ package by.alex.testing.controller.command.impl.common;
 import by.alex.testing.controller.*;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.domain.User;
+import by.alex.testing.service.HashService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
 import by.alex.testing.service.UserService;
@@ -12,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.List;
 
 public class UpdateProfileCommand implements Command {
 
@@ -31,30 +31,30 @@ public class UpdateProfileCommand implements Command {
 
         logger.info("Update profile command received");
         ViewResolver resolver;
+        HttpSession session = req.getSession();
+        User currentUser = (User) session.getAttribute(RequestConstant.USER);
 
         String firstName = req.getParameter(RequestConstant.FIRST_NAME);
         String lastName = req.getParameter(RequestConstant.LAST_NAME);
         String psw = req.getParameter(RequestConstant.PASSWORD);
         String confPsw = req.getParameter(RequestConstant.CONFIRMATION_PASSWORD);
 
-        if (psw != null && psw.equals(confPsw)) {
-            HttpSession session = req.getSession();
-            User currentUser = (User) session.getAttribute(RequestConstant.USER);
+        logger.debug("psw - {}, conf - {}, curr - {}", psw, confPsw, HashService.check(psw, currentUser.getPassword()));
+        if (psw != null && psw.equals(confPsw) && HashService.check(psw, currentUser.getPassword())) {
 
-            User updatedUser = userService.findUserById(currentUser.getId());
-            updatedUser.setFirstName(firstName);
-            updatedUser.setLastName(lastName);
-            updatedUser.setPassword(psw.toCharArray());
+            currentUser.setFirstName(firstName);
+            currentUser.setLastName(lastName);
 
-            List<String> errors = userService.updateUserProfile(updatedUser);
-            if (errors.isEmpty()) {
-                session.removeAttribute(RequestConstant.USER);
-                session.setAttribute(RequestConstant.USER, updatedUser);
+            if (userService.updateUserProfile(currentUser)) {
+
                 String page = createRedirectURL(req, CommandName.TO_PROFILE_PAGE);
                 resolver = new ViewResolver(page, ViewResolver.ResolveAction.REDIRECT);
+                req.getSession().setAttribute(RequestConstant.SUCCESS,
+                        MessageManager.INSTANCE.getMessage(MessageConstant.UPDATED_SUCCESS));
                 logger.info("User profile info successfully changed");
             } else {
-                req.setAttribute(RequestConstant.ERRORS, errors);
+                req.setAttribute(RequestConstant.ERROR,
+                        MessageManager.INSTANCE.getMessage(MessageConstant.UPDATE_ERROR));
                 resolver = new ViewResolver(PageConstant.PROFILE_PAGE);
                 logger.info("User input wrong data while updating profile");
             }

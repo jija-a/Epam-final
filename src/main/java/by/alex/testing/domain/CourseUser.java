@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @ToString
 public class CourseUser extends Entity {
 
-    private final Course course;
-    private final User user;
+    private Course course;
+    private User user;
     private UserCourseStatus status;
 }

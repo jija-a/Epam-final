@@ -12,4 +12,6 @@ public interface CourseCategoryDao {
     List<CourseCategory> readByTitle(int start, int recOnPage, String search) throws DaoException;
 
     List<CourseCategory> readAll(int start, int recOnPage) throws DaoException;
+
+    CourseCategory readByTitle(String name) throws DaoException;
 }

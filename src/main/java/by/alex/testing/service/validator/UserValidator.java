@@ -10,8 +10,8 @@ import java.util.regex.Pattern;
 
 public class UserValidator {
 
-    private static final String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
-    private static final String LOGIN_PATTERN = "^[a-zA-Z0-9._-]{3,}$";
+    private static final String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,16}$";
+    private static final String LOGIN_PATTERN = "^[a-zA-Z0-9._-]{3,255}$";
 
     public static List<String> validate(User user) {
         List<String> errors = new ArrayList<>();
@@ -24,11 +24,11 @@ public class UserValidator {
         return errors;
     }
 
-    private static boolean validateLogin(String login) {
+    public static boolean validateLogin(String login) {
         return Pattern.matches(LOGIN_PATTERN, login);
     }
 
-    private static boolean validatePassword(char[] password) {
+    public static boolean validatePassword(char[] password) {
         return Pattern.matches(PASSWORD_PATTERN, String.valueOf(password));
     }
 }

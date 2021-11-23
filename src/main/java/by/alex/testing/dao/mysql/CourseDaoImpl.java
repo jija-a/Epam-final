@@ -29,7 +29,7 @@ public class CourseDaoImpl extends AbstractDao<Course, Long> implements CourseDa
             "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`id` = ?;";
 
     private static final String SQL_SELECT_BY_OWNER_ID =
-            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`user_id` = ?;";
+            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`user_id` = ? LIMIT ?, ?;";
 
     private static final String SQL_CREATE =
             "INSERT INTO `course`(`name`, `user_id`, `course_category_id`) VALUES (?, ?, ?);";
@@ -45,6 +45,9 @@ public class CourseDaoImpl extends AbstractDao<Course, Long> implements CourseDa
 
     private static final String SQL_COUNT_ALL_BY_NAME =
             "SELECT COUNT(*) FROM `course` WHERE `name` LIKE ?;";
+
+    private static final String SQL_COUNT_ALL_BY_OWNER =
+            "SELECT COUNT(*) FROM `course` WHERE `course`.`user_id` = ?;";
 
     protected CourseDaoImpl() {
     }
@@ -83,10 +86,12 @@ public class CourseDaoImpl extends AbstractDao<Course, Long> implements CourseDa
     }
 
     @Override
-    public List<Course> readByOwnerId(Long userId) throws DaoException {
+    public List<Course> readByOwnerId(Long userId, int start, int recOnPage) throws DaoException {
         List<Course> courses = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_OWNER_ID)) {
             ps.setLong(1, userId);
+            ps.setInt(2, start);
+            ps.setInt(3, recOnPage);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Course course = this.mapToEntity(rs);
@@ -134,6 +139,21 @@ public class CourseDaoImpl extends AbstractDao<Course, Long> implements CourseDa
         int count = 0;
         try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_ALL_BY_NAME)) {
             ps.setString(1, "%" + search + "%");
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while counting all courses by search: ", e);
+        }
+        return count;
+    }
+
+    @Override
+    public Integer countOwnerCourses(long userId) throws DaoException {
+        int count = 0;
+        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_ALL_BY_OWNER)) {
+            ps.setLong(1, userId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 count = rs.getInt(1);

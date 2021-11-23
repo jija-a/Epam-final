@@ -5,7 +5,7 @@ import by.alex.testing.controller.RequestConstant;
 import by.alex.testing.controller.ViewResolver;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.domain.CourseCategory;
-import by.alex.testing.service.CourseService;
+import by.alex.testing.service.CourseCategoryService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
 import com.mysql.cj.util.StringUtils;
@@ -24,10 +24,10 @@ public class ShowCourseCategoriesCommand implements Command {
 
     private static final int DEFAULT_PAGINATION_LIMIT = 5;
 
-    private final CourseService courseService;
+    private final CourseCategoryService courseService;
 
     public ShowCourseCategoriesCommand() {
-        courseService = ServiceFactory.getInstance().getCourseService();
+        courseService = ServiceFactory.getInstance().getCourseCategoryService();
     }
 
     @Override

@@ -1,6 +1,6 @@
 package by.alex.testing.controller.command.impl.common;
 
-import by.alex.testing.controller.PageConstant;
+import by.alex.testing.controller.CommandName;
 import by.alex.testing.controller.ViewResolver;
 import by.alex.testing.controller.command.Command;
 import org.slf4j.Logger;
@@ -19,13 +19,15 @@ public class LogoutCommand implements Command {
     public ViewResolver execute(HttpServletRequest req,
                                 HttpServletResponse resp) {
 
+        logger.info("Logout command received");
+
         HttpSession session = req.getSession(false);
+
         if (session != null) {
             session.invalidate();
-            logger.info("Session invalidated");
         }
 
-        logger.info("Logout command received");
-        return new ViewResolver(PageConstant.LOGIN_PAGE);
+        String page = createRedirectURL(req, CommandName.TO_LOGIN_PAGE);
+        return new ViewResolver(page, ViewResolver.ResolveAction.REDIRECT);
     }
 }

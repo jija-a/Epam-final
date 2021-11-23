@@ -1,11 +1,9 @@
 package by.alex.testing.controller.command.impl.admin;
 
-import by.alex.testing.controller.CommandName;
-import by.alex.testing.controller.RequestConstant;
-import by.alex.testing.controller.ViewResolver;
+import by.alex.testing.controller.*;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.dao.DaoException;
-import by.alex.testing.service.CourseService;
+import by.alex.testing.service.CourseCategoryService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
 import com.mysql.cj.util.StringUtils;
@@ -20,10 +18,10 @@ public class DeleteCourseCategoryCommand implements Command {
     private static final Logger logger =
             LoggerFactory.getLogger(DeleteCourseCategoryCommand.class);
 
-    private final CourseService courseService;
+    private final CourseCategoryService categoryService;
 
     public DeleteCourseCategoryCommand() {
-        courseService = ServiceFactory.getInstance().getCourseService();
+        categoryService = ServiceFactory.getInstance().getCourseCategoryService();
     }
 
 
@@ -36,7 +34,9 @@ public class DeleteCourseCategoryCommand implements Command {
         String categoryId = req.getParameter(RequestConstant.COURSE_CATEGORY_ID);
 
         if (!StringUtils.isNullOrEmpty(categoryId)) {
-            courseService.deleteCourseCategory(Long.parseLong(categoryId));
+            categoryService.deleteCourseCategory(Long.parseLong(categoryId));
+            req.getSession().setAttribute(RequestConstant.SUCCESS,
+                    MessageManager.INSTANCE.getMessage(MessageConstant.DELETED));
         }
 
         String page = createRedirectURL(req, CommandName.SHOW_COURSE_CATEGORIES);
