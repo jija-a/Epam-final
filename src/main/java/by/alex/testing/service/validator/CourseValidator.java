@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 public class CourseValidator {
 
-    private static final String NAME_PATTERN = "^.{3,150}$";
+    private static final String NAME_PATTERN = "^.{5,150}$";
 
     public static List<String> validate(Course course) {
         List<String> errors = new ArrayList<>();

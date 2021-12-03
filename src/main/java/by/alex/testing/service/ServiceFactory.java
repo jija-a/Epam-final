@@ -13,36 +13,23 @@ public class ServiceFactory {
     private ServiceFactory() {
     }
 
-    public CourseService getCourseService() {
-        return CourseServiceImpl.getInstance();
-    }
-
-    /*
-      public CourseUserService getCourseUserService() {
-          return CourseUserServiceImpl.getInstance();
-      }
-
-      public TestService getTestService() {
-          return TestServiceImpl.getInstance();
-      }
-  */
-    public UserService getUserService() {
-        return UserServiceImpl.getInstance();
-    }
-
-    public CourseCategoryService getCourseCategoryService() {
-        return CourseCategoryServiceImpl.getInstance();
-    }
-
-    public CourseUserService getCourseUserService() {
-        return CourseUserServiceImpl.getInstance();
-    }
-
-    public TestService getTestService() {
-        return TestServiceImpl.getInstance();
+    public CommonService getCommonService() {
+        return CommonServiceImpl.getInstance();
     }
 
     public TeacherService getTeacherService() {
         return TeacherServiceImpl.getInstance();
+    }
+
+    public PaginationService getPaginationService() {
+        return PaginationServiceImpl.getInstance();
+    }
+
+    public StudentService getStudentService() {
+        return StudentServiceImpl.getInstance();
+    }
+
+    public AdminService getAdminService() {
+        return AdminServiceImpl.getInstance();
     }
 }

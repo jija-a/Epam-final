@@ -4,11 +4,11 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
-public class RequestTypeFilter implements Filter {
+public class RequestTypeFilter extends BaseFilter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-
+        super.init(filterConfig);
     }
 
     @Override
@@ -24,6 +24,6 @@ public class RequestTypeFilter implements Filter {
 
     @Override
     public void destroy() {
-
+        super.destroy();
     }
 }

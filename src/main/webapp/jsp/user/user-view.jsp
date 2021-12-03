@@ -13,56 +13,55 @@
 
 <main class="flex-shrink-0">
     <div class="container">
-        <%@include file="../jspf/error-success.jspf"%>
+        <%@include file="../jspf/error-success.jspf" %>
         <c:choose>
             <c:when test="${not empty users}">
-                <form action="<c:url value="/controller"/>" id="searchForm">
-                    <input type="hidden" name="command" value="show_users">
-                    <%@include file="../jspf/search.jspf" %>
-                    <table class="table table-bordered table-hover">
-                        <caption><fmt:message key="head.title.users_list"/></caption>
-                        <thead>
+                <form action="<c:url value="/controller"/>" id="searchForm"></form>
+                <input type="hidden" name="command" value="show_users" form="searchForm">
+                <%@include file="../jspf/search.jspf" %>
+                <table class="table caption-top table-bordered table-hover">
+                    <caption><fmt:message key="head.title.users_list"/></caption>
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col"><fmt:message key="label.login"/></th>
+                        <th scope="col"><fmt:message key="label.name"/></th>
+                        <th scope="col"><fmt:message key="label.role"/></th>
+                        <th scope="col"><fmt:message key="label.action"/></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <c:forEach var="user" varStatus="st" items="${users}">
                         <tr>
-                            <th scope="col">#</th>
-                            <th scope="col"><fmt:message key="label.login"/></th>
-                            <th scope="col"><fmt:message key="label.name"/></th>
-                            <th scope="col"><fmt:message key="label.role"/></th>
-                            <th scope="col"><fmt:message key="label.action"/></th>
+                            <th scope="row">${st.count}</th>
+                            <td><c:out value="${user.login}"/></td>
+                            <td><c:out value="${user.firstName} ${user.lastName}"/></td>
+                            <td><c:out value="${user.role.name}"/></td>
+                            <td>
+                                <c:if test="${sessionScope.user.role.id == 0}">
+                                    <c:choose>
+                                        <c:when test="${user.role.id == 0}">
+                                            <a class="btn btn-danger disabled"
+                                               href="#"><fmt:message
+                                                    key="label.delete"/></a>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a class="btn btn-danger"
+                                               href="<c:url value="/controller?command=delete_user&user_id=${user.id}"/>"><fmt:message
+                                                    key="label.delete"/></a>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:if>
+                            </td>
                         </tr>
-                        </thead>
-                        <tbody>
-                        <c:forEach var="user" varStatus="st" items="${users}">
-                            <tr>
-                                <th scope="row">${st.count}</th>
-                                <td><c:out value="${user.login}"/></td>
-                                <td><c:out value="${user.firstName} ${user.lastName}"/></td>
-                                <td><c:out value="${user.role.name}"/></td>
-                                <td>
-                                    <c:if test="${sessionScope.user.role.id == 0}">
-                                        <c:choose>
-                                            <c:when test="${user.role.id == 0}">
-                                                <a class="btn btn-danger disabled"
-                                                   href="#"><fmt:message
-                                                        key="label.delete"/></a>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <a class="btn btn-danger"
-                                                   href="<c:url value="/controller?command=delete_user&user_id=${user.id}"/>"><fmt:message
-                                                        key="label.delete"/></a>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </c:if>
-                                </td>
-                            </tr>
-                        </c:forEach>
-                        </tbody>
-                    </table>
-                    <div class="container">
-                        <nav aria-label="Page navigation example">
-                            <%@include file="../jspf/pagination.jspf" %>
-                        </nav>
-                    </div>
-                </form>
+                    </c:forEach>
+                    </tbody>
+                </table>
+                <div class="container">
+                    <nav aria-label="Page navigation example">
+                        <%@include file="../jspf/pagination.jspf" %>
+                    </nav>
+                </div>
             </c:when>
             <c:otherwise>
                 <h1 class="text-center"><fmt:message key="title.users.not.found"/></h1>

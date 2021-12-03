@@ -7,8 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.annotation.WebInitParam;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,10 +16,6 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 
-@WebFilter(filterName = "locale-filter",
-        urlPatterns = "/*",
-        initParams = {
-                @WebInitParam(name = "default-locale", value = "en")})
 public class LocaleFilter extends BaseFilter {
 
     private static final Logger logger =
@@ -33,7 +27,6 @@ public class LocaleFilter extends BaseFilter {
     public void init(FilterConfig filterConfig) throws ServletException {
         super.init(filterConfig);
         defaultLocale = filterConfig.getInitParameter("default-locale");
-        logger.debug("Locale filter initialized");
     }
 
     @Override
@@ -86,7 +79,7 @@ public class LocaleFilter extends BaseFilter {
 
     @Override
     public void destroy() {
-        logger.debug("Locale filter destroyed");
+        super.destroy();
     }
 
 }

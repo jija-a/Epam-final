@@ -16,8 +16,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-/*@WebFilter(filterName = "CommandFilter",
-        urlPatterns = "/controller")*/
 public class CommandFilter extends BaseFilter {
 
     private static final Logger logger =
@@ -35,6 +33,7 @@ public class CommandFilter extends BaseFilter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        super.init(filterConfig);
     }
 
     @Override
@@ -47,54 +46,59 @@ public class CommandFilter extends BaseFilter {
         HttpServletResponse res = (HttpServletResponse) response;
         HttpSession session = req.getSession();
 
-        User user = (User) session.getAttribute(RequestConstant.USER);
-        UserRole role = user != null ? user.getRole() : UserRole.GUEST;
-        logger.info("User role is: {}", role);
-        Set<String> accessibleCommands;
-        switch (role) {
-            case STUDENT:
-                accessibleCommands = STUDENT_COMMANDS;
-                break;
-            case TEACHER:
-                accessibleCommands = TEACHER_COMMANDS;
-                break;
-            case ADMIN:
-                accessibleCommands = ADMIN_COMMANDS;
-                break;
-            default:
-                accessibleCommands = GUEST_COMMANDS;
-        }
-
         String commandName = req.getParameter(RequestConstant.COMMAND);
+        if (StringUtils.isNullOrEmpty(commandName)) {
+            logger.info("Command not found, redirecting to error page");
+            res.sendError(HttpServletResponse.SC_NOT_FOUND);
+        } else {
 
-        if (!StringUtils.isNullOrEmpty(commandName)) {
+            User user = (User) session.getAttribute(RequestConstant.USER);
+            UserRole role = user != null ? user.getRole() : UserRole.GUEST;
+            logger.info("User role is: {}", role);
+            Set<String> accessibleCommands;
+            switch (role) {
+                case STUDENT:
+                    accessibleCommands = STUDENT_COMMANDS;
+                    break;
+                case TEACHER:
+                    accessibleCommands = TEACHER_COMMANDS;
+                    break;
+                case ADMIN:
+                    accessibleCommands = ADMIN_COMMANDS;
+                    break;
+                default:
+                    accessibleCommands = GUEST_COMMANDS;
+            }
+
+            logger.info("{} command received", commandName);
             if (accessibleCommands.contains(commandName)) {
                 logger.info("User HAVE permission to '{}' command", commandName);
                 chain.doFilter(request, response);
             } else {
-                logger.info("User DO NOT have permission to '{}' command", commandName);
                 String page;
+                logger.info("User DO NOT have permission to '{}' command", commandName);
                 if (role.equals(UserRole.GUEST)) {
-                    page = req.getContextPath() + req.getServletPath() + "?" + RequestConstant.COMMAND + "=" + CommandName.TO_LOGIN_PAGE;
+                    page = req.getContextPath() + req.getServletPath() + "?"
+                            + RequestConstant.COMMAND + "=" + CommandName.TO_LOGIN_PAGE;
                 } else {
-                    page = req.getContextPath() + req.getServletPath() + "?" + RequestConstant.COMMAND + "=" + CommandName.TO_HOME_PAGE;
+                    page = req.getContextPath() + req.getServletPath() + "?"
+                            + RequestConstant.COMMAND + "=" + CommandName.TO_HOME_PAGE;
                 }
                 logger.info("Redirecting to: '{}'", page);
                 res.sendRedirect(page);
             }
         }
-
     }
 
     @Override
     public void destroy() {
+        super.destroy();
     }
 
     private static Set<String> initCommonCommands() {
         Set<String> commands = new HashSet<>();
         commands.add(CommandName.CHANGE_LOCALE);
         commands.add(CommandName.LOGOUT);
-        commands.add(CommandName.SHOW_TESTS);
         commands.add(CommandName.SHOW_COURSE_USERS);
         commands.add(CommandName.SHOW_USERS);
         commands.add(CommandName.TO_PROFILE_PAGE);
@@ -115,19 +119,26 @@ public class CommandFilter extends BaseFilter {
     private static Set<String> initStudentCommands() {
         Set<String> commands = new HashSet<>(COMMON_COMMANDS);
         commands.add(CommandName.SHOW_COURSES);
-        commands.add(CommandName.REQUEST_SIGN_ON_COURSE);
         return commands;
     }
 
     private static Set<String> initTeacherCommands() {
         Set<String> commands = new HashSet<>(COMMON_COMMANDS);
-        commands.add(CommandName.ADD_STUDENT_ON_COURSE);
+        commands.add(CommandName.ACCEPT_STUDENT_REQUEST);
         commands.add(CommandName.CREATE_COURSE);
+        commands.add(CommandName.CREATE_LESSON);
+        commands.add(CommandName.DECLINE_STUDENT_REQUEST);
+        commands.add(CommandName.DELETE_LESSON);
         commands.add(CommandName.DELETE_COURSE);
         commands.add(CommandName.DELETE_USER_FROM_COURSE);
+        commands.add(CommandName.SHOW_ATTENDANCES);
         commands.add(CommandName.SHOW_COURSE_REQUESTS);
+        commands.add(CommandName.SHOW_COURSE_USERS);
+        commands.add(CommandName.SHOW_LESSONS);
         commands.add(CommandName.SHOW_TEACHER_COURSES);
+        commands.add(CommandName.UPDATE_ATTENDANCE);
         commands.add(CommandName.UPDATE_COURSE);
+        commands.add(CommandName.UPDATE_LESSON);
         return commands;
     }
 

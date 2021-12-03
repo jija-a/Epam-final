@@ -13,12 +13,12 @@ public class HashService {
     }
 
     public static String hash(char[] password) {
-        logger.info("hashing password");
+        logger.debug("hashing password");
         return SCryptUtil.scrypt(String.valueOf(password), 16, 16, 16);
     }
 
     public static boolean check(String password, char[] hashed) {
-        logger.info("Checking hashed password");
+        logger.debug("Checking hashed password");
         return SCryptUtil.check(password, String.valueOf(hashed));
     }
 }

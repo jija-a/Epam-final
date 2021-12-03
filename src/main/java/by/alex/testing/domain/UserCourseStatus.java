@@ -23,12 +23,12 @@ public enum UserCourseStatus implements Cloneable, Serializable {
         return this.name;
     }
 
-    public static UserCourseStatus resolveStatusById(int id) {
+    public static UserCourseStatus resolveStatusById(int id) throws UnknownEntityException {
         for (UserCourseStatus status : values()) {
             if (status.id == id) {
                 return status;
             }
         }
-        throw new RuntimeException();
+        throw new UnknownEntityException("Id: " + id + " undefined in user course status");
     }
 }

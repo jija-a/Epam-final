@@ -1,10 +1,10 @@
 <c:choose>
-    <c:when test="${student.id == sessionScope.user.id}">
+    <c:when test="${courseUser.user.role.id == 1}">
         <a class="btn btn-danger disabled" href="#"><fmt:message key="label.delete"/></a>
     </c:when>
     <c:otherwise>
         <a class="btn btn-danger"
-           href="<c:url value="/controller?command=delete_user_from_course&user_id=${student.id}&course_id=${course.id}"/>"><fmt:message
+           href="<c:url value="/controller?command=delete_user_from_course&user_id=${courseUser.user.id}&course_id=${course.id}"/>"><fmt:message
                 key="label.delete"/></a>
     </c:otherwise>
 </c:choose>

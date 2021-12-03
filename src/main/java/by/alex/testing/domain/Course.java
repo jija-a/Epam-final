@@ -3,7 +3,6 @@ package by.alex.testing.domain;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -17,7 +16,6 @@ public class Course extends Entity {
     private String name;
     private User owner;
     private Map<User, UserCourseStatus> students;
-    private List<Quiz> quizzes;
     private CourseCategory category;
 
     public Course(String name, User owner, CourseCategory category){

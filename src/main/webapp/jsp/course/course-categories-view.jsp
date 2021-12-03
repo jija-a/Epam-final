@@ -13,7 +13,7 @@
 
 <main class="flex-shrink-0">
     <div class="container-fluid">
-        <%@include file="../jspf/error-success.jspf"%>
+        <%@include file="../jspf/error-success.jspf" %>
         <c:choose>
             <c:when test="${not empty course_categories}">
                 <form action="<c:url value="/controller"/>" id="searchForm"></form>
@@ -34,8 +34,11 @@
                             <form action="<c:url value="/controller"/>">
                                 <input type="hidden" name="command" value="update_category">
                                 <input type="hidden" name="category_id" value="${category.id}">
-                                <th scope="row">${st.count}</th>
-                                <td><input type="text" maxlength="128" minlength="3" name="category_name" value="${category.name}"></td>
+                                <th scope="row">
+                                    <%@include file="../jspf/entity-number.jspf" %>
+                                </th>
+                                <td><input type="text" maxlength="128" minlength="3" name="category_name"
+                                           value="${category.name}"></td>
                                 <td>
                                     <input class="btn btn-warning" type="submit" value="<fmt:message
                                     key="label.update"/>"/>
@@ -79,7 +82,8 @@
                         <form action="<c:url value="/controller"/>">
                             <input type="hidden" name="command" value="create_category">
                             <td>#</td>
-                            <td><input type="text" maxlength="128" minlength="3" name="category_name" placeholder="Category name"></td>
+                            <td><input type="text" maxlength="128" minlength="3" name="category_name"
+                                       placeholder="Category name"></td>
                             <td><input class="btn btn-primary" type="submit" value="<fmt:message
                                     key="label.create"/>"/>
                             </td>

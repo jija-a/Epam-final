@@ -10,20 +10,20 @@
 
 <body class="d-flex flex-column h-100">
 
-<%@include file="jspf/header.jspf"%>
+<%@include file="jspf/header.jspf" %>
 
 <!-- Begin page content -->
 <c:if test="${user.role.id == 2}">
-    <%@include file="jspf/student-home.jspf"%>
+    <jsp:forward page="controller?command=show_available_courses"/>
 </c:if>
 <c:if test="${user.role.id == 1}">
-    <%@include file="jspf/teacher-home.jspf"%>
+    <jsp:forward page="/controller?command=show_teacher_courses"/>
 </c:if>
 <c:if test="${user.role.id == 0}">
-    <%@include file="jspf/admin-home.jspf"%>
+    <jsp:forward page="/controller?command=show_courses"/>
 </c:if>
 
-<%@include file="jspf/footer.jspf"%>
+<%@include file="jspf/footer.jspf" %>
 
 </body>
 </html>

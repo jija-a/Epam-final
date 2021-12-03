@@ -55,10 +55,13 @@
                 </div>
             </c:when>
             <c:otherwise>
-                <h1 class="text-center">There is no tests on course</h1>
                 <div class="row justify-content-md-center">
-                    <div class="col col-lg-2">
-                        <button class="btn btn-success">Create</button>
+                    <h1 class="text-center">There is no tests on course</h1>
+                    <div class="text-center">
+                        <form action="<c:url value="/controller"/>" method="get">
+                            <input type="hidden" name="command" value="to_test_creation_page">
+                            <button type="submit" class="btn btn-success">Create</button>
+                        </form>
                     </div>
                 </div>
             </c:otherwise>

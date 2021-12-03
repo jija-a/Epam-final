@@ -28,4 +28,56 @@
         </jsp-property-group>
     </jsp-config>
 
+    <filter>
+        <filter-name>encoding-filter</filter-name>
+        <filter-class>by.alex.testing.controller.filter.EncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>encoding-filter</filter-name>
+        <url-pattern>/controller</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>jsp-page-security-filter</filter-name>
+        <filter-class>by.alex.testing.controller.filter.PageRedirectSecurityFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>jsp-page-security-filter</filter-name>
+        <url-pattern>/jsp/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>locale-filter</filter-name>
+        <filter-class>by.alex.testing.controller.filter.LocaleFilter</filter-class>
+        <init-param>
+            <param-name>default-locale</param-name>
+            <param-value>en</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>locale-filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>xss-filter</filter-name>
+        <filter-class>by.alex.testing.controller.filter.XSSFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>xss-filter</filter-name>
+        <url-pattern>/controller</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>command-filter</filter-name>
+        <filter-class>by.alex.testing.controller.filter.CommandFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>command-filter</filter-name>
+        <url-pattern>/controller</url-pattern>
+    </filter-mapping>
 </web-app>

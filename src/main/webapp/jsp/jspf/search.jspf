@@ -4,6 +4,7 @@
             <%--@declare id="searchform"--%>
             <input type="search" class="form-control rounded" placeholder="<fmt:message key="button.search"/>"
                    form="searchForm"
+                   pattern="[^'\x22]+"
                    minlength="1"
                    maxlength="256"
                    value="${search}"

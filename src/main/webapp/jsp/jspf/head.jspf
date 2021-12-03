@@ -23,3 +23,5 @@
         integrity="sha384-kQtW33rZJAHjgefvhyyzcGF3C5TFyBQBA13V1RKPf4uH+bwyzQxZ6CmMZHmNBEfJ"
         crossorigin="anonymous"></script>
 
+<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+

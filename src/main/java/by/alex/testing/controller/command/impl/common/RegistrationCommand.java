@@ -2,11 +2,12 @@ package by.alex.testing.controller.command.impl.common;
 
 import by.alex.testing.controller.*;
 import by.alex.testing.controller.command.Command;
+import by.alex.testing.domain.UnknownEntityException;
 import by.alex.testing.domain.User;
 import by.alex.testing.domain.UserRole;
+import by.alex.testing.service.CommonService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
-import by.alex.testing.service.UserService;
 import com.mysql.cj.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,15 +21,15 @@ public class RegistrationCommand implements Command {
     private static final Logger logger =
             LoggerFactory.getLogger(RegistrationCommand.class);
 
-    private final UserService userService;
+    private final CommonService commonService;
 
     public RegistrationCommand() {
-        userService = ServiceFactory.getInstance().getUserService();
+        commonService = ServiceFactory.getInstance().getCommonService();
     }
 
     @Override
-    public ViewResolver execute(HttpServletRequest req,
-                                HttpServletResponse resp) throws ServiceException {
+    public ViewResolver execute(HttpServletRequest req, HttpServletResponse resp)
+            throws ServiceException, UnknownEntityException {
 
         logger.info("Register command received");
         ViewResolver resolver;
@@ -40,7 +41,7 @@ public class RegistrationCommand implements Command {
         String psw = req.getParameter(RequestConstant.PASSWORD);
         String confPsw = req.getParameter(RequestConstant.CONFIRMATION_PASSWORD);
 
-        if (userService.findUserByLogin(login) == null) {
+        if (commonService.findUserByLogin(login) == null) {
             if (!StringUtils.isNullOrEmpty(psw) && psw.equals(confPsw)) {
 
                 User user = User.builder()
@@ -51,7 +52,7 @@ public class RegistrationCommand implements Command {
                         .role(UserRole.resolveRoleById(Integer.parseInt(role)))
                         .build();
 
-                List<String> errors = userService.register(user);
+                List<String> errors = commonService.register(user);
                 if (errors.isEmpty()) {
                     req.getSession().setAttribute(RequestConstant.SUCCESS,
                             MessageManager.INSTANCE.getMessage(MessageConstant.REGISTRATION_SUCCESS));

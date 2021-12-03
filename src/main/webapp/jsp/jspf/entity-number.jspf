@@ -1,0 +1,8 @@
+<c:choose>
+    <c:when test="${page > 1}">
+        ${st.count + (page - 1) * records_per_page}
+    </c:when>
+    <c:otherwise>
+        ${st.count}
+    </c:otherwise>
+</c:choose>

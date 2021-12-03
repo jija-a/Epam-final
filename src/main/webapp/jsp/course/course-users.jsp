@@ -17,12 +17,11 @@
 
 <main class="flex-shrink-0">
     <div class="container-fluid">
-        <%@include file="../jspf/error-success.jspf"%>
+        <%@include file="../jspf/error-success.jspf" %>
         <c:choose>
-            <c:when test="${not empty users}">
+            <c:when test="${not empty course_users}">
                 <form action="<c:url value="/controller"/>" id="searchForm">
                     <input type="hidden" name="command" value="show_course_users">
-                    <input type="hidden" name="course_id" value="${course.id}">
                     <%@include file="../jspf/search.jspf" %>
                     <table class="table caption-top table-bordered table-hover">
                         <caption><fmt:message key="head.title.users_list"/></caption>
@@ -31,20 +30,29 @@
                             <th scope="col">#</th>
                             <th scope="col"><fmt:message key="label.login"/></th>
                             <th scope="col"><fmt:message key="label.name"/></th>
-                            <th scope="col"><fmt:message key="label.role"/></th>
+                            <th scope="col"><fmt:message key="label.rating"/></th>
                             <th scope="col"><fmt:message key="label.action"/></th>
                         </tr>
                         </thead>
                         <tbody>
-                        <c:forEach var="student" varStatus="st" items="${users}">
+                        <c:forEach var="courseUser" varStatus="st" items="${course_users}">
                             <tr>
-                                <th scope="row">${st.count}</th>
-                                <td><c:out value="${student.login}"/></td>
-                                <td><c:out value="${student.firstName} ${student.lastName}"/></td>
-                                <td><c:out value="${student.role.name}"/></td>
+                                <th scope="row">
+                                    <%@include file="../jspf/entity-number.jspf" %>
+                                </th>
+                                <td><c:out value="${courseUser.user.login}"/></td>
+                                <td><c:out value="${courseUser.user.firstName} ${courseUser.user.lastName}"/></td>
+                                <c:choose>
+                                    <c:when test="${courseUser.rating eq 0}">
+                                        <td>-</td>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <td><c:out value="${courseUser.rating}"/></td>
+                                    </c:otherwise>
+                                </c:choose>
                                 <td>
                                         <%--TEACHER--%>
-                                    <c:if test="${user.role.id == 1 && course.owner.id == sessionScope.user.id}">
+                                    <c:if test="${user.role.id == 1}">
                                         <%@include file="../jspf/teacher-course-users-buttons.jspf" %>
                                     </c:if>
                                 </td>

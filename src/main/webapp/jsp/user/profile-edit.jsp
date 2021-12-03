@@ -43,7 +43,7 @@
                             <div class="col-md-6"><label class="labels"><fmt:message key="label.name"/></label>
                                 <input type="text" class="form-control" name="first_name"
                                        placeholder="<fmt:message key="input.placeholder.first_name"/>"
-                                       pattern="^[a-zA-Zа-яА-Я]{3,25}$"
+                                       pattern="^\D[^0-9]{3,25}$"
                                        value="${user.firstName}"
                                        required>
                             </div>
@@ -51,7 +51,7 @@
                                     key="input.placeholder.last_name"/></label>
                                 <input type="text" class="form-control" name="last_name"
                                        placeholder="<fmt:message key="input.placeholder.last_name"/>"
-                                       pattern="^[a-zA-Zа-яА-Я]{3,25}$"
+                                       pattern="^\D[^0-9]{3,25}$"
                                        value="${user.lastName}"
                                        required>
                             </div>

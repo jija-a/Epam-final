@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 public class CourseCategoryValidator {
 
-    private static final String NAME_PATTERN = "^[a-zA-Zа-яА-Я\\s]{3,128}$";
+    private static final String NAME_PATTERN = "^.{3,150}$";
 
     public static List<String> validate(CourseCategory category) {
         List<String> errors = new ArrayList<>();

@@ -22,12 +22,12 @@ public enum UserRole {
         return this.name;
     }
 
-    public static UserRole resolveRoleById(int id) {
+    public static UserRole resolveRoleById(int id) throws UnknownEntityException {
         for (UserRole role : values()) {
             if (role.id == id) {
                 return role;
             }
         }
-        throw new RuntimeException();
+        throw new UnknownEntityException("Id: " + id + " undefined in user role");
     }
 }

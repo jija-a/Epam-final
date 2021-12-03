@@ -16,4 +16,9 @@ public class BaseValidator {
         }
         return error;
     }
+
+    public static boolean isPositiveNumber(Integer number) {
+        if (number == null) return true;
+        return number > -1;
+    }
 }

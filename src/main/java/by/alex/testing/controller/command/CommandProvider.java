@@ -1,10 +1,10 @@
 package by.alex.testing.controller.command;
 
 import by.alex.testing.controller.CommandName;
+import by.alex.testing.controller.command.impl.admin.ShowCoursesCommand;
 import by.alex.testing.controller.command.impl.admin.*;
 import by.alex.testing.controller.command.impl.common.*;
 import by.alex.testing.controller.command.impl.page.*;
-import by.alex.testing.controller.command.impl.student.RequestSignOnCourseCommand;
 import by.alex.testing.controller.command.impl.teacher.*;
 
 import java.util.Map;
@@ -27,10 +27,6 @@ public class CommandProvider {
                 Map.entry(CommandName.TO_INDEX_PAGE, new ToIndexPageCommand()),
                 Map.entry(CommandName.TO_LOGIN_PAGE, new ToLoginPageCommand()),
                 Map.entry(CommandName.TO_REGISTRATION_PAGE, new ToRegistrationPageCommand()),
-                Map.entry(CommandName.TO_TEST_CREATION_PAGE, new ToTestCreationPageCommand()),
-                Map.entry(CommandName.TO_TEST_INFO_PAGE, new ToTestInfoPageCommand()),
-                Map.entry(CommandName.TO_TEST_RESULTS_PAGE, new ToTestResultsPageCommand()),
-                Map.entry(CommandName.TO_TEST_UPDATE_PAGE, new ToTestUpdatePageCommand()),
 
                 //common
                 Map.entry(CommandName.CHANGE_LOCALE, new ChangeLocaleCommand()),
@@ -42,21 +38,24 @@ public class CommandProvider {
                 Map.entry(CommandName.SHOW_USERS, new ShowUsersCommand()),
                 Map.entry(CommandName.TO_PROFILE_PAGE, new ToProfilePageCommand()),
                 Map.entry(CommandName.UPDATE_PROFILE, new UpdateProfileCommand()),
-                Map.entry(CommandName.SHOW_TESTS, new ShowCourseTestsCommand()),
 
                 //student
-                Map.entry(CommandName.REQUEST_SIGN_ON_COURSE, new RequestSignOnCourseCommand()),
 
                 //teacher
-                Map.entry(CommandName.ACCEPT_STUDENT_ON_COURSE, new AcceptStudentRequestCommand()),
+                Map.entry(CommandName.ACCEPT_STUDENT_REQUEST, new AcceptStudentRequestCommand()),
                 Map.entry(CommandName.CREATE_COURSE, new CreateCourseCommand()),
-                Map.entry(CommandName.DECLINE_REQUEST, new DeclineStudentRequestCommand()),
-                Map.entry(CommandName.DELETE_TEST, new DeleteTestCommand()),
+                Map.entry(CommandName.CREATE_LESSON, new CreateLessonCommand()),
+                Map.entry(CommandName.DECLINE_STUDENT_REQUEST, new DeclineStudentRequestCommand()),
+                Map.entry(CommandName.DELETE_LESSON, new DeleteLessonCommand()),
                 Map.entry(CommandName.DELETE_USER_FROM_COURSE, new DeleteUserFromCourseCommand()),
                 Map.entry(CommandName.SHOW_COURSE_REQUESTS, new ShowCourseRequestsCommand()),
                 Map.entry(CommandName.SHOW_TEACHER_COURSES, new ShowTeacherCoursesCommand()),
                 Map.entry(CommandName.UPDATE_COURSE, new UpdateCourseCommand()),
-                Map.entry(CommandName.UPDATE_TEST_INFO, new UpdateTestInfoCommand()),
+                Map.entry(CommandName.SHOW_LESSONS, new ShowLessonsCommand()),
+                Map.entry(CommandName.SHOW_ATTENDANCES, new ShowAttendanceCommand()),
+                Map.entry(CommandName.UPDATE_ATTENDANCE, new UpdateAttendanceCommand()),
+                Map.entry(CommandName.UPDATE_LESSON, new UpdateLessonCommand()),
+
 
                 //admin
                 Map.entry(CommandName.CREATE_COURSE_CATEGORY, new CreateCourseCategoryCommand()),

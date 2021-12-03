@@ -5,7 +5,8 @@ import by.alex.testing.controller.RequestConstant;
 import by.alex.testing.controller.ViewResolver;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.domain.CourseCategory;
-import by.alex.testing.service.CourseCategoryService;
+import by.alex.testing.service.AdminService;
+import by.alex.testing.service.PaginationService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
 import com.mysql.cj.util.StringUtils;
@@ -24,10 +25,12 @@ public class ShowCourseCategoriesCommand implements Command {
 
     private static final int DEFAULT_PAGINATION_LIMIT = 5;
 
-    private final CourseCategoryService courseService;
+    private final AdminService adminService;
+    private final PaginationService paginationService;
 
     public ShowCourseCategoriesCommand() {
-        courseService = ServiceFactory.getInstance().getCourseCategoryService();
+        adminService = ServiceFactory.getInstance().getAdminService();
+        paginationService = ServiceFactory.getInstance().getPaginationService();
     }
 
     @Override
@@ -35,48 +38,39 @@ public class ShowCourseCategoriesCommand implements Command {
                                 HttpServletResponse resp) throws ServiceException {
 
         logger.info("View courses command received");
-        List<CourseCategory> categories = new ArrayList<>();
 
-        String stringRec = req.getParameter(RequestConstant.RECORDS_PER_PAGE);
-        int recOnPage = stringRec == null ? DEFAULT_PAGINATION_LIMIT : Integer.parseInt(stringRec);
-        req.setAttribute(RequestConstant.RECORDS_PER_PAGE, recOnPage);
-
+        int pageLimit = req.getParameter(RequestConstant.RECORDS_PER_PAGE) == null
+                ? DEFAULT_PAGINATION_LIMIT : Integer.parseInt(req.getParameter(RequestConstant.RECORDS_PER_PAGE));
+        int page = req.getParameter(RequestConstant.PAGE_NUMBER) != null ?
+                Integer.parseInt(req.getParameter(RequestConstant.PAGE_NUMBER)) : 1;
         String search = req.getParameter(RequestConstant.SEARCH);
-        String reqPage = req.getParameter(RequestConstant.PAGE);
 
-        int page = reqPage != null ? Integer.parseInt(reqPage) : 1;
-
+        List<CourseCategory> categories = new ArrayList<>();
+        int pages = 1;
+        int entitiesQty;
+        int start;
         if (!StringUtils.isNullOrEmpty(search)) {
-            logger.debug("Search course categories request by '{}' received", search);
-            categories = this.searchByName(search, page, req, recOnPage);
+            req.setAttribute(RequestConstant.SEARCH, search);
+            entitiesQty = adminService.countAllCourseCategories(search);
+            start = paginationService.defineStartEntityNumber(page, pageLimit);
+            pages = paginationService.defineNumberOfPages(entitiesQty, pageLimit);
+            categories = adminService.readAllCourseCategories(start, pageLimit, search);
+            logger.info("SEARCHING, qty - {}, start - {}, pages - {}, cat - {}", entitiesQty, start, pages, categories);
         }
+
         if (categories.isEmpty()) {
-            logger.debug("Search all course categories request received");
-            categories = this.searchAll(page, req, recOnPage);
+            entitiesQty = adminService.countAllCourseCategories();
+            start = paginationService.defineStartEntityNumber(page, pageLimit);
+            pages = paginationService.defineNumberOfPages(entitiesQty, pageLimit);
+            categories = adminService.readAllCourseCategories(start, pageLimit);
+            logger.info("GETTING ALL, qty - {}, start - {}, pages - {}, cat - {}", entitiesQty, start, pages, categories);
         }
+
+        req.setAttribute(RequestConstant.RECORDS_PER_PAGE, pageLimit);
+        req.setAttribute(RequestConstant.NUMBER_OF_PAGES, pages);
+        req.setAttribute(RequestConstant.PAGE_NUMBER, page);
 
         req.setAttribute(RequestConstant.COURSE_CATEGORIES, categories);
-        logger.debug("Course categories - {}", categories);
         return new ViewResolver(PageConstant.COURSE_CATEGORIES_LIST_PAGE);
-    }
-
-    private List<CourseCategory> searchByName(String search, int page, HttpServletRequest req, int recOnPage)
-            throws ServiceException {
-
-        search = search.trim();
-        req.setAttribute(RequestConstant.SEARCH, search);
-        Integer count = courseService.countAllCourseCategories(search);
-        int start = this.definePagination(req, count, page, recOnPage);
-        logger.debug("page - {}, start - {}, recOnPage - {}, count - {}", page, start, recOnPage, count);
-        return courseService.readCourseCategoriesByTitle(start, recOnPage, search);
-    }
-
-    private List<CourseCategory> searchAll(int page, HttpServletRequest req, int recOnPage)
-            throws ServiceException {
-
-        Integer count = courseService.countAllCourseCategories();
-        int start = this.definePagination(req, count, page, recOnPage);
-        logger.debug("page - {}, start - {}, recOnPage - {}, count - {}", page, start, recOnPage, count);
-        return courseService.readAllCourseCategories(start, recOnPage);
     }
 }

@@ -4,14 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.annotation.WebInitParam;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebFilter(servletNames = {"encoding-filter"},
-        urlPatterns = "/*",
-        initParams = {@WebInitParam(name = "encoding", value = "UTF-8")})
 public class EncodingFilter extends BaseFilter {
 
     private static final Logger logger =
@@ -21,8 +16,8 @@ public class EncodingFilter extends BaseFilter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        super.init(filterConfig);
         this.encoding = filterConfig.getInitParameter("encoding");
-        logger.debug("Encoding filter initialized");
     }
 
     @Override
@@ -46,6 +41,6 @@ public class EncodingFilter extends BaseFilter {
 
     @Override
     public void destroy() {
-        logger.debug("Encoding filter destroyed");
+        super.destroy();
     }
 }

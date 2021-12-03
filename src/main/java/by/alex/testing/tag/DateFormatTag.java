@@ -17,7 +17,6 @@ public class DateFormatTag extends TagSupport {
     private String var;
     private int scope;
 
-
     public DateFormatTag() {
         super();
         init();
@@ -30,7 +29,6 @@ public class DateFormatTag extends TagSupport {
         this.scope = PageContext.PAGE_SCOPE;
     }
 
-
     public void setVar(final String var) {
         this.var = var;
     }
@@ -39,16 +37,13 @@ public class DateFormatTag extends TagSupport {
         this.scope = Util.getScope(scope);
     }
 
-
     public void setValue(final Temporal value) {
         this.value = value;
     }
 
-
     public void setPattern(final String pattern) {
         this.pattern = pattern;
     }
-
 
     @Override
     public int doEndTag() throws JspException {
@@ -62,12 +57,10 @@ public class DateFormatTag extends TagSupport {
             return EVAL_PAGE;
         }
 
-        // Create formatter
         if (this.pattern != null) {
             final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(this.pattern);
             formatted = formatter.format(this.value);
         } else {
-            // no formatting locale available, use Date.toString()
             formatted = this.value.toString();
         }
 
@@ -83,7 +76,6 @@ public class DateFormatTag extends TagSupport {
 
         return EVAL_PAGE;
     }
-
 
     @Override
     public void release() {

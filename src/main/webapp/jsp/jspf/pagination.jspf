@@ -1,9 +1,11 @@
-<%--@declare id="searchform"--%>
-<ul class="pagination">
+<%--Pagination--%>
+<c:if test="${pages > 1}">
+    <%--@declare id="searchform"--%>
+    <ul class="pagination">
 
     <c:if test="${page != 1}">
         <li class="page-item">
-            <button class="page-link" href="#" aria-label="Previous">
+            <button form="searchForm" name="page" type="submit" value="${page - 1}" class="page-link" href="#" aria-label="Previous">
                 <span aria-hidden="true">&laquo;</span>
             </button>
         </li>
@@ -21,12 +23,15 @@
     </c:forEach>
     <c:if test="${page < pages}">
         <li class="page-item">
-            <button     form="searchForm" type="submit" value="${page + 1}" name="page" class="page-link" aria-label="Next">
+            <button form="searchForm" type="submit" value="${page + 1}" name="page" class="page-link"
+                    aria-label="Next">
                 <span aria-hidden="true">&raquo;</span>
             </button>
         </li>
     </c:if>
+</c:if>
 
+<%--Qty on page--%>
 </ul>
 <div class="row justify-content-md-left">
     <div class="col col-lg-1">

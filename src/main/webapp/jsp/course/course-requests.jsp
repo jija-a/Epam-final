@@ -32,16 +32,20 @@
                     <tbody>
                     <c:forEach var="courseUser" varStatus="st" items="${users}">
                         <tr>
-                            <th scope="row">${st.count}</th>
+                            <th scope="row">
+                                <%@include file="../jspf/entity-number.jspf" %>
+                            </th>
                             <td>${courseUser.course.name}</td>
                             <td>${courseUser.user.firstName} ${courseUser.user.lastName}</td>
                             <td>
-                                <a class="btn btn-success"
-                                   href="<c:url value="/controller?command=accept_request&user_id=${courseUser.user.id}&course_id=${courseUser.course.id}"/>"><fmt:message
-                                        key="label.accept"/></a>
-                                <a class="btn btn-danger"
-                                   href="<c:url value="/controller?command=decline_request&user_id=${courseUser.user.id}&course_id=${courseUser.course.id}"/>"><fmt:message
-                                        key="label.decline"/></a>
+                                <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                                    <a class="btn btn-success"
+                                       href="<c:url value="/controller?command=accept_request&user_id=${courseUser.user.id}&course_id=${courseUser.course.id}"/>"><fmt:message
+                                            key="label.accept"/></a>
+                                    <a class="btn btn-danger"
+                                       href="<c:url value="/controller?command=decline_request&user_id=${courseUser.user.id}&course_id=${courseUser.course.id}"/>"><fmt:message
+                                            key="label.decline"/></a>
+                                </div>
                             </td>
                         </tr>
                     </c:forEach>

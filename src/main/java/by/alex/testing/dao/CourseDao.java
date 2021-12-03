@@ -10,6 +10,8 @@ public interface CourseDao {
 
     List<Course> readByOwnerId(Long userId, int start, int recOnPage) throws DaoException;
 
+    Course readByOwnerIdAndName(long teacherId, String courseName) throws DaoException;
+
     List<Course> readAll(int start, int recOnPage) throws DaoException;
 
     Integer count() throws DaoException;

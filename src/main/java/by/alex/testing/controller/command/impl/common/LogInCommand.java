@@ -3,25 +3,30 @@ package by.alex.testing.controller.command.impl.common;
 import by.alex.testing.controller.*;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.domain.User;
+import by.alex.testing.domain.UserRole;
+import by.alex.testing.service.CommonService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
-import by.alex.testing.service.UserService;
+import by.alex.testing.service.TeacherService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 public class LogInCommand implements Command {
 
     private static final Logger logger =
             LoggerFactory.getLogger(LogInCommand.class);
 
-    private final UserService userService;
+    private final CommonService commonService;
+    private final TeacherService teacherService;
 
     public LogInCommand() {
-        userService = ServiceFactory.getInstance().getUserService();
+        commonService = ServiceFactory.getInstance().getCommonService();
+        teacherService = ServiceFactory.getInstance().getTeacherService();
     }
 
     @Override
@@ -34,7 +39,7 @@ public class LogInCommand implements Command {
         String login = req.getParameter(RequestConstant.LOGIN);
         String password = req.getParameter(RequestConstant.PASSWORD);
 
-        User user = userService.login(login, password);
+        User user = commonService.login(login, password);
         if (user != null) {
             HttpSession session = req.getSession(false);
             session.setAttribute(RequestConstant.USER, user);
@@ -52,5 +57,4 @@ public class LogInCommand implements Command {
         logger.info("To course creation page command received");
         return resolver;
     }
-
 }

@@ -3,10 +3,10 @@ package by.alex.testing.controller.command.impl.common;
 import by.alex.testing.controller.*;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.domain.User;
+import by.alex.testing.service.CommonService;
 import by.alex.testing.service.HashService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
-import by.alex.testing.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,10 +19,10 @@ public class UpdateProfileCommand implements Command {
     private static final Logger logger =
             LoggerFactory.getLogger(UpdateProfileCommand.class);
 
-    private final UserService userService;
+    private final CommonService commonService;
 
     public UpdateProfileCommand() {
-        userService = ServiceFactory.getInstance().getUserService();
+        commonService = ServiceFactory.getInstance().getCommonService();
     }
 
     @Override
@@ -45,7 +45,7 @@ public class UpdateProfileCommand implements Command {
             currentUser.setFirstName(firstName);
             currentUser.setLastName(lastName);
 
-            if (userService.updateUserProfile(currentUser)) {
+            if (commonService.updateUserProfile(currentUser)) {
 
                 String page = createRedirectURL(req, CommandName.TO_PROFILE_PAGE);
                 resolver = new ViewResolver(page, ViewResolver.ResolveAction.REDIRECT);

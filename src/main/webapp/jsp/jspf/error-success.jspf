@@ -2,6 +2,7 @@
     <div class="alert alert-danger alert-dismissible fade show">
         <strong><fmt:message key="label.warn"/></strong> <c:out value="${error}"/>
     </div>
+    <c:remove var="error" scope="session"/>
 </c:if>
 <c:if test="${not empty errors}">
     <div class="alert alert-danger alert-dismissible fade show">
@@ -12,11 +13,12 @@
             </c:forEach>
         </ul>
     </div>
+    <c:remove var="errors" scope="session"/>
 </c:if>
 <c:if test="${not empty success}">
     <div class="alert alert-success alert-dismissible fade show">
         <strong><fmt:message key="label.success"/></strong>
         <h6 class="text-success" id="success"><c:out value="${success}"/></h6>
-        <c:remove var="success" scope="session"/>
     </div>
+    <c:remove var="success" scope="session"/>
 </c:if>

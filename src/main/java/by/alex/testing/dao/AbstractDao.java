@@ -10,20 +10,21 @@ import java.sql.Statement;
 import java.util.List;
 
 public abstract class AbstractDao<T extends Entity, K> {
+
     private static final Logger logger =
             LoggerFactory.getLogger(AbstractDao.class);
 
     protected Connection connection;
 
+    public abstract boolean create(T entity) throws DaoException;
+
     public abstract List<T> readAll() throws DaoException;
 
     public abstract T readById(K id) throws DaoException;
 
-    public abstract void create(T entity) throws DaoException;
+    public abstract boolean update(T entity) throws DaoException;
 
-    public abstract void update(T entity) throws DaoException;
-
-    public abstract void delete(K id) throws DaoException;
+    public abstract boolean delete(K id) throws DaoException;
 
     void setConnection(Connection connection) {
         this.connection = connection;

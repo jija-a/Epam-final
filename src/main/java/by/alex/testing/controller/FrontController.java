@@ -2,7 +2,7 @@ package by.alex.testing.controller;
 
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.controller.command.CommandProvider;
-import by.alex.testing.dao.DaoException;
+import by.alex.testing.domain.UnknownEntityException;
 import by.alex.testing.service.ServiceException;
 import com.mysql.cj.util.StringUtils;
 import org.slf4j.Logger;
@@ -23,17 +23,23 @@ public class FrontController extends HttpServlet {
             LoggerFactory.getLogger(FrontController.class.getName());
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
 
-        this.handleRequest(req, resp);
+        try {
+            this.handleRequest(req, resp);
+        } catch (ServletException | IOException e) {
+            logger.error("Controller provided exception: ", e);
+        }
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
 
-        this.handleRequest(req, resp);
+        try {
+            this.handleRequest(req, resp);
+        } catch (ServletException | IOException e) {
+            logger.error("Controller provided exception: ", e);
+        }
     }
 
     private void handleRequest(HttpServletRequest req, HttpServletResponse resp)
@@ -52,8 +58,17 @@ public class FrontController extends HttpServlet {
             Command command = CommandProvider.resolveCommand(commandName);
             ViewResolver resolver = command.execute(req, resp);
             this.dispatch(req, resp, resolver);
-        } catch (ServiceException | DaoException e) {
-            logger.error("Service provided exception to front controller: ", e);
+        } catch (NotEnoughParametersException | UnknownEntityException | NumberFormatException e) {
+            logger.error(e.getMessage(), e);
+            req.getSession().setAttribute(RequestConstant.ERROR,
+                    MessageManager.INSTANCE.getMessage(MessageConstant.WRONG_PARAMETERS));
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        } catch (ServiceException e) {
+            logger.error("Service provided exception to front controller," +
+                    " redirecting to 500 error page: : ", e);
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            logger.error("Unhandled exception, redirecting to 500 error page: ", e);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }

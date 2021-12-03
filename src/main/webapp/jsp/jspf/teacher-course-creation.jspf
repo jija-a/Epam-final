@@ -13,7 +13,7 @@
         </select>
     </td>
     <td>
-        <input type="submit" class="btn btn-primary"
+        <input type="submit" class="btn btn-success"
                value="<fmt:message key="label.create"/>">
     </td>
 </form>

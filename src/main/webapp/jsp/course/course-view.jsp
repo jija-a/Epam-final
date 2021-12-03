@@ -44,7 +44,9 @@
                             <form action="<c:url value="/controller"/>" method="post">
                                 <input type="hidden" name="command" value="update_course">
                                 <input type="hidden" name="course_id" value="${course.id}">
-                                <th scope="row">${st.count}</th>
+                                <th scope="row">
+                                    <%@include file="../jspf/entity-number.jspf" %>
+                                </th>
                                 <td>
                                     <c:choose>
                                         <c:when test="${user.role.id == 1}">
@@ -77,10 +79,6 @@
                                         <c:when test="${user.role.id == 1}">
                                             <%@include file="../jspf/teacher-course-buttons.jspf" %>
                                         </c:when>
-                                        <%--STUDENT--%>
-                                        <c:when test="${user.role.id == 2}">
-                                            <%@include file="../jspf/student-course-buttons.jspf" %>
-                                        </c:when>
                                     </c:choose>
                                 </td>
                             </form>
@@ -108,7 +106,7 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col"><fmt:message key="label.course.name"/></th>
-                                <th scope="col"><fmt:message key="label.course.owner.name"/></th>
+                                <th scope="col"><fmt:message key="label.course.teacher.name"/></th>
                                 <th scope="col"><fmt:message key="label.course.type"/></th>
                                 <th scope="col"><fmt:message key="label.action"/></th>
                             </tr>

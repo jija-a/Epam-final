@@ -2,42 +2,59 @@ package by.alex.testing.controller.command.impl.teacher;
 
 import by.alex.testing.controller.*;
 import by.alex.testing.controller.command.Command;
-import by.alex.testing.dao.DaoException;
+import by.alex.testing.controller.validator.BaseParameterValidator;
 import by.alex.testing.domain.CourseUser;
-import by.alex.testing.service.CourseUserService;
+import by.alex.testing.domain.User;
+import by.alex.testing.service.CourseAccessDeniedException;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import by.alex.testing.service.TeacherService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class DeclineStudentRequestCommand implements Command {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(DeclineStudentRequestCommand.class);
-
-    private final CourseUserService courseUserService;
+    private final TeacherService teacherService;
 
     public DeclineStudentRequestCommand() {
-        this.courseUserService = ServiceFactory.getInstance().getCourseUserService();
+        this.teacherService = ServiceFactory.getInstance().getTeacherService();
     }
 
     @Override
     public ViewResolver execute(HttpServletRequest req, HttpServletResponse resp)
-            throws ServiceException, DaoException {
+            throws ServiceException, NotEnoughParametersException {
 
-        long courseId = Long.parseLong(req.getParameter(RequestConstant.COURSE_ID));
-        long userId = Long.parseLong(req.getParameter(RequestConstant.USER_ID));
+        String view = createRedirectURL(req, CommandName.SHOW_COURSE_REQUESTS);
+        ViewResolver resolver = new ViewResolver(view);
 
-        CourseUser courseUser = courseUserService.findCourseUser(courseId, userId);
-        courseUserService.delete(courseUser);
-        logger.debug("Course user: {}", courseUser);
+        String courseIdParam = req.getParameter(RequestConstant.COURSE_ID);
+        String studentIdParam = req.getParameter(RequestConstant.USER_ID);
 
-        req.getSession().setAttribute(RequestConstant.SUCCESS,
-                MessageManager.INSTANCE.getMessage(MessageConstant.DECLINE_SUCCESS));
-        String page = createRedirectURL(req, CommandName.SHOW_COURSE_REQUESTS);
-        return new ViewResolver(page, ViewResolver.ResolveAction.REDIRECT);
+        if (BaseParameterValidator.isNullOrEmpty(courseIdParam, studentIdParam)) {
+            throw new NotEnoughParametersException("Not enough parameters for executing command");
+        }
+        long courseId = Long.parseLong(courseIdParam);
+        long studentId = Long.parseLong(studentIdParam);
+        User teacher = (User) req.getSession().getAttribute(RequestConstant.USER);
+
+        try {
+            if (this.refuseRequest(courseId, studentId, teacher)) {
+                req.getSession().setAttribute(RequestConstant.SUCCESS,
+                        MessageManager.INSTANCE.getMessage(MessageConstant.DECLINE_SUCCESS));
+                resolver.setResolveAction(ViewResolver.ResolveAction.REDIRECT);
+            }
+        } catch (CourseAccessDeniedException e) {
+            logger.info(e.getMessage());
+        }
+        return resolver;
+    }
+
+    private boolean refuseRequest(long courseId, long studentId, User teacher) throws ServiceException, CourseAccessDeniedException {
+        CourseUser courseUser = teacherService.findCourseUser(courseId, studentId);
+        if (courseUser == null) {
+            return false;
+        }
+        return teacherService.deleteCourseUser(courseUser, teacher);
     }
 }

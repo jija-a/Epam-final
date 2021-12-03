@@ -17,11 +17,15 @@ public class TransactionHandler {
     public TransactionHandler() {
     }
 
-    public void beginNoTransaction(AbstractDao dao) {
+    public void beginNoTransaction(AbstractDao dao, AbstractDao... daos) {
         if (connection == null) {
             connection = (ProxyConnection) ConnectionPool.getInstance().getConnection();
         }
         dao.setConnection(connection);
+        dao.setConnection(connection);
+        for (AbstractDao entity : daos) {
+            entity.setConnection(connection);
+        }
     }
 
     public void begin(AbstractDao dao, AbstractDao... daos) {
@@ -34,8 +38,8 @@ public class TransactionHandler {
             logger.error(" Error executing query ", e);
         }
         dao.setConnection(connection);
-        for (AbstractDao daoElement : daos) {
-            daoElement.setConnection(connection);
+        for (AbstractDao entity : daos) {
+            entity.setConnection(connection);
         }
     }
 
