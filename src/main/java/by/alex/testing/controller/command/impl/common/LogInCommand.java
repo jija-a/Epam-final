@@ -3,7 +3,6 @@ package by.alex.testing.controller.command.impl.common;
 import by.alex.testing.controller.*;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.domain.User;
-import by.alex.testing.domain.UserRole;
 import by.alex.testing.service.CommonService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
@@ -14,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.List;
 
 public class LogInCommand implements Command {
 

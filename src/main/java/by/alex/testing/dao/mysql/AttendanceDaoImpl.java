@@ -22,6 +22,9 @@ public class AttendanceDaoImpl extends AbstractDao<Attendance, Long> implements 
     private static final String SQL_SELECT_BY_ID =
             "SELECT `attendance`.`id`, `attendance`.`lesson_id`, `attendance`.`user_id`, `attendance`.`mark`, `attendance`.`attended` FROM `attendance` WHERE `attendance`.`id` = ?";
 
+    private static final String SQL_SELECT_ALL_BY_LESSON_AND_STUDENT_ID =
+            "SELECT `attendance`.`id`, `attendance`.`lesson_id`, `attendance`.`user_id`, `attendance`.`mark`, `attendance`.`attended` FROM `attendance` WHERE `attendance`.`lesson_id` = ? AND `attendance`.`user_id` = ?;";
+
     private static final String SQL_UPDATE =
             "UPDATE `attendance` SET `attendance`.`mark` = ?, `attendance`.`attended` = ? WHERE `attendance`.`id` = ?";
 
@@ -67,18 +70,35 @@ public class AttendanceDaoImpl extends AbstractDao<Attendance, Long> implements 
 
     @Override
     public List<Attendance> readByLessonId(long lessonId) throws DaoException {
-        List<Attendance> lessons = new ArrayList<>();
+        List<Attendance> attendances = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL_BY_LESSON_ID)) {
             ps.setLong(1, lessonId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Attendance lesson = this.mapToEntity(rs);
-                lessons.add(lesson);
+                attendances.add(lesson);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while reading all lessons by course id: ", e);
+            throw new DaoException("Exception while reading all attendances by course id: ", e);
         }
-        return lessons;
+        return attendances;
+    }
+
+    @Override
+    public Attendance readByLessonAndStudentId(long lessonId, long studentId) throws DaoException {
+
+        Attendance attendance = null;
+        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL_BY_LESSON_AND_STUDENT_ID)) {
+            ps.setLong(1, lessonId);
+            ps.setLong(2, studentId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                attendance = this.mapToEntity(rs);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while reading all attendances by course id: ", e);
+        }
+        return attendance;
     }
 
     @Override

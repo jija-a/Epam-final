@@ -2,11 +2,11 @@ package by.alex.testing.controller.command.impl.teacher;
 
 import by.alex.testing.controller.*;
 import by.alex.testing.controller.command.Command;
+import by.alex.testing.controller.command.ParamsFromRequestHandler;
 import by.alex.testing.domain.Attendance;
 import by.alex.testing.domain.AttendanceStatus;
-import by.alex.testing.domain.UnknownEntityException;
 import by.alex.testing.domain.User;
-import by.alex.testing.service.CourseAccessDeniedException;
+import by.alex.testing.service.AccessDeniedException;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
 import by.alex.testing.service.TeacherService;
@@ -26,7 +26,7 @@ public class UpdateAttendanceCommand implements Command {
 
     @Override
     public ViewResolver execute(HttpServletRequest req, HttpServletResponse resp)
-            throws ServiceException, UnknownEntityException {
+            throws ServiceException, NotEnoughParametersException, AccessDeniedException {
 
         String page = createRedirectURL(req, CommandName.SHOW_ATTENDANCES);
         ViewResolver resolver = new ViewResolver(page);
@@ -36,24 +36,19 @@ public class UpdateAttendanceCommand implements Command {
         String markParam = req.getParameter(RequestConstant.MARK);
         Integer mark = StringUtils.isNullOrEmpty(markParam) ? null : Integer.valueOf(markParam);
         int statusId = Integer.parseInt(req.getParameter(RequestConstant.STATUS_ID));
+        long courseId = ParamsFromRequestHandler.getLongParameter(req, RequestConstant.COURSE_ID);
 
         Attendance attendance = teacherService.findAttendance(attendanceId);
         attendance.setMark(mark);
         attendance.setStatus(AttendanceStatus.resolveStatusById(statusId));
 
-        try {
-            List<String> errors = teacherService.updateAttendance(attendance, teacher);
-            if (errors.isEmpty()) {
-                req.getSession().setAttribute(RequestConstant.SUCCESS,
-                        MessageManager.INSTANCE.getMessage(MessageConstant.UPDATED_SUCCESS));
-                resolver.setResolveAction(ViewResolver.ResolveAction.REDIRECT);
-            } else {
-                req.setAttribute(RequestConstant.ERROR, errors);
-            }
-        } catch (CourseAccessDeniedException e) {
-            logger.info(e.getMessage());
-            page = createRedirectURL(req, CommandName.SHOW_TEACHER_COURSES);
-            resolver.setView(page);
+        List<String> errors = teacherService.updateAttendance(attendance, courseId, teacher);
+        if (errors.isEmpty()) {
+            req.getSession().setAttribute(RequestConstant.SUCCESS,
+                    MessageManager.INSTANCE.getMessage(MessageConstant.UPDATED_SUCCESS));
+            resolver.setResolveAction(ViewResolver.ResolveAction.REDIRECT);
+        } else {
+            req.setAttribute(RequestConstant.ERROR, errors);
         }
         return resolver;
     }

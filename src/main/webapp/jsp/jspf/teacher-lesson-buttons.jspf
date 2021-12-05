@@ -1,27 +1,49 @@
-<form action="<c:url value="/controller"/>" method="post">
-    <input type="hidden" name="lesson_id" value="${lesson.id}">
-    <input type="hidden" name="command" value="update_lesson">
-    <td>
-        <%@include file="../jspf/entity-number.jspf" %>
-    </td>
-    <td>
-        <input type="text" name="lesson_title" placeholder="Title" required
-               value="${lesson.title}"/>
-    </td>
-    <td><input type="datetime-local" name="start_date" required
-               value="${lesson.startDate}"/>
-    </td>
-    <td><input type="datetime-local" name="end_date" required
-               value="${lesson.endDate}"></td>
-    <td>
-        <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-            <a class="btn btn-primary"
-               href="<c:url value="/controller?command=show_marks&lesson_id=${lesson.id}"/>">
-                <fmt:message key="label.marks"/></a>
-            <button class="btn btn-warning" type="submit"><fmt:message key="label.update"/></button>
-            <a class="btn btn-danger"
-               href="<c:url value="/controller?command=delete_lesson&lesson_id=${lesson.id}"/>">
-                <fmt:message key="label.delete"/></a>
-        </div>
-    </td>
-</form>
+<input type="hidden" name="command" value="show_lessons" form="searchForm">
+<table class="table caption-top table-bordered table-hover">
+    <caption><fmt:message key="label.view.lessons"/></caption>
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col"><fmt:message key="label.title"/></th>
+        <th scope="col"><fmt:message key="label.date.start"/></th>
+        <th scope="col"><fmt:message key="label.date.end"/></th>
+        <th scope="col"><fmt:message key="label.action"/></th>
+    </tr>
+    </thead>
+    <tbody>
+    <c:forEach items="${lessons}" var="lesson" varStatus="st">
+        <tr>
+            <form action="<c:url value="/controller"/>" method="post">
+                <input type="hidden" name="lesson_id" value="${lesson.id}">
+                <input type="hidden" name="command" value="update_lesson">
+                <td>
+                    <%@include file="../jspf/entity-number.jspf" %>
+                </td>
+                <td>
+                    <input type="text" name="lesson_title" placeholder="Title" required
+                           value="${lesson.title}"/>
+                </td>
+                <td><input type="datetime-local" name="start_date" required
+                           value="${lesson.startDate}"/>
+                </td>
+                <td><input type="datetime-local" name="end_date" required
+                           value="${lesson.endDate}"></td>
+                <td>
+                    <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                        <a class="btn btn-primary"
+                           href="<c:url value="/controller?command=show_marks&lesson_id=${lesson.id}"/>">
+                            <fmt:message key="label.marks"/></a>
+                        <button class="btn btn-warning" type="submit"><fmt:message key="label.update"/></button>
+                        <a class="btn btn-danger"
+                           href="<c:url value="/controller?command=delete_lesson&lesson_id=${lesson.id}"/>">
+                            <fmt:message key="label.delete"/></a>
+                    </div>
+                </td>
+            </form>
+        </tr>
+    </c:forEach>
+    <tr>
+        <%@include file="../jspf/teacher-lesson-create.jspf" %>
+    </tr>
+    </tbody>
+</table>

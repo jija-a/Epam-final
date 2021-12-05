@@ -20,6 +20,9 @@ public class LessonDaoImpl extends AbstractDao<Lesson, Long> implements LessonDa
     private static final String SQL_SELECT_BY_ID =
             "SELECT `lesson`.`id`, `lesson`.`title`, `lesson`.`course_id`, `lesson`.`start_date`, `lesson`.`end_date` FROM `lesson` WHERE `lesson`.`id` = ?";
 
+    private static final String SQL_SELECT_ALL_BY_COURSE_AND_STUDENT_ID_WITH_LIMIT =
+            "SELECT `lesson`.`id`, `lesson`.`title`, `lesson`.`course_id`, `lesson`.`start_date`, `lesson`.`end_date` FROM lesson JOIN attendance a on lesson.id = a.lesson_id WHERE lesson.course_id = ? AND a.user_id = ? LIMIT ?, ?;";
+
     private static final String SQL_CREATE =
             "INSERT INTO `lesson` (title, course_id, start_date, end_date) VALUES (?, ?, ?, ?)";
 
@@ -31,6 +34,9 @@ public class LessonDaoImpl extends AbstractDao<Lesson, Long> implements LessonDa
 
     private static final String SQL_COUNT =
             "SELECT COUNT(*) FROM `lesson` WHERE `lesson`.`course_id` = ?";
+
+    private static final String SQL_COUNT_BY_STUDENT =
+            "SELECT COUNT(*) FROM `lesson` JOIN attendance a on lesson.id = a.lesson_id WHERE `lesson`.`course_id` = ? AND `a`.user_id = ?";
 
     @Override
     public boolean create(Lesson entity) throws DaoException {
@@ -81,6 +87,7 @@ public class LessonDaoImpl extends AbstractDao<Lesson, Long> implements LessonDa
         return lesson;
     }
 
+    @Override
     public List<Lesson> readByCourseId(long courseId, int start, int recordsPerPage) throws DaoException {
         List<Lesson> lessons = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL_BY_COURSE_ID_WITH_LIMIT)) {
@@ -94,6 +101,25 @@ public class LessonDaoImpl extends AbstractDao<Lesson, Long> implements LessonDa
             }
         } catch (SQLException e) {
             throw new DaoException("Exception while reading all lessons by course id: ", e);
+        }
+        return lessons;
+    }
+
+    @Override
+    public List<Lesson> readByCourseAndStudentId(long courseId, long studentId, int start, int recordsPerPage) throws DaoException {
+        List<Lesson> lessons = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL_BY_COURSE_AND_STUDENT_ID_WITH_LIMIT)) {
+            ps.setLong(1, courseId);
+            ps.setLong(2, studentId);
+            ps.setInt(3, start);
+            ps.setInt(4, recordsPerPage);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Lesson lesson = this.mapToEntity(rs);
+                lessons.add(lesson);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while reading all lessons by course and student id: ", e);
         }
         return lessons;
     }
@@ -124,6 +150,22 @@ public class LessonDaoImpl extends AbstractDao<Lesson, Long> implements LessonDa
         int count = 0;
         try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT)) {
             ps.setLong(1, courseId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while count all users by search request: ", e);
+        }
+        return count;
+    }
+
+    @Override
+    public int count(long courseId, long studentId) throws DaoException {
+        int count = 0;
+        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_BY_STUDENT)) {
+            ps.setLong(1, courseId);
+            ps.setLong(2, studentId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 count = rs.getInt(1);

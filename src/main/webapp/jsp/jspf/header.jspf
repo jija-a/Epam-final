@@ -7,7 +7,7 @@
                 <c:when test="${user.role.id == 0}"><%--ADMIN--%>
 
                     <li><a href="<c:url value="/controller?command=to_home_page"/>" class="nav-link px-2 link-dark">
-                        <fmt:message key="head.title.home"/></a></li>
+                        <fmt:message key="head.title.project_name"/></a></li>
 
                     <li><a href="<c:url value="/controller?command=show_courses"/>" class="nav-link px-2 link-dark">
                         <fmt:message key="head.title.courses_list"/></a></li>
@@ -27,7 +27,7 @@
                 <c:when test="${user.role.id == 1}"><%--TEACHER--%>
 
                     <li><a href="<c:url value="/controller?command=to_home_page"/>" class="nav-link px-2 link-dark">
-                        <fmt:message key="head.title.home"/></a></li>
+                        <fmt:message key="head.title.project_name"/></a></li>
 
                     <li><a href="<c:url value="/controller?command=show_teacher_courses"/>"
                            class="nav-link px-2 link-dark">
@@ -45,17 +45,17 @@
                 <c:when test="${user.role.id == 2}"><%--STUDENT--%>
 
                     <li><a href="<c:url value="/controller?command=to_home_page"/>" class="nav-link px-2 link-dark">
-                        <fmt:message key="head.title.home"/></a></li>
+                        <fmt:message key="head.title.project_name"/></a></li>
 
-                    <li><a href="<c:url value="/controller?command=available_courses"/>" class="nav-link px-2 link-dark">
+                    <li><a href="<c:url value="/controller?command=show_available_courses"/>" class="nav-link px-2 link-dark">
                         <fmt:message key="head.title.courses_list"/></a></li>
 
-                    <li><a href="<c:url value="/controller?command=my_courses"/>"
+                    <li><a href="<c:url value="/controller?command=show_student_courses"/>"
                            class="nav-link px-2 link-dark">
                         <fmt:message key="head.title.my.courses"/></a></li>
 
-                    <li><a href="<c:url value="/controller?command=show_results"/>" class="nav-link px-2 link-dark">
-                        <fmt:message key="head.title.test_results"/></a></li>
+                    <li><a href="<c:url value="/controller?command=show_requested_courses"/>" class="nav-link px-2 link-dark">
+                        <fmt:message key="head.title.course_requests"/></a></li>
 
                     <li><a href="<c:url value="/controller?command=to_profile_page"/>"
                            class="nav-link px-2 link-dark"><fmt:message key="head.title.profile"/></a></li>

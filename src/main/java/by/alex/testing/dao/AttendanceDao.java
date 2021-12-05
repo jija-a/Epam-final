@@ -7,4 +7,6 @@ import java.util.List;
 public interface AttendanceDao {
 
     List<Attendance> readByLessonId(long lessonId) throws DaoException;
+
+    Attendance readByLessonAndStudentId(long lessonId, long studentId) throws DaoException;
 }

@@ -6,7 +6,7 @@ import by.alex.testing.controller.validator.BaseParameterValidator;
 import by.alex.testing.domain.CourseUser;
 import by.alex.testing.domain.User;
 import by.alex.testing.domain.UserCourseStatus;
-import by.alex.testing.service.CourseAccessDeniedException;
+import by.alex.testing.service.AccessDeniedException;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
 import by.alex.testing.service.TeacherService;
@@ -24,7 +24,7 @@ public class AcceptStudentRequestCommand implements Command {
 
     @Override
     public ViewResolver execute(HttpServletRequest req, HttpServletResponse resp)
-            throws ServiceException, NotEnoughParametersException {
+            throws ServiceException, NotEnoughParametersException, AccessDeniedException {
 
         String view = createRedirectURL(req, CommandName.SHOW_COURSE_REQUESTS);
         ViewResolver resolver = new ViewResolver(view);
@@ -39,23 +39,20 @@ public class AcceptStudentRequestCommand implements Command {
         long studentId = Long.parseLong(studentIdParam);
         User teacher = (User) req.getSession().getAttribute(RequestConstant.USER);
 
-        try {
-            if (this.acceptStudent(courseId, studentId, teacher)) {
-                req.getSession().setAttribute(RequestConstant.SUCCESS,
-                        MessageManager.INSTANCE.getMessage(MessageConstant.ACCEPT_SUCCESS));
-                resolver.setResolveAction(ViewResolver.ResolveAction.REDIRECT);
-            } else {
-                req.setAttribute(RequestConstant.ERROR,
-                        MessageManager.INSTANCE.getMessage(MessageConstant.CANT_ACCEPT));
-            }
-        } catch (CourseAccessDeniedException e) {
-            logger.info(e.getMessage());
+        if (this.acceptStudent(courseId, studentId, teacher)) {
+            req.getSession().setAttribute(RequestConstant.SUCCESS,
+                    MessageManager.INSTANCE.getMessage(MessageConstant.ACCEPT_SUCCESS));
+            resolver.setResolveAction(ViewResolver.ResolveAction.REDIRECT);
+        } else {
+            req.setAttribute(RequestConstant.ERROR,
+                    MessageManager.INSTANCE.getMessage(MessageConstant.CANT_ACCEPT));
         }
+
         return resolver;
     }
 
     private boolean acceptStudent(long courseId, long studentId, User teacher)
-            throws ServiceException, CourseAccessDeniedException {
+            throws ServiceException, AccessDeniedException {
         CourseUser courseUser = teacherService.findCourseUser(courseId, studentId);
         if (courseUser == null) {
             return false;

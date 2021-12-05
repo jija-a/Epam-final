@@ -3,14 +3,14 @@
 <html lang="en">
 <head>
 
-    <title><fmt:message key="head.title.project_name"/> | <fmt:message key="head.title.users_list"/></title>
+    <title><fmt:message key="head.title.project_name"/> | <fmt:message key="head.title.profile"/></title>
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/profile-edit.css">
 </head>
 
 <body class="d-flex flex-column h-100">
 
-<%@include file="../jspf/header.jspf" %>
+<%@include file="jspf/header.jspf" %>
 
 <main class="flex-shrink-0">
     <div class="container rounded bg-white mt-5 mb-5">
@@ -27,9 +27,9 @@
             <div class="col-md-5 border-right">
                 <div class="p-3 py-5">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="text-right">Profile Settings</h4>
+                        <h4 class="text-right"><fmt:message key="head.title.profile.settings"/></h4>
 
-                        <%@include file="../jspf/error-success.jspf" %>
+                        <%@include file="jspf/error-success.jspf" %>
 
                         <div id="error" style="display:none;" class="alert alert-danger alert-dismissible fade show">
                             <strong><fmt:message key="label.warn"/></strong><fmt:message
@@ -85,7 +85,7 @@
                             </div>
                         </div>
                         <div class="mt-5 text-center">
-                            <button class="btn btn-primary profile-button" type="submit">Save Profile</button>
+                            <button class="btn btn-primary profile-button" type="submit"><fmt:message key="head.title.profile.save"/></button>
                         </div>
                     </form>
                 </div>
@@ -94,7 +94,7 @@
     </div>
 </main>
 
-<%@include file="../jspf/footer.jspf" %>
+<%@include file="jspf/footer.jspf" %>
 
 <script src="${pageContext.request.contextPath}/js/auth.js"></script>
 

@@ -15,4 +15,5 @@ public class CourseUser extends Entity{
     private User user;
     private UserCourseStatus status;
     private Double rating;
+    private Double attendancePercent;
 }

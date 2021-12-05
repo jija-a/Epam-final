@@ -13,7 +13,7 @@
     </session-config>
 
     <error-page>
-        <location>/jsp/error/error.jsp</location>
+        <location>/jsp/error.jsp</location>
     </error-page>
 
     <jsp-config>

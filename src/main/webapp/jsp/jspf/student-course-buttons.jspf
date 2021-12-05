@@ -1,3 +1,32 @@
-<a class="btn btn-info"
-   href="<c:url value="/controller?command=request_sign_on_course&course_id=${course.id}"/>">
-    <fmt:message key="label.request"/></a>
+<input type="hidden" name="command" value="show_available_courses" form="searchForm">
+<table class="table caption-top table-bordered table-hover">
+    <caption><fmt:message key="head.title.courses_list"/></caption>
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col"><fmt:message key="label.course.name"/></th>
+        <th scope="col"><fmt:message key="label.course.owner.name"/></th>
+        <th scope="col"><fmt:message key="label.course.type"/></th>
+        <th scope="col"><fmt:message key="label.action"/></th>
+    </tr>
+    </thead>
+    <tbody>
+    <c:forEach var="course" varStatus="st" items="${courses}">
+        <tr>
+            <th scope="row">
+                <%@include file="../jspf/entity-number.jspf" %>
+            </th>
+            <td><c:out value="${course.name}"/></td>
+            <td><c:out value="${course.owner.firstName} ${course.owner.lastName}"/></td>
+            <td><c:out value="${course.category.name}"/></td>
+            <td>
+                <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                    <a href="<c:url value="/controller?command=send_request&course_id=${course.id}"/>"
+                       class="btn btn-primary" type="submit">
+                        <fmt:message key="label.request"/></a>
+                </div>
+            </td>
+        </tr>
+    </c:forEach>
+    </tbody>
+</table>

@@ -12,17 +12,12 @@ import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
 import by.alex.testing.service.TeacherService;
 import com.mysql.cj.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 public class ShowTeacherCoursesCommand implements Command {
-
-    private static final Logger logger =
-            LoggerFactory.getLogger(ShowTeacherCoursesCommand.class);
 
     private static final int DEFAULT_PAGINATION_LIMIT = 5;
 
@@ -46,7 +41,7 @@ public class ShowTeacherCoursesCommand implements Command {
                 Integer.parseInt(recordsParam);
 
         Integer count = teacherService.countAllCoursesByTeacherId(teacherId);
-        int start = this.definePagination(req, count, recordsPerPage);
+        int start = this.definePagination(req, count, recordsPerPage, DEFAULT_PAGINATION_LIMIT);
         List<Course> courses =
                 teacherService.findAllCoursesByTeacherId(start, recordsPerPage, teacherId);
 

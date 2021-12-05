@@ -6,7 +6,7 @@ import by.alex.testing.domain.Course;
 import by.alex.testing.domain.CourseUser;
 import by.alex.testing.domain.User;
 import by.alex.testing.domain.UserCourseStatus;
-import by.alex.testing.service.CourseAccessDeniedException;
+import by.alex.testing.service.AccessDeniedException;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
 import by.alex.testing.service.TeacherService;
@@ -25,7 +25,7 @@ public class DeleteUserFromCourseCommand implements Command {
 
     @Override
     public ViewResolver execute(HttpServletRequest req, HttpServletResponse resp)
-            throws ServiceException, NotEnoughParametersException {
+            throws ServiceException, NotEnoughParametersException, AccessDeniedException {
 
         String page = createRedirectURL(req, CommandName.SHOW_COURSE_USERS);
         ViewResolver resolver = new ViewResolver(page);
@@ -39,24 +39,19 @@ public class DeleteUserFromCourseCommand implements Command {
         }
         long userId = Long.parseLong(userIdParam);
 
-        try {
-            if (this.removeUser(courseId, userId, teacher)) {
-                req.getSession().setAttribute(RequestConstant.SUCCESS,
-                        MessageManager.INSTANCE.getMessage(MessageConstant.DELETED));
-                resolver.setResolveAction(ViewResolver.ResolveAction.REDIRECT);
-            } else {
-                req.setAttribute(RequestConstant.ERROR,
-                        MessageManager.INSTANCE.getMessage(MessageConstant.DELETE_ERROR));
-            }
-        } catch (CourseAccessDeniedException e) {
-            logger.info(e.getMessage());
+        if (this.removeUser(courseId, userId, teacher)) {
+            req.getSession().setAttribute(RequestConstant.SUCCESS,
+                    MessageManager.INSTANCE.getMessage(MessageConstant.DELETED));
+            resolver.setResolveAction(ViewResolver.ResolveAction.REDIRECT);
+        } else {
+            req.setAttribute(RequestConstant.ERROR,
+                    MessageManager.INSTANCE.getMessage(MessageConstant.DELETE_ERROR));
         }
-
         return resolver;
     }
 
     private boolean removeUser(Long courseId, long userId, User teacher)
-            throws ServiceException, CourseAccessDeniedException {
+            throws ServiceException, AccessDeniedException {
         CourseUser courseUser = CourseUser.builder()
                 .user(User.builder().id(userId).build())
                 .course(Course.builder().id(courseId).build())

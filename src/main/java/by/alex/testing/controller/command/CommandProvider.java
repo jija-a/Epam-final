@@ -1,10 +1,9 @@
 package by.alex.testing.controller.command;
 
 import by.alex.testing.controller.CommandName;
-import by.alex.testing.controller.command.impl.admin.ShowCoursesCommand;
 import by.alex.testing.controller.command.impl.admin.*;
 import by.alex.testing.controller.command.impl.common.*;
-import by.alex.testing.controller.command.impl.page.*;
+import by.alex.testing.controller.command.impl.student.*;
 import by.alex.testing.controller.command.impl.teacher.*;
 
 import java.util.Map;
@@ -20,9 +19,6 @@ public class CommandProvider {
         return Map.ofEntries(
 
                 //direction
-                Map.entry(CommandName.TO_COURSE_CREATION_PAGE, new ToCourseCreationPageCommand()),
-                Map.entry(CommandName.TO_COURSE_INFO_PAGE, new ToCourseInfoPageCommand()),
-                Map.entry(CommandName.TO_COURSE_USERS_PAGE, new ToCourseUsersPageCommand()),
                 Map.entry(CommandName.TO_HOME_PAGE, new ToHomePageCommand()),
                 Map.entry(CommandName.TO_INDEX_PAGE, new ToIndexPageCommand()),
                 Map.entry(CommandName.TO_LOGIN_PAGE, new ToLoginPageCommand()),
@@ -40,6 +36,13 @@ public class CommandProvider {
                 Map.entry(CommandName.UPDATE_PROFILE, new UpdateProfileCommand()),
 
                 //student
+                Map.entry(CommandName.CANCEL_REQUEST, new CancelRequestCommand()),
+                Map.entry(CommandName.LEAVE_COURSE, new LeaveCourseCommand()),
+                Map.entry(CommandName.SEND_REQUEST, new SendRequestCommand()),
+                Map.entry(CommandName.SHOW_AVAILABLE_COURSES, new ShowAvailableCoursesCommand()),
+                Map.entry(CommandName.SHOW_COURSE_LESSONS, new ShowStudentLessonsCommand()),
+                Map.entry(CommandName.SHOW_STUDENT_COURSES, new ShowStudentCoursesCommand()),
+                Map.entry(CommandName.SHOW_REQUESTED_COURSES, new ShowRequestedCoursesCommand()),
 
                 //teacher
                 Map.entry(CommandName.ACCEPT_STUDENT_REQUEST, new AcceptStudentRequestCommand()),

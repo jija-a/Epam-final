@@ -2,9 +2,6 @@ package by.alex.testing.controller;
 
 public class CommandName {
 
-
-    public static final String CREATE_COURSE_CATEGORY = "create_category";
-
     private CommandName() {
     }
 
@@ -19,15 +16,13 @@ public class CommandName {
     public static final String UPDATE_PROFILE = "update_profile";
 
     //page
-    public static final String TO_COURSE_CREATION_PAGE = "to_course_creation_page";
-    public static final String TO_COURSE_INFO_PAGE = "to_course_info_page";
-    public static final String TO_COURSE_USERS_PAGE = "to_course_users_page";
     public static final String TO_HOME_PAGE = "to_home_page";
     public static final String TO_INDEX_PAGE = "to_index_page";
     public static final String TO_LOGIN_PAGE = "to_login_page";
     public static final String TO_REGISTRATION_PAGE = "to_registration_page";
 
     //admin
+    public static final String CREATE_COURSE_CATEGORY = "create_category";
     public static final String DELETE_COURSE_CATEGORY = "delete_category";
     public static final String DELETE_USER = "delete_user";
     public static final String SHOW_COURSE_CATEGORIES = "show_course_categories";
@@ -49,4 +44,13 @@ public class CommandName {
     public static final String UPDATE_ATTENDANCE = "update_attendance";
     public static final String UPDATE_COURSE = "update_course";
     public static final String UPDATE_LESSON = "update_lesson";
+
+    //student
+    public static final String CANCEL_REQUEST = "cancel_request";
+    public static final String LEAVE_COURSE = "leave_course";
+    public static final String SEND_REQUEST = "send_request";
+    public static final String SHOW_AVAILABLE_COURSES = "show_available_courses";
+    public static final String SHOW_COURSE_LESSONS = "show_course_lessons";
+    public static final String SHOW_STUDENT_COURSES = "show_student_courses";
+    public static final String SHOW_REQUESTED_COURSES = "show_requested_courses";
 }

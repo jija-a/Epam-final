@@ -25,7 +25,6 @@ public class UpdateCategoryCommand implements Command {
         adminService = ServiceFactory.getInstance().getAdminService();
     }
 
-
     @Override
     public ViewResolver execute(HttpServletRequest req, HttpServletResponse resp)
             throws ServiceException {

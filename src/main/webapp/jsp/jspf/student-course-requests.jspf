@@ -1,0 +1,29 @@
+<table class="table caption-top table-bordered table-hover">
+    <caption><fmt:message key="head.title.course_requests"/></caption>
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col"><fmt:message key="label.course.name"/></th>
+        <th scope="col"><fmt:message key="label.course.owner.name"/></th>
+        <th scope="col"><fmt:message key="label.action"/></th>
+    </tr>
+    </thead>
+    <tbody>
+    <c:forEach var="course" varStatus="st" items="${courses}">
+        <tr>
+            <th scope="row">
+                <%@include file="entity-number.jspf" %>
+            </th>
+            <td>${course.name}</td>
+            <td>${course.owner.firstName} ${course.owner.lastName}</td>
+            <td>
+                <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                    <a class="btn btn-danger"
+                       href="<c:url value="/controller?command=cancel_request&course_id=${course.id}"/>"><fmt:message
+                            key="input.value.cancel"/></a>
+                </div>
+            </td>
+        </tr>
+    </c:forEach>
+    </tbody>
+</table>

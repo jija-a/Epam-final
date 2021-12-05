@@ -32,11 +32,6 @@ public class CommandFilter extends BaseFilter {
     private static final Set<String> ADMIN_COMMANDS = initAdminCommands();
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        super.init(filterConfig);
-    }
-
-    @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
@@ -90,35 +85,36 @@ public class CommandFilter extends BaseFilter {
         }
     }
 
-    @Override
-    public void destroy() {
-        super.destroy();
-    }
-
     private static Set<String> initCommonCommands() {
         Set<String> commands = new HashSet<>();
         commands.add(CommandName.CHANGE_LOCALE);
         commands.add(CommandName.LOGOUT);
-        commands.add(CommandName.SHOW_COURSE_USERS);
-        commands.add(CommandName.SHOW_USERS);
+        commands.add(CommandName.TO_HOME_PAGE);
+        commands.add(CommandName.TO_INDEX_PAGE);
         commands.add(CommandName.TO_PROFILE_PAGE);
         commands.add(CommandName.UPDATE_PROFILE);
-        commands.add(CommandName.TO_HOME_PAGE);
         return commands;
     }
 
     private static Set<String> initGuestCommands() {
         Set<String> commands = new HashSet<>();
+        commands.add(CommandName.LOGIN);
+        commands.add(CommandName.REGISTER);
+        commands.add(CommandName.TO_INDEX_PAGE);
         commands.add(CommandName.TO_LOGIN_PAGE);
         commands.add(CommandName.TO_REGISTRATION_PAGE);
-        commands.add(CommandName.REGISTER);
-        commands.add(CommandName.LOGIN);
         return commands;
     }
 
     private static Set<String> initStudentCommands() {
         Set<String> commands = new HashSet<>(COMMON_COMMANDS);
-        commands.add(CommandName.SHOW_COURSES);
+        commands.add(CommandName.CANCEL_REQUEST);
+        commands.add(CommandName.LEAVE_COURSE);
+        commands.add(CommandName.SEND_REQUEST);
+        commands.add(CommandName.SHOW_AVAILABLE_COURSES);
+        commands.add(CommandName.SHOW_REQUESTED_COURSES);
+        commands.add(CommandName.SHOW_STUDENT_COURSES);
+        commands.add(CommandName.SHOW_COURSE_LESSONS);
         return commands;
     }
 
@@ -128,8 +124,8 @@ public class CommandFilter extends BaseFilter {
         commands.add(CommandName.CREATE_COURSE);
         commands.add(CommandName.CREATE_LESSON);
         commands.add(CommandName.DECLINE_STUDENT_REQUEST);
-        commands.add(CommandName.DELETE_LESSON);
         commands.add(CommandName.DELETE_COURSE);
+        commands.add(CommandName.DELETE_LESSON);
         commands.add(CommandName.DELETE_USER_FROM_COURSE);
         commands.add(CommandName.SHOW_ATTENDANCES);
         commands.add(CommandName.SHOW_COURSE_REQUESTS);
@@ -148,8 +144,9 @@ public class CommandFilter extends BaseFilter {
         commands.add(CommandName.DELETE_COURSE_CATEGORY);
         commands.add(CommandName.DELETE_COURSE);
         commands.add(CommandName.DELETE_USER);
-        commands.add(CommandName.SHOW_COURSES);
         commands.add(CommandName.SHOW_COURSE_CATEGORIES);
+        commands.add(CommandName.SHOW_COURSES);
+        commands.add(CommandName.SHOW_USERS);
         commands.add(CommandName.UPDATE_COURSE_CATEGORY);
         return commands;
     }

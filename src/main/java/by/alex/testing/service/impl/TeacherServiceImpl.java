@@ -7,7 +7,7 @@ import by.alex.testing.dao.DaoFactory;
 import by.alex.testing.dao.TransactionHandler;
 import by.alex.testing.dao.mysql.*;
 import by.alex.testing.domain.*;
-import by.alex.testing.service.CourseAccessDeniedException;
+import by.alex.testing.service.AccessDeniedException;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.TeacherService;
 import by.alex.testing.service.validator.AttendanceValidator;
@@ -104,7 +104,7 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public List<String> updateCourse(Course course, User teacher)
-            throws ServiceException, CourseAccessDeniedException {
+            throws ServiceException, AccessDeniedException {
 
         List<String> errors = CourseValidator.validate(course);
         if (errors.isEmpty()) {
@@ -133,7 +133,7 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public boolean deleteCourse(long courseId, User teacher)
-            throws ServiceException, CourseAccessDeniedException {
+            throws ServiceException, AccessDeniedException {
 
         try {
             checkIfAvailableCourseData(courseId, teacher);
@@ -167,7 +167,7 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public List<Lesson> findAllLessons(long courseId, int start, int recordsPerPage, User teacher)
-            throws ServiceException, CourseAccessDeniedException {
+            throws ServiceException, AccessDeniedException {
 
         try {
             checkIfAvailableCourseData(courseId, teacher);
@@ -220,7 +220,7 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public List<String> updateLesson(Lesson lesson, User teacher)
-            throws ServiceException, CourseAccessDeniedException {
+            throws ServiceException, AccessDeniedException {
 
         List<String> errors = LessonValidator.validate(lesson);
         if (errors.isEmpty()) {
@@ -244,14 +244,11 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public boolean deleteLesson(long lessonId, User teacher)
-            throws ServiceException, CourseAccessDeniedException {
+    public boolean deleteLesson(long lessonId, long courseId, User teacher)
+            throws ServiceException, AccessDeniedException {
 
         try {
-            handler.beginNoTransaction(lessonDao);
-            Lesson lesson = lessonDao.readById(lessonId);
-            handler.endNoTransaction();
-            checkIfAvailableCourseData(lesson.getCourseId(), teacher);
+            checkIfAvailableCourseData(courseId, teacher);
             boolean isDeleted;
             logger.info("Deleting lesson, lesson id - {}", lessonId);
             handler.begin(lessonDao);
@@ -280,14 +277,11 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public List<Attendance> findAllAttendances(long lessonId, User teacher)
-            throws ServiceException, CourseAccessDeniedException {
+    public List<Attendance> findAllAttendances(long lessonId, long courseId, User teacher)
+            throws ServiceException, AccessDeniedException {
 
         try {
-            handler.beginNoTransaction(lessonDao);
-            Lesson lesson = lessonDao.readById(lessonId);
-            handler.endNoTransaction();
-            checkIfAvailableCourseData(lesson.getCourseId(), teacher);
+            checkIfAvailableCourseData(courseId, teacher);
             handler.beginNoTransaction(attendanceDao, userDao);
             logger.info("Reading all attendances by lesson id - {}", lessonId);
             List<Attendance> attendances = attendanceDao.readByLessonId(lessonId);
@@ -321,16 +315,13 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public List<String> updateAttendance(Attendance attendance, User teacher)
-            throws ServiceException, CourseAccessDeniedException {
+    public List<String> updateAttendance(Attendance attendance, long courseId, User teacher)
+            throws ServiceException, AccessDeniedException {
 
         List<String> errors = AttendanceValidator.validate(attendance);
         if (errors.isEmpty()) {
             try {
-                handler.beginNoTransaction(lessonDao);
-                Lesson lesson = lessonDao.readById(attendance.getLessonId());
-                handler.endNoTransaction();
-                checkIfAvailableCourseData(lesson.getCourseId(), teacher);
+                checkIfAvailableCourseData(courseId, teacher);
                 logger.info("Updating attendance, attendance id - {}", attendance.getId());
                 handler.begin(attendanceDao);
                 if (!attendanceDao.update(attendance)) {
@@ -399,7 +390,7 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public List<CourseUser> findCourseUsers(int start, int recOnPage, long courseId, User teacher)
-            throws ServiceException, CourseAccessDeniedException {
+            throws ServiceException, AccessDeniedException {
 
         try {
             checkIfAvailableCourseData(courseId, teacher);
@@ -469,7 +460,7 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public boolean updateCourseUser(CourseUser courseUser, User teacher)
-            throws ServiceException, CourseAccessDeniedException {
+            throws ServiceException, AccessDeniedException {
 
         try {
             checkIfAvailableCourseData(courseUser.getCourse().getId(), teacher);
@@ -489,7 +480,7 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public boolean deleteCourseUser(CourseUser courseUser, User teacher)
-            throws ServiceException, CourseAccessDeniedException {
+            throws ServiceException, AccessDeniedException {
 
         try {
             checkIfAvailableCourseData(courseUser.getCourse().getId(), teacher);
@@ -510,7 +501,7 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public boolean deleteUserFromCourse(CourseUser courseUser, User teacher)
-            throws ServiceException, CourseAccessDeniedException {
+            throws ServiceException, AccessDeniedException {
 
         try {
             checkIfAvailableCourseData(courseUser.getCourse().getId(), teacher);
@@ -559,7 +550,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     private void checkIfAvailableCourseData(long courseId, User teacher)
-            throws CourseAccessDeniedException, DaoException {
+            throws AccessDeniedException, DaoException {
 
         logger.info("Defining if teacher can view course data course id - {}, teacher id - {}",
                 courseId, teacher.getId());
@@ -568,7 +559,7 @@ public class TeacherServiceImpl implements TeacherService {
             Course course = courseDao.readById(courseId);
             if (course == null || !(course.getOwner().getId().equals(teacher.getId())
                     || teacher.getRole().equals(UserRole.ADMIN))) {
-                throw new CourseAccessDeniedException(String.format(ACCESS_ERROR, teacher.getId()));
+                throw new AccessDeniedException(String.format(ACCESS_ERROR, teacher.getId()));
             }
         } finally {
             handler.endNoTransaction();
@@ -584,7 +575,7 @@ public class TeacherServiceImpl implements TeacherService {
 
     private boolean isCourseExist(String courseName, long teacherId) throws DaoException {
 
-        logger.info("Finding course of teacher with id - {}, with name - {}", teacherId, courseName);
+        logger.info("Finding teacher, id: {}, course, with name - {}", teacherId, courseName);
         boolean result = false;
         Course course = courseDao.readByOwnerIdAndName(teacherId, courseName);
         if (course != null) {

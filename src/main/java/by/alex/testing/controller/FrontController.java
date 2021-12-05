@@ -2,7 +2,7 @@ package by.alex.testing.controller;
 
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.controller.command.CommandProvider;
-import by.alex.testing.domain.UnknownEntityException;
+import by.alex.testing.service.AccessDeniedException;
 import by.alex.testing.service.ServiceException;
 import com.mysql.cj.util.StringUtils;
 import org.slf4j.Logger;
@@ -58,11 +58,16 @@ public class FrontController extends HttpServlet {
             Command command = CommandProvider.resolveCommand(commandName);
             ViewResolver resolver = command.execute(req, resp);
             this.dispatch(req, resp, resolver);
-        } catch (NotEnoughParametersException | UnknownEntityException | NumberFormatException e) {
+        } catch (NotEnoughParametersException | NumberFormatException e) {
             logger.error(e.getMessage(), e);
             req.getSession().setAttribute(RequestConstant.ERROR,
                     MessageManager.INSTANCE.getMessage(MessageConstant.WRONG_PARAMETERS));
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        } catch (AccessDeniedException e) {
+            logger.error(e.getMessage(), e);
+            req.getSession().setAttribute(RequestConstant.ERROR,
+                    MessageManager.INSTANCE.getMessage(MessageConstant.ACCESS_DENIED));
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
         } catch (ServiceException e) {
             logger.error("Service provided exception to front controller," +
                     " redirecting to 500 error page: : ", e);

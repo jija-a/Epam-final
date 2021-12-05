@@ -1,15 +1,33 @@
 package by.alex.testing.service;
 
-import by.alex.testing.domain.Course;
-import by.alex.testing.domain.CourseUser;
+import by.alex.testing.domain.*;
 
 import java.util.List;
+import java.util.Map;
 
 public interface StudentService {
 
-    List<Course> readStudentCourses(long studentId) throws ServiceException;
+    List<CourseUser> readStudentCourses(long studentId, int start, int recordsPerPage) throws ServiceException;
 
-    List<Course> readAvailableCourses(long studentId) throws ServiceException;
+    List<Course> readAvailableCourses(long studentId, int start, int recordsPerPage) throws ServiceException;
 
-    void signOnCourse(CourseUser courseUser) throws ServiceException;
+    List<Course> readAvailableCourses(long studentId, int start, int recordsPerPage, String search) throws ServiceException;
+
+    List<Course> readStudentCoursesByStatus(long studentId, UserCourseStatus status) throws ServiceException;
+
+    List<Course> readStudentCoursesByStatus(long studentId, UserCourseStatus status, int start, int recordsPerPage) throws ServiceException;
+
+    Map<Lesson, Attendance> findAllLessons(long courseId, long studentId, int start, int recordsPerPage) throws ServiceException;
+
+    int countStudentLessons(long courseId, long studentId) throws ServiceException;
+
+    int countStudentCourses(long studentId) throws ServiceException;
+
+    int countAvailableCourses(long studentId) throws ServiceException;
+
+    int countAvailableCourses(long studentId, String search) throws ServiceException;
+
+    boolean signOnCourse(CourseUser courseUser) throws ServiceException;
+
+    boolean leaveCourse(CourseUser courseUser) throws ServiceException;
 }

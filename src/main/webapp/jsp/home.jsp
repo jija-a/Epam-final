@@ -14,7 +14,7 @@
 
 <!-- Begin page content -->
 <c:if test="${user.role.id == 2}">
-    <jsp:forward page="controller?command=show_available_courses"/>
+    <jsp:forward page="/controller?command=show_student_courses"/>
 </c:if>
 <c:if test="${user.role.id == 1}">
     <jsp:forward page="/controller?command=show_teacher_courses"/>

@@ -37,6 +37,12 @@ public class CourseDaoImpl extends AbstractDao<Course, Long> implements CourseDa
     private static final String SQL_SELECT_BY_OWNER_ID_AND_NAME =
             "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`user_id` = ? AND `course`.`name` = ?;";
 
+    private static final String SQL_SELECT_ALL_EXCLUDING =
+            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE NOT EXISTS(SELECT `course_user`.`course_id` FROM `course_user` WHERE `course`.`id` = `course_user`.`course_id` AND `course_user`.`user_id` = ?) LIMIT ?,?;";
+
+    private static final String SQL_SELECT_ALL_EXCLUDING_WITH_SEARCH_REQ =
+            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE NOT EXISTS(SELECT `course_user`.`course_id` FROM `course_user` WHERE `course`.`id` = `course_user`.`course_id` AND `course_user`.`user_id` = ?) AND `course`.`name` LIKE ? LIMIT ?,?;";
+
     private static final String SQL_UPDATE =
             "UPDATE `course` SET `course`.`name` = ?, `course`.`user_id` = ?, `course`.`course_category_id` = ? WHERE `course`.`id` = ?;";
 
@@ -51,6 +57,12 @@ public class CourseDaoImpl extends AbstractDao<Course, Long> implements CourseDa
 
     private static final String SQL_COUNT_ALL_BY_OWNER =
             "SELECT COUNT(*) FROM `course` WHERE `course`.`user_id` = ?;";
+
+    private static final String SQL_COUNT_AVAILABLE_COURSES =
+            "SELECT COUNT(*) FROM `course` WHERE NOT EXISTS(SELECT `course_user`.`course_id` FROM `course_user` WHERE `course`.`id` = `course_user`.`course_id` AND `course_user`.`user_id` = ?);";
+
+    private static final String SQL_COUNT_AVAILABLE_COURSES_WITH_SEARCH =
+            "SELECT COUNT(*) FROM `course` WHERE NOT EXISTS(SELECT `course_user`.`course_id` FROM `course_user` WHERE `course`.`id` = `course_user`.`course_id` AND `course_user`.`user_id` = ?) AND `course`.`name` LIKE ?;";
 
     protected CourseDaoImpl() {
     }
@@ -174,6 +186,45 @@ public class CourseDaoImpl extends AbstractDao<Course, Long> implements CourseDa
     }
 
     @Override
+    public List<Course> readExcludingUserCourses(long studentId, int start, int recordsPerPage) throws DaoException {
+        List<Course> courses = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL_EXCLUDING)) {
+            ps.setLong(1, studentId);
+            ps.setInt(2, start);
+            ps.setInt(3, recordsPerPage);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Course course = this.mapToEntity(rs);
+                courses.add(course);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while reading all courses user does not enter: ", e);
+        }
+        return courses;
+    }
+
+    @Override
+    public List<Course> readExcludingUserCourses(long studentId, int start, int recordsPerPage, String search)
+            throws DaoException {
+
+        List<Course> courses = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL_EXCLUDING_WITH_SEARCH_REQ)) {
+            ps.setLong(1, studentId);
+            ps.setString(2, "%" + search + "%");
+            ps.setInt(3, start);
+            ps.setInt(4, recordsPerPage);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Course course = this.mapToEntity(rs);
+                courses.add(course);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while reading all courses user does not enter: ", e);
+        }
+        return courses;
+    }
+
+    @Override
     public boolean update(Course course) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_UPDATE)) {
             this.mapFromEntity(ps, course);
@@ -234,6 +285,37 @@ public class CourseDaoImpl extends AbstractDao<Course, Long> implements CourseDa
             }
         } catch (SQLException e) {
             throw new DaoException("Exception while counting all courses by search: ", e);
+        }
+        return count;
+    }
+
+    @Override
+    public int countAvailableCourses(long studentId) throws DaoException {
+        int count = 0;
+        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_AVAILABLE_COURSES)) {
+            ps.setLong(1, studentId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while counting requests: ", e);
+        }
+        return count;
+    }
+
+    @Override
+    public int countAvailableCourses(long studentId, String search) throws DaoException {
+        int count = 0;
+        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_AVAILABLE_COURSES_WITH_SEARCH)) {
+            ps.setLong(1, studentId);
+            ps.setString(2, "%" + search + "%");
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while counting requests: ", e);
         }
         return count;
     }

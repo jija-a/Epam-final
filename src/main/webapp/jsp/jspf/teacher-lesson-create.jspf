@@ -2,10 +2,10 @@
     <input type="hidden" name="command" value="create_lesson">
     <input type="hidden" name="course_id" value="${course_id}">
     <td>#</td>
-    <td><input type="text" name="lesson_title" placeholder="Title" required></td>
+    <td><input type="text" name="lesson_title" placeholder="<fmt:message key="label.title"/>" required></td>
     <td><input type="datetime-local" name="start_date" required></td>
     <td><input type="datetime-local" name="end_date" required></td>
     <td>
-        <input type="submit" class="btn btn-success">
+        <button type="submit" class="btn btn-success"><fmt:message key="label.create"/></button>
     </td>
 </form>

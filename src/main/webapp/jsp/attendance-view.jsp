@@ -3,25 +3,25 @@
 <html lang="en">
 <head>
 
-    <title><fmt:message key="head.title.project_name"/> | <fmt:message key="head.title.users_list"/></title>
+    <title><fmt:message key="head.title.project_name"/> | <fmt:message key="label.marks"/></title>
 
 </head>
 
 <body class="d-flex flex-column h-100">
 
-<%@include file="../jspf/header.jspf" %>
+<%@include file="jspf/header.jspf" %>
 
 <main class="flex-shrink-0">
-    <div class="container-fluid">
-        <%@include file="../jspf/error-success.jspf" %>
+    <div class="container">
+        <%@include file="jspf/error-success.jspf" %>
         <table class="table caption-top table-bordered table-hover">
-            <caption><fmt:message key="head.title.courses_list"/></caption>
+            <caption><fmt:message key="label.marks"/></caption>
             <thead>
             <tr>
                 <th scope="col">#</th>
-                <th scope="col">student</th>
-                <th scope="col">status</th>
-                <th scope="col">mark</th>
+                <th scope="col"><fmt:message key="label.name"/></th>
+                <th scope="col"><fmt:message key="label.status"/></th>
+                <th scope="col"><fmt:message key="label.mark"/></th>
             </tr>
             </thead>
             <tbody>
@@ -67,7 +67,7 @@
     </div>
 </main>
 
-<%@include file="../jspf/footer.jspf" %>
+<%@include file="jspf/footer.jspf" %>
 
 </body>
 </html>

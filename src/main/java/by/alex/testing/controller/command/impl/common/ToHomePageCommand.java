@@ -1,4 +1,4 @@
-package by.alex.testing.controller.command.impl.page;
+package by.alex.testing.controller.command.impl.common;
 
 import by.alex.testing.controller.PageConstant;
 import by.alex.testing.controller.ViewResolver;
@@ -10,12 +10,12 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class ToCourseUsersPageCommand implements Command {
+public class ToHomePageCommand implements Command {
 
     private static final Logger logger =
-            LoggerFactory.getLogger(ToCourseUsersPageCommand.class);
+            LoggerFactory.getLogger(ToHomePageCommand.class);
 
-    public ToCourseUsersPageCommand() {
+    public ToHomePageCommand() {
         ServiceFactory.getInstance();
     }
 
@@ -23,7 +23,7 @@ public class ToCourseUsersPageCommand implements Command {
     public ViewResolver execute(HttpServletRequest req,
                                 HttpServletResponse resp) {
 
-        logger.info("To course users page command received");
-        return new ViewResolver(PageConstant.COURSE_USERS_PAGE);
+        logger.info("To home page command received");
+        return new ViewResolver(PageConstant.HOME_PAGE);
     }
 }

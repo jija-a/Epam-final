@@ -37,7 +37,7 @@ public class ShowCourseRequestsCommand implements Command {
                 Integer.parseInt(recordsParam);
 
         int count = teacherService.countAllRequests(teacherId);
-        int start = this.definePagination(req, count, recordsPerPage);
+        int start = this.definePagination(req, count, recordsPerPage, DEFAULT_PAGINATION_LIMIT);
 
         List<CourseUser> courseUsers =
                 teacherService.findRequestsOnCourse(start, recordsPerPage, teacherId);

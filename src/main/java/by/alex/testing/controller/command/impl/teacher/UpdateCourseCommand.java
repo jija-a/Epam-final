@@ -29,13 +29,13 @@ public class UpdateCourseCommand implements Command {
 
     @Override
     public ViewResolver execute(HttpServletRequest req, HttpServletResponse resp)
-            throws ServiceException, NotEnoughParametersException {
+            throws ServiceException, NotEnoughParametersException, AccessDeniedException {
 
         String page = createRedirectURL(req, CommandName.SHOW_TEACHER_COURSES);
         ViewResolver resolver = new ViewResolver(page);
 
         User teacher = (User) req.getSession().getAttribute(RequestConstant.USER);
-        long courseId = ParamsFromRequestHandler.getCourseIdParameter(req);
+        long courseId = ParamsFromRequestHandler.getLongParameter(req, RequestConstant.COURSE_ID);
         String courseName = req.getParameter(RequestConstant.COURSE_NAME);
         long categoryId = Long.parseLong(req.getParameter(RequestConstant.COURSE_CATEGORY_ID));
 
@@ -45,17 +45,13 @@ public class UpdateCourseCommand implements Command {
                 .id(categoryId)
                 .build());
 
-        try {
-            List<String> errors = teacherService.updateCourse(course, teacher);
-            if (errors.isEmpty()) {
-                req.getSession().setAttribute(RequestConstant.SUCCESS,
-                        MessageManager.INSTANCE.getMessage(MessageConstant.UPDATED_SUCCESS));
-                resolver.setResolveAction(ViewResolver.ResolveAction.REDIRECT);
-            } else {
-                req.setAttribute(RequestConstant.ERRORS, errors);
-            }
-        } catch (CourseAccessDeniedException e) {
-            logger.info(e.getMessage());
+        List<String> errors = teacherService.updateCourse(course, teacher);
+        if (errors.isEmpty()) {
+            req.getSession().setAttribute(RequestConstant.SUCCESS,
+                    MessageManager.INSTANCE.getMessage(MessageConstant.UPDATED_SUCCESS));
+            resolver.setResolveAction(ViewResolver.ResolveAction.REDIRECT);
+        } else {
+            req.setAttribute(RequestConstant.ERRORS, errors);
         }
         return resolver;
     }

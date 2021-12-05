@@ -2,7 +2,6 @@ package by.alex.testing.controller.command.impl.teacher;
 
 import by.alex.testing.controller.*;
 import by.alex.testing.controller.command.Command;
-import by.alex.testing.controller.validator.BaseParameterValidator;
 import by.alex.testing.domain.Course;
 import by.alex.testing.domain.CourseCategory;
 import by.alex.testing.domain.User;

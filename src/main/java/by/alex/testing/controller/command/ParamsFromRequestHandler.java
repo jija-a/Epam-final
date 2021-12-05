@@ -1,47 +1,29 @@
 package by.alex.testing.controller.command;
 
 import by.alex.testing.controller.NotEnoughParametersException;
-import by.alex.testing.controller.RequestConstant;
 import com.mysql.cj.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
 public class ParamsFromRequestHandler {
 
-    private ParamsFromRequestHandler(){
+    private ParamsFromRequestHandler() {
     }
 
-    public static Long getCourseIdParameter(HttpServletRequest req)
+    public static Long getLongParameter(HttpServletRequest req, String paramName)
             throws NotEnoughParametersException {
 
-        String courseIdParam = req.getParameter(RequestConstant.COURSE_ID);
-        Long courseId;
-        if (StringUtils.isNullOrEmpty(courseIdParam)) {
-            courseId = (Long) req.getSession().getAttribute(RequestConstant.COURSE_ID);
-            if (courseId == null) {
+        String paramFromReq = req.getParameter(paramName);
+        Long param;
+        if (StringUtils.isNullOrEmpty(paramFromReq)) {
+            param = (Long) req.getSession().getAttribute(paramName);
+            if (param == null) {
                 throw new NotEnoughParametersException();
             }
         } else {
-            courseId = Long.valueOf(courseIdParam);
-            req.getSession().setAttribute(RequestConstant.COURSE_ID, courseId);
+            param = Long.valueOf(paramFromReq);
+            req.getSession().setAttribute(paramName, param);
         }
-        return courseId;
-    }
-
-    public static Long getLessonIdParameter(HttpServletRequest req)
-            throws NotEnoughParametersException {
-
-        String courseIdParam = req.getParameter(RequestConstant.LESSON_ID);
-        Long lessonId;
-        if (StringUtils.isNullOrEmpty(courseIdParam)) {
-            lessonId = (Long) req.getSession().getAttribute(RequestConstant.LESSON_ID);
-            if (lessonId == null) {
-                throw new NotEnoughParametersException();
-            }
-        } else {
-            lessonId = Long.valueOf(courseIdParam);
-            req.getSession().setAttribute(RequestConstant.LESSON_ID, lessonId);
-        }
-        return lessonId;
+        return param;
     }
 }

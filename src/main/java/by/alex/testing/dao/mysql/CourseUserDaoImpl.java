@@ -15,22 +15,25 @@ import java.util.List;
 public class CourseUserDaoImpl extends AbstractDao<CourseUser, Long> implements CourseUserDao {
 
     private static final String SQL_CREATE =
-            "INSERT INTO `course_user`(`course_id`, `user_id`, `status`, rating) VALUES (?, ?, ?, ?);";
+            "INSERT INTO `course_user`(`course_id`, `user_id`, `status`, `rating`, `attendance_percent`) VALUES (?, ?, ?, ?, ?);";
 
     private static final String SQL_SELECT_BY_ID =
-            "SELECT `course_user`.`user_id`, `course_user`.`course_id`, `course_user`.`status`, `course_user`.rating FROM `course_user` WHERE `course_user`.`course_id` = ? AND `course_user`.`user_id` = ?;";
+            "SELECT `course_user`.`user_id`, `course_user`.`course_id`, `course_user`.`status`, `course_user`.rating, `course_user`.`attendance_percent` FROM `course_user` WHERE `course_user`.`course_id` = ? AND `course_user`.`user_id` = ?;";
 
     private static final String SQL_SELECT_COURSE_USER_BY_USER_ID =
-            "SELECT `course_user`.`user_id`, `course_user`.`course_id`, `course_user`.`status`, `course_user`.rating FROM `course_user` WHERE `course_user`.`user_id` = ?;";
+            "SELECT `course_user`.`user_id`, `course_user`.`course_id`, `course_user`.`status`, `course_user`.rating, `course_user`.`attendance_percent` FROM `course_user` WHERE `course_user`.`user_id` = ?;";
 
     private static final String SQL_SELECT_ALL_REQUESTS =
-            "SELECT `course_user`.`user_id`, `course_user`.`course_id`, `course_user`.`status`, `course_user`.rating FROM `course_user` JOIN course c on c.id = course_user.course_id WHERE c.user_id = ? AND course_user.status = 0 LIMIT ?, ?;";
+            "SELECT `course_user`.`user_id`, `course_user`.`course_id`, `course_user`.`status`, `course_user`.rating, `course_user`.`attendance_percent` FROM `course_user` JOIN course c on c.id = course_user.course_id WHERE c.user_id = ? AND course_user.status = 0 LIMIT ?, ?;";
 
     private static final String SQL_SELECT_ALL_USER_COURSES =
-            "SELECT `course_user`.`user_id`, `course_user`.`course_id`, `course_user`.`status`, `course_user`.rating FROM `course_user` WHERE `course_user`.`user_id` = ?;";
+            "SELECT `course_user`.`user_id`, `course_user`.`course_id`, `course_user`.`status`, `course_user`.rating, `course_user`.`attendance_percent` FROM `course_user` WHERE `course_user`.`user_id` = ? AND `course_user`.`status` = ?;";
+
+    private static final String SQL_SELECT_ALL_USER_COURSES_WITH_LIMIT =
+            "SELECT `course_user`.`user_id`, `course_user`.`course_id`, `course_user`.`status`, `course_user`.rating, `course_user`.`attendance_percent` FROM `course_user` WHERE `course_user`.`user_id` = ? AND `course_user`.`status` = ? LIMIT ?, ?;";
 
     private static final String SQL_UPDATE =
-            "UPDATE `course_user` SET `course_user`.`status` = ? WHERE `course_user`.`user_id` = ? AND `course_user`.`course_id` = ?;";
+            "UPDATE `course_user` SET `course_user`.`status` = ?, `course_user`.`rating` = ?, `course_user`.`attendance_percent` = ? WHERE `course_user`.`user_id` = ? AND `course_user`.`course_id` = ?;";
 
     private static final String SQL_DELETE =
             "DELETE FROM `course_user` WHERE `course_user`.`course_id` = ? AND `course_user`.`user_id` = ? AND `course_user`.`status` = ?";
@@ -43,6 +46,9 @@ public class CourseUserDaoImpl extends AbstractDao<CourseUser, Long> implements 
 
     private static final String SQL_COUNT_ALL_REQUESTS =
             "SELECT COUNT(*) FROM `course_user` JOIN course c on c.id = course_user.course_id WHERE c.user_id = ? AND course_user.status = 0";
+
+    private static final String SQL_COUNT_STUDENT_COURSES =
+            "SELECT COUNT(*) FROM `course_user` WHERE `course_user`.`user_id` = ? AND `course_user`.`status` = ?;";
 
     protected CourseUserDaoImpl() {
     }
@@ -96,10 +102,30 @@ public class CourseUserDaoImpl extends AbstractDao<CourseUser, Long> implements 
     }
 
     @Override
-    public List<CourseUser> readAllUserCourses(Long userId) throws DaoException {
+    public List<CourseUser> readUserCoursesByStatus(Long userId, UserCourseStatus status) throws DaoException {
         List<CourseUser> users = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL_USER_COURSES)) {
             ps.setLong(1, userId);
+            ps.setInt(2, status.getId());
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                CourseUser user = this.mapToEntity(rs);
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while reading all user courses: ", e);
+        }
+        return users;
+    }
+
+    @Override
+    public List<CourseUser> readUserCoursesByStatus(long studentId, UserCourseStatus status, int start, int recordsPerPage) throws DaoException {
+        List<CourseUser> users = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL_USER_COURSES_WITH_LIMIT)) {
+            ps.setLong(1, studentId);
+            ps.setInt(2, status.getId());
+            ps.setInt(3, start);
+            ps.setInt(4, recordsPerPage);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 CourseUser user = this.mapToEntity(rs);
@@ -134,8 +160,10 @@ public class CourseUserDaoImpl extends AbstractDao<CourseUser, Long> implements 
     public boolean update(CourseUser courseUser) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_UPDATE)) {
             ps.setLong(1, courseUser.getStatus().getId());
-            ps.setLong(2, courseUser.getUser().getId());
-            ps.setLong(3, courseUser.getCourse().getId());
+            ps.setDouble(2, courseUser.getRating());
+            ps.setDouble(3, courseUser.getAttendancePercent());
+            ps.setLong(4, courseUser.getUser().getId());
+            ps.setLong(5, courseUser.getCourse().getId());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new DaoException("Exception while updating course user: ", e);
@@ -208,6 +236,22 @@ public class CourseUserDaoImpl extends AbstractDao<CourseUser, Long> implements 
         return count;
     }
 
+    @Override
+    public int countStudentCourses(long studentId, UserCourseStatus status) throws DaoException {
+        int count = 0;
+        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_STUDENT_COURSES)) {
+            ps.setLong(1, studentId);
+            ps.setInt(2, status.getId());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while counting requests: ", e);
+        }
+        return count;
+    }
+
     private CourseUser mapToEntity(ResultSet rs) throws SQLException {
         return CourseUser.builder()
                 .user(User.builder()
@@ -219,6 +263,7 @@ public class CourseUserDaoImpl extends AbstractDao<CourseUser, Long> implements 
                 .status(UserCourseStatus.resolveStatusById(
                         rs.getInt("course_user.status")))
                 .rating(rs.getDouble("course_user.rating"))
+                .attendancePercent(rs.getDouble("course_user.attendance_percent"))
                 .build();
     }
 
@@ -230,6 +275,11 @@ public class CourseUserDaoImpl extends AbstractDao<CourseUser, Long> implements 
             ps.setDouble(4, courseUser.getRating());
         } else {
             ps.setNull(4, Types.NULL);
+        }
+        if (courseUser.getRating() != null) {
+            ps.setDouble(5, courseUser.getAttendancePercent());
+        } else {
+            ps.setNull(5, Types.NULL);
         }
     }
 }

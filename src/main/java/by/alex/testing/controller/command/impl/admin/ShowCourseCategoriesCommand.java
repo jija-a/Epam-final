@@ -1,8 +1,6 @@
 package by.alex.testing.controller.command.impl.admin;
 
-import by.alex.testing.controller.PageConstant;
-import by.alex.testing.controller.RequestConstant;
-import by.alex.testing.controller.ViewResolver;
+import by.alex.testing.controller.*;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.domain.CourseCategory;
 import by.alex.testing.service.AdminService;
@@ -55,16 +53,16 @@ public class ShowCourseCategoriesCommand implements Command {
             start = paginationService.defineStartEntityNumber(page, pageLimit);
             pages = paginationService.defineNumberOfPages(entitiesQty, pageLimit);
             categories = adminService.readAllCourseCategories(start, pageLimit, search);
-            logger.info("SEARCHING, qty - {}, start - {}, pages - {}, cat - {}", entitiesQty, start, pages, categories);
-        }
-
-        if (categories.isEmpty()) {
+            if (categories.isEmpty()){
+                req.setAttribute(RequestConstant.ERROR,
+                        MessageManager.INSTANCE.getMessage(MessageConstant.NOT_FOUND));
+            }
+        } else {
             entitiesQty = adminService.countAllCourseCategories();
             start = paginationService.defineStartEntityNumber(page, pageLimit);
             pages = paginationService.defineNumberOfPages(entitiesQty, pageLimit);
             categories = adminService.readAllCourseCategories(start, pageLimit);
-            logger.info("GETTING ALL, qty - {}, start - {}, pages - {}, cat - {}", entitiesQty, start, pages, categories);
-        }
+         }
 
         req.setAttribute(RequestConstant.RECORDS_PER_PAGE, pageLimit);
         req.setAttribute(RequestConstant.NUMBER_OF_PAGES, pages);

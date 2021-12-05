@@ -1,0 +1,33 @@
+<input type="hidden" name="command" value="show_course_lessons" form="searchForm">
+<table class="table caption-top table-bordered table-hover">
+    <caption><fmt:message key="label.view.lessons"/></caption>
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col"><fmt:message key="label.title"/></th>
+        <th scope="col"><fmt:message key="label.date.start"/></th>
+        <th scope="col"><fmt:message key="label.date.end"/></th>
+        <th scope="col"><fmt:message key="label.mark"/></th>
+        <th scope="col"><fmt:message key="label.status"/></th>
+    </tr>
+    </thead>
+    <tbody>
+    <c:forEach items="${lessons}" var="entry" varStatus="st">
+        <tr>
+            <td>
+                <%@include file="../jspf/entity-number.jspf" %>
+            </td>
+            <td>${entry.key.title}</td>
+            <td><crt:formatDate value="${entry.key.startDate}" pattern="dd-MM-yyyy HH:mm"/></td>
+            <td><crt:formatDate value="${entry.key.endDate}" pattern="dd-MM-yyyy HH:mm"/></td>
+            <c:choose>
+                <c:when test="${attendance.mark ne 0}">
+                    <td>${entry.value.mark}</td>
+                </c:when>
+                <c:otherwise>-</c:otherwise>
+            </c:choose>
+            <td>${entry.value.status.name}</td>
+        </tr>
+    </c:forEach>
+    </tbody>
+</table>

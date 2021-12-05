@@ -1,8 +1,6 @@
 package by.alex.testing.controller.command.impl.admin;
 
-import by.alex.testing.controller.PageConstant;
-import by.alex.testing.controller.RequestConstant;
-import by.alex.testing.controller.ViewResolver;
+import by.alex.testing.controller.*;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.domain.Course;
 import by.alex.testing.domain.CourseCategory;
@@ -15,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ShowCoursesCommand implements Command {
@@ -35,7 +32,7 @@ public class ShowCoursesCommand implements Command {
     public ViewResolver execute(HttpServletRequest req,
                                 HttpServletResponse resp) throws ServiceException {
 
-        List<Course> courses = new ArrayList<>();
+        List<Course> courses;
 
         String recordsParam = req.getParameter(RequestConstant.RECORDS_PER_PAGE);
         int recordsPerPage = StringUtils.isNullOrEmpty(recordsParam) ? DEFAULT_PAGINATION_LIMIT :
@@ -45,8 +42,11 @@ public class ShowCoursesCommand implements Command {
         if (!StringUtils.isNullOrEmpty(search)) {
             req.setAttribute(RequestConstant.SEARCH, search);
             courses = this.findBySearchRequest(req, recordsPerPage, search);
-        }
-        if (courses.isEmpty()) {
+            if (courses.isEmpty()) {
+                req.setAttribute(RequestConstant.ERROR,
+                        MessageManager.INSTANCE.getMessage(MessageConstant.NOT_FOUND));
+            }
+        } else {
             courses = this.findAll(req, recordsPerPage);
         }
 
@@ -59,7 +59,7 @@ public class ShowCoursesCommand implements Command {
     private List<Course> findAll(HttpServletRequest req, int recordsPerPage) throws ServiceException {
         logger.debug("Search all courses");
         int count = commonService.countAllCourses();
-        int start = this.definePagination(req, count, recordsPerPage);
+        int start = this.definePagination(req, count, recordsPerPage, DEFAULT_PAGINATION_LIMIT);
         return commonService.readAllCourses(start, recordsPerPage);
     }
 
@@ -67,7 +67,7 @@ public class ShowCoursesCommand implements Command {
             throws ServiceException {
         logger.debug("Search courses by '{}'", search);
         int count = commonService.countAllCourses(search.trim());
-        int start = this.definePagination(req, count, recordsPerPage);
+        int start = this.definePagination(req, count, recordsPerPage, DEFAULT_PAGINATION_LIMIT);
         return commonService.readCourseByTitle(start, recordsPerPage, search.trim());
     }
 }

@@ -21,14 +21,12 @@ public class PageRedirectSecurityFilter extends BaseFilter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,
-                         FilterChain chain) throws IOException, ServletException {
+                         FilterChain chain) throws IOException {
 
-        logger.info("'/jsp/*' is not allowed, redirecting to index");
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         httpResponse.sendRedirect(req.getContextPath() + PageConstant.INDEX_PAGE);
-        chain.doFilter(request, response);
     }
 
     @Override

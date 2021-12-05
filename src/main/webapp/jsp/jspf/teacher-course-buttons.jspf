@@ -1,13 +1,52 @@
-<div class="btn-group" role="group" aria-label="Basic mixed styles example">
-    <a class="btn btn-primary"
-       href="<c:url value="/controller?command=show_lessons&course_id=${course.id}"/>">
-        <fmt:message key="label.view.lessons"/></a>
-    <a class="btn btn-info"
-       href="<c:url value="/controller?command=show_course_users&course_id=${course.id}"/>">
-        <fmt:message key="label.view.users"/></a>
-    <input class="btn btn-warning" type="submit"
-           value="<fmt:message key="label.update"/>">
-    <a class="btn btn-danger"
-       href="<c:url value="/controller?command=delete_course&course_id=${course.id}"/>">
-        <fmt:message key="label.delete"/></a>
-</div>
+<input type="hidden" name="command" value="show_teacher_courses" form="searchForm">
+<table class="table caption-top table-bordered table-hover">
+    <caption><fmt:message key="head.title.courses_list"/></caption>
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col"><fmt:message key="label.course.name"/></th>
+        <th scope="col"><fmt:message key="label.course.owner.name"/></th>
+        <th scope="col"><fmt:message key="label.course.type"/></th>
+        <th scope="col"><fmt:message key="label.action"/></th>
+    </tr>
+    </thead>
+    <tbody>
+    <c:forEach var="course" varStatus="st" items="${courses}">
+        <tr>
+            <form action="<c:url value="/controller"/>" method="post">
+                <input type="hidden" name="command" value="update_course">
+                <input type="hidden" name="course_id" value="${course.id}">
+                <th scope="row">
+                    <%@include file="../jspf/entity-number.jspf" %>
+                </th>
+                <td>
+                    <input type="text" maxlength="150" minlength="5" value="${course.name}"
+                           name="course_name">
+                </td>
+                <td><c:out value="${course.owner.firstName} ${course.owner.lastName}"/></td>
+                <td>
+                    <%@include file="../jspf/teacher-category-select.jspf" %>
+                </td>
+                <td>
+                    <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                        <a class="btn btn-primary"
+                           href="<c:url value="/controller?command=show_lessons&course_id=${course.id}"/>">
+                            <fmt:message key="label.view.lessons"/></a>
+                        <a class="btn btn-info"
+                           href="<c:url value="/controller?command=show_course_users&course_id=${course.id}"/>">
+                            <fmt:message key="label.view.users"/></a>
+                        <input class="btn btn-warning" type="submit"
+                               value="<fmt:message key="label.update"/>">
+                        <a class="btn btn-danger"
+                           href="<c:url value="/controller?command=delete_course&course_id=${course.id}"/>">
+                            <fmt:message key="label.delete"/></a>
+                    </div>
+                </td>
+            </form>
+        </tr>
+    </c:forEach>
+    <tr>
+        <%@include file="../jspf/teacher-course-creation.jspf" %>
+    </tr>
+    </tbody>
+</table>

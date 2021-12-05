@@ -21,6 +21,12 @@ public class MessageConstant {
     public static final String CANT_ACCEPT = "error.accept";
     public static final String CREATE_ERROR = "error.create";
     public static final String DELETE_ERROR = "error.delete";
+    public static final String NOT_FOUND = "error.not.found";
+    public static final String ACCESS_DENIED = "error.access.denied";
+    public static final String SIGNED = "success.signed";
+    public static final String CANT_SIGN = "error.signed";
+    public static final String UNSIGNED = "success.unsigned";
+    public static final String CANT_UNSIGNED = "error.unsigned";
 
     private MessageConstant(){
     }

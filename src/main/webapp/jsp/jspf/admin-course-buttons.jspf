@@ -1,3 +1,33 @@
-<a class="btn btn-danger"
-   href="<c:url value="/controller?command=delete_course&course_id=${course.id}"/>"><fmt:message
-        key="label.delete"/></a>
+<input type="hidden" name="command" value="show_courses" form="searchForm">
+<table class="table caption-top table-bordered table-hover">
+    <caption><fmt:message key="head.title.courses_list"/></caption>
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col"><fmt:message key="label.course.name"/></th>
+        <th scope="col"><fmt:message key="label.course.owner.name"/></th>
+        <th scope="col"><fmt:message key="label.course.type"/></th>
+        <th scope="col"><fmt:message key="label.action"/></th>
+    </tr>
+    </thead>
+    <tbody>
+    <c:forEach var="course" varStatus="st" items="${courses}">
+        <tr>
+            <input type="hidden" name="course_id" value="${course.id}">
+            <th scope="row">
+                <%@include file="../jspf/entity-number.jspf" %>
+            </th>
+            <td><c:out value="${course.name}"/></td>
+            <td><c:out value="${course.owner.firstName} ${course.owner.lastName}"/></td>
+            <td><c:out value="${course.category.name}"/></td>
+            <td>
+                <form action="<c:url value="/controller?delete_course&course_id=${course.id}"/>"
+                      method="post">
+                    <button class="btn btn-danger"><fmt:message
+                            key="label.delete"/></button>
+                </form>
+            </td>
+        </tr>
+    </c:forEach>
+    </tbody>
+</table>
