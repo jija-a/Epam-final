@@ -1,6 +1,7 @@
 package by.alex.testing.controller.listener;
 
 import by.alex.testing.dao.pool.ConnectionPool;
+import by.alex.testing.service.ServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,8 +17,7 @@ public class ContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        //todo call service
-        ConnectionPool.getInstance();
+        ServiceFactory.getInstance();
         LOGGER.debug("Context listener initialized");
     }
 

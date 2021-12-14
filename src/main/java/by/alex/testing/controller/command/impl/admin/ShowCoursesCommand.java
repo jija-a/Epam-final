@@ -42,10 +42,6 @@ public class ShowCoursesCommand implements Command {
         if (!StringUtils.isNullOrEmpty(search)) {
             req.setAttribute(RequestConstant.SEARCH, search);
             courses = this.findBySearchRequest(req, recordsPerPage, search);
-            if (courses.isEmpty()) {
-                req.setAttribute(RequestConstant.ERROR,
-                        MessageManager.INSTANCE.getMessage(MessageConstant.NOT_FOUND));
-            }
         } else {
             courses = this.findAll(req, recordsPerPage);
         }

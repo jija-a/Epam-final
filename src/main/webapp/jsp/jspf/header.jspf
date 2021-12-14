@@ -47,20 +47,27 @@
                     <li><a href="<c:url value="/controller?command=to_home_page"/>" class="nav-link px-2 link-dark">
                         <fmt:message key="head.title.project_name"/></a></li>
 
-                    <li><a href="<c:url value="/controller?command=show_available_courses"/>" class="nav-link px-2 link-dark">
+                    <li><a href="<c:url value="/controller?command=show_available_courses"/>"
+                           class="nav-link px-2 link-dark">
                         <fmt:message key="head.title.courses_list"/></a></li>
 
                     <li><a href="<c:url value="/controller?command=show_student_courses"/>"
                            class="nav-link px-2 link-dark">
                         <fmt:message key="head.title.my.courses"/></a></li>
 
-                    <li><a href="<c:url value="/controller?command=show_requested_courses"/>" class="nav-link px-2 link-dark">
+                    <li><a href="<c:url value="/controller?command=show_requested_courses"/>"
+                           class="nav-link px-2 link-dark">
                         <fmt:message key="head.title.course_requests"/></a></li>
 
                     <li><a href="<c:url value="/controller?command=to_profile_page"/>"
                            class="nav-link px-2 link-dark"><fmt:message key="head.title.profile"/></a></li>
 
                 </c:when>
+
+                <c:otherwise>
+                    <li><a href="<c:url value="/controller?command=to_login_page"/>" class="nav-link px-2 link-dark">
+                        <fmt:message key="head.title.project_name"/></a></li>
+                </c:otherwise>
             </c:choose>
 
         </ul>

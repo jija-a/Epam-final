@@ -3,24 +3,29 @@ package by.alex.testing.service.validator;
 import by.alex.testing.controller.MessageConstant;
 import by.alex.testing.controller.MessageManager;
 import by.alex.testing.domain.Course;
+import by.alex.testing.service.RegexStorage;
+import com.mysql.cj.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
-public class CourseValidator {
+public class CourseValidator extends BaseValidator {
 
-    private static final String NAME_PATTERN = "^.{5,150}$";
+    private static final Logger logger =
+            LoggerFactory.getLogger(CourseValidator.class);
+
+    private CourseValidator() {
+    }
 
     public static List<String> validate(Course course) {
+        logger.info("Validating course");
         List<String> errors = new ArrayList<>();
-        if (!validateName(course.getName())) {
+        if (StringUtils.isNullOrEmpty(course.getName())
+                || !validatePattern(course.getName(), RegexStorage.TITLE_PATTERN)) {
             errors.add(MessageManager.INSTANCE.getMessage(MessageConstant.COURSE_NAME_ERROR));
         }
         return errors;
-    }
-
-    public static boolean validateName(String name) {
-        return Pattern.matches(NAME_PATTERN, name);
     }
 }

@@ -1,5 +1,6 @@
 package by.alex.testing.service;
 
+import by.alex.testing.dao.TransactionHandler;
 import by.alex.testing.service.impl.*;
 
 public class ServiceFactory {
@@ -11,6 +12,7 @@ public class ServiceFactory {
     }
 
     private ServiceFactory() {
+        TransactionHandler.init();
     }
 
     public CommonService getCommonService() {

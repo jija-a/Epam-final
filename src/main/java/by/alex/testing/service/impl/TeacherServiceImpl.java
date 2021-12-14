@@ -2,10 +2,15 @@ package by.alex.testing.service.impl;
 
 import by.alex.testing.controller.MessageConstant;
 import by.alex.testing.controller.MessageManager;
+import by.alex.testing.dao.AttendanceDao;
+import by.alex.testing.dao.CourseCategoryDao;
+import by.alex.testing.dao.CourseDao;
+import by.alex.testing.dao.CourseUserDao;
 import by.alex.testing.dao.DaoException;
 import by.alex.testing.dao.DaoFactory;
+import by.alex.testing.dao.LessonDao;
 import by.alex.testing.dao.TransactionHandler;
-import by.alex.testing.dao.mysql.*;
+import by.alex.testing.dao.UserDao;
 import by.alex.testing.domain.*;
 import by.alex.testing.service.AccessDeniedException;
 import by.alex.testing.service.ServiceException;
@@ -34,12 +39,12 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     private final TransactionHandler handler;
-    private final CourseDaoImpl courseDao;
-    private final CourseUserDaoImpl courseUserDao;
-    private final UserDaoImpl userDao;
-    private final CourseCategoryDaoImpl courseCategoryDao;
-    private final LessonDaoImpl lessonDao;
-    private final AttendanceDaoImpl attendanceDao;
+    private final CourseDao courseDao;
+    private final CourseUserDao courseUserDao;
+    private final UserDao userDao;
+    private final CourseCategoryDao courseCategoryDao;
+    private final LessonDao lessonDao;
+    private final AttendanceDao attendanceDao;
 
     private TeacherServiceImpl() {
         DaoFactory factory = DaoFactory.getDaoFactory(DaoFactory.DaoType.MYSQL);
@@ -60,7 +65,7 @@ public class TeacherServiceImpl implements TeacherService {
                 start, recOnPage, teacherId);
         try {
             handler.beginNoTransaction(courseDao, userDao, courseCategoryDao);
-            List<Course> courses = courseDao.readByOwnerId(teacherId, start, recOnPage);
+            List<Course> courses = courseDao.findByOwnerId(teacherId, start, recOnPage);
             for (Course course : courses) {
                 this.setCourseLinks(course);
             }
@@ -84,10 +89,10 @@ public class TeacherServiceImpl implements TeacherService {
                     errors.add(MessageManager.INSTANCE.getMessage(MessageConstant.ALREADY_EXISTS));
                 } else {
                     long categoryId = course.getCategory().getId();
-                    if (courseCategoryDao.readById(categoryId) == null) {
+                    if (courseCategoryDao.findOne(categoryId) == null) {
                         throw new UnknownEntityException("Unknown category id: " + categoryId);
                     }
-                    if (!courseDao.create(course)) {
+                    if (!courseDao.save(course)) {
                         errors.add(MessageManager.INSTANCE.getMessage(MessageConstant.CREATE_ERROR));
                     }
                 }
@@ -111,7 +116,7 @@ public class TeacherServiceImpl implements TeacherService {
             try {
                 checkIfAvailableCourseData(course.getId(), teacher);
                 handler.begin(courseDao);
-                Course existing = courseDao.readByOwnerIdAndName(teacher.getId(), course.getName());
+                Course existing = courseDao.findByOwnerIdAndName(teacher.getId(), course.getName());
                 if (existing != null && !existing.getId().equals(course.getId())) {
                     errors.add(MessageManager.INSTANCE.getMessage(MessageConstant.ALREADY_EXISTS));
                 } else {
@@ -186,7 +191,7 @@ public class TeacherServiceImpl implements TeacherService {
         try {
             logger.info("Reading lesson by id - {}", lessonId);
             handler.beginNoTransaction(lessonDao);
-            return lessonDao.readById(lessonId);
+            return lessonDao.findOne(lessonId);
         } catch (DaoException e) {
             throw new ServiceException(e.getMessage(), e);
         } finally {
@@ -202,11 +207,12 @@ public class TeacherServiceImpl implements TeacherService {
         if (errors.isEmpty()) {
             try {
                 handler.begin(lessonDao, attendanceDao);
-                lessonDao.create(lesson);
+                lessonDao.save(lesson);
                 for (Attendance attendance : lesson.getAttendances()) {
                     attendance.setLessonId(lesson.getId());
-                    attendanceDao.create(attendance);
+                    attendanceDao.save(attendance);
                 }
+                this.updateAttendances(lesson.getCourseId());
                 handler.commit();
             } catch (DaoException e) {
                 handler.rollback();
@@ -251,8 +257,9 @@ public class TeacherServiceImpl implements TeacherService {
             checkIfAvailableCourseData(courseId, teacher);
             boolean isDeleted;
             logger.info("Deleting lesson, lesson id - {}", lessonId);
-            handler.begin(lessonDao);
+            handler.begin(lessonDao, userDao, courseUserDao, attendanceDao);
             isDeleted = lessonDao.delete(lessonId);
+            this.updateAttendances(courseId);
             handler.commit();
             return isDeleted;
         } catch (DaoException e) {
@@ -260,6 +267,18 @@ public class TeacherServiceImpl implements TeacherService {
             throw new ServiceException(e.getMessage(), e);
         } finally {
             handler.end();
+        }
+    }
+
+    private void updateAttendances(long courseId) throws DaoException {
+        List<User> users = userDao.readByCourseId(courseId);
+        List<CourseUser> courseUsers = new ArrayList<>();
+        for (User user : users) {
+            courseUsers.add(courseUserDao.findByUserAndCourseId(user.getId(), courseId));
+        }
+        for (CourseUser courseUser : courseUsers) {
+            this.calculateAttendance(courseUser);
+            courseUserDao.update(courseUser);
         }
     }
 
@@ -286,7 +305,7 @@ public class TeacherServiceImpl implements TeacherService {
             logger.info("Reading all attendances by lesson id - {}", lessonId);
             List<Attendance> attendances = attendanceDao.readByLessonId(lessonId);
             for (Attendance attendance : attendances) {
-                User user = userDao.readById(attendance.getStudent().getId());
+                User user = userDao.findOne(attendance.getStudent().getId());
                 attendance.setStudent(user);
             }
             return attendances;
@@ -303,8 +322,8 @@ public class TeacherServiceImpl implements TeacherService {
         logger.info("Reading attendance by id - {}", attendanceId);
         try {
             handler.beginNoTransaction(attendanceDao, userDao);
-            Attendance attendance = attendanceDao.readById(attendanceId);
-            User user = userDao.readById(attendance.getStudent().getId());
+            Attendance attendance = attendanceDao.findOne(attendanceId);
+            User user = userDao.findOne(attendance.getStudent().getId());
             attendance.setStudent(user);
             return attendance;
         } catch (DaoException e) {
@@ -323,8 +342,14 @@ public class TeacherServiceImpl implements TeacherService {
             try {
                 checkIfAvailableCourseData(courseId, teacher);
                 logger.info("Updating attendance, attendance id - {}", attendance.getId());
-                handler.begin(attendanceDao);
+                handler.begin(attendanceDao, courseUserDao, attendanceDao);
                 if (!attendanceDao.update(attendance)) {
+                    errors.add(MessageManager.INSTANCE.getMessage(MessageConstant.UPDATE_ERROR));
+                }
+                CourseUser courseUser = courseUserDao.findByUserAndCourseId(attendance.getStudent().getId(), courseId);
+                this.calculateAttendance(courseUser
+                );
+                if (!courseUserDao.update(courseUser)) {
                     errors.add(MessageManager.INSTANCE.getMessage(MessageConstant.UPDATE_ERROR));
                 }
                 handler.commit();
@@ -346,11 +371,12 @@ public class TeacherServiceImpl implements TeacherService {
                 teacherId);
         try {
             handler.beginNoTransaction(courseUserDao, userDao, courseCategoryDao, courseDao);
-            List<CourseUser> courseUsers = courseUserDao.readAllRequests(start, recOnPage, teacherId);
+            List<CourseUser> courseUsers =
+                    courseUserDao.readAllRequestsByTeacherId(start, recOnPage, teacherId);
             for (CourseUser courseUser : courseUsers) {
-                Course course = courseDao.readById(courseUser.getCourse().getId());
+                Course course = courseDao.findOne(courseUser.getCourse().getId());
                 courseUser.setCourse(course);
-                User user = userDao.readById(courseUser.getUser().getId());
+                User user = userDao.findOne(courseUser.getUser().getId());
                 courseUser.setUser(user);
             }
             return courseUsers;
@@ -400,7 +426,7 @@ public class TeacherServiceImpl implements TeacherService {
             handler.beginNoTransaction(userDao);
             List<User> users = userDao.readByCourseId(start, recOnPage, courseId);
             for (User user : users) {
-                CourseUser courseUser = courseUserDao.readById(courseId, user.getId());
+                CourseUser courseUser = courseUserDao.findByUserAndCourseId(user.getId(), courseId);
                 courseUser.setUser(user);
                 courseUsers.add(courseUser);
             }
@@ -424,7 +450,7 @@ public class TeacherServiceImpl implements TeacherService {
             List<CourseUser> courseUsers = new ArrayList<>();
             List<User> users = userDao.readByCourseId(start, recOnPage, courseId, search);
             for (User user : users) {
-                CourseUser courseUser = courseUserDao.readById(courseId, user.getId());
+                CourseUser courseUser = courseUserDao.findByUserAndCourseId(user.getId(), courseId);
                 courseUser.setUser(user);
                 courseUsers.add(courseUser);
             }
@@ -443,11 +469,11 @@ public class TeacherServiceImpl implements TeacherService {
                 courseId, userId);
         try {
             handler.beginNoTransaction(courseUserDao, userDao, courseCategoryDao, courseDao);
-            CourseUser courseUser = courseUserDao.readById(courseId, userId);
+            CourseUser courseUser = courseUserDao.findByUserAndCourseId(userId, courseId);
             if (courseUser != null) {
-                Course course = courseDao.readById(courseUser.getCourse().getId());
+                Course course = courseDao.findOne(courseUser.getCourse().getId());
                 courseUser.setCourse(course);
-                User user = userDao.readById(courseUser.getUser().getId());
+                User user = userDao.findOne(courseUser.getUser().getId());
                 courseUser.setUser(user);
             }
             return courseUser;
@@ -464,7 +490,6 @@ public class TeacherServiceImpl implements TeacherService {
 
         try {
             checkIfAvailableCourseData(courseUser.getCourse().getId(), teacher);
-            logger.info("Updating course user, id - {}", courseUser.getId());
             boolean isUpdated;
             handler.begin(courseUserDao);
             isUpdated = courseUserDao.update(courseUser);
@@ -508,8 +533,9 @@ public class TeacherServiceImpl implements TeacherService {
             logger.info("Deleting user from course, course id - {}, user id - {}",
                     courseUser.getCourse().getId(), courseUser.getUser().getId());
             boolean isDeleted;
-            handler.begin(courseDao, courseUserDao);
+            handler.begin(courseDao, courseUserDao, attendanceDao);
             isDeleted = courseUserDao.delete(courseUser);
+            attendanceDao.delete(courseUser.getUser().getId());
             handler.commit();
             return isDeleted;
         } catch (DaoException e) {
@@ -552,11 +578,11 @@ public class TeacherServiceImpl implements TeacherService {
     private void checkIfAvailableCourseData(long courseId, User teacher)
             throws AccessDeniedException, DaoException {
 
-        logger.info("Defining if teacher can view course data course id - {}, teacher id - {}",
+        logger.info("Defining if teacher can manipulate course data course id - {}, teacher id - {}",
                 courseId, teacher.getId());
         try {
             handler.beginNoTransaction(courseDao);
-            Course course = courseDao.readById(courseId);
+            Course course = courseDao.findOne(courseId);
             if (course == null || !(course.getOwner().getId().equals(teacher.getId())
                     || teacher.getRole().equals(UserRole.ADMIN))) {
                 throw new AccessDeniedException(String.format(ACCESS_ERROR, teacher.getId()));
@@ -567,8 +593,8 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     private void setCourseLinks(Course course) throws DaoException {
-        User user = userDao.readById(course.getOwner().getId());
-        CourseCategory category = courseCategoryDao.readById(course.getCategory().getId());
+        User user = userDao.findOne(course.getOwner().getId());
+        CourseCategory category = courseCategoryDao.findOne(course.getCategory().getId());
         course.setOwner(user);
         course.setCategory(category);
     }
@@ -577,10 +603,39 @@ public class TeacherServiceImpl implements TeacherService {
 
         logger.info("Finding teacher, id: {}, course, with name - {}", teacherId, courseName);
         boolean result = false;
-        Course course = courseDao.readByOwnerIdAndName(teacherId, courseName);
+        Course course = courseDao.findByOwnerIdAndName(teacherId, courseName);
         if (course != null) {
             result = true;
         }
         return result;
+    }
+
+    private void calculateAttendance(CourseUser courseUser)
+            throws DaoException {
+
+        logger.info("Calculating user attendance");
+
+        List<Attendance> attendances = attendanceDao.readByCourseUser(courseUser);
+        Double rating = 0.0;
+        int counter = 0;
+        for (Attendance a : attendances) {
+            if (a.getMark() != null) {
+                counter++;
+                rating += a.getMark();
+            }
+        }
+        rating = counter == 0 ? null : rating / counter;
+
+        Double percent = 0.0;
+        counter = 0;
+        for (Attendance a : attendances) {
+            counter++;
+            if (!a.getStatus().equals(AttendanceStatus.NOT_PRESENT)) {
+                percent += 1;
+            }
+        }
+        percent = counter == 0 ? null : (percent / counter) * 100;
+        courseUser.setRating(rating);
+        courseUser.setAttendancePercent(percent);
     }
 }

@@ -3,32 +3,37 @@ package by.alex.testing.service.validator;
 import by.alex.testing.controller.MessageConstant;
 import by.alex.testing.controller.MessageManager;
 import by.alex.testing.domain.User;
+import by.alex.testing.service.RegexStorage;
+import com.mysql.cj.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
-public class UserValidator {
+public class UserValidator extends BaseValidator {
 
-    private static final String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,16}$";
-    private static final String LOGIN_PATTERN = "^[a-zA-Z0-9._-]{3,255}$";
+    private static final Logger logger =
+            LoggerFactory.getLogger(UserValidator.class);
+
+    private UserValidator() {
+    }
 
     public static List<String> validate(User user) {
+        logger.info("Validating user");
         List<String> errors = new ArrayList<>();
-        if (!validateLogin(user.getLogin())) {
+        if (StringUtils.isNullOrEmpty(user.getLogin()) || !validatePattern(user.getLogin(), RegexStorage.LOGIN_PATTERN)) {
             errors.add(MessageManager.INSTANCE.getMessage(MessageConstant.LOGIN_PATTERN_ERROR));
         }
-        if (!validatePassword(user.getPassword())) {
+        if (StringUtils.isNullOrEmpty(String.valueOf(user.getPassword()))
+                || !validatePattern(String.valueOf(user.getPassword()), RegexStorage.PASSWORD_PATTERN)) {
             errors.add(MessageManager.INSTANCE.getMessage(MessageConstant.PASSWORD_PATTERN_ERROR));
         }
+        if (StringUtils.isNullOrEmpty(user.getFirstName()) || StringUtils.isNullOrEmpty(user.getLastName())
+                || !validatePattern(user.getFirstName(), RegexStorage.NAME_PATTERN)
+                || !validatePattern(user.getLastName(), RegexStorage.NAME_PATTERN)) {
+            errors.add(MessageManager.INSTANCE.getMessage(MessageConstant.NAME_ERROR));
+        }
         return errors;
-    }
-
-    public static boolean validateLogin(String login) {
-        return Pattern.matches(LOGIN_PATTERN, login);
-    }
-
-    public static boolean validatePassword(char[] password) {
-        return Pattern.matches(PASSWORD_PATTERN, String.valueOf(password));
     }
 }

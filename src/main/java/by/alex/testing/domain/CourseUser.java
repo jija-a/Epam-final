@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-public class CourseUser extends Entity{
+public class CourseUser implements BaseEntity {
 
     private Course course;
     private User user;

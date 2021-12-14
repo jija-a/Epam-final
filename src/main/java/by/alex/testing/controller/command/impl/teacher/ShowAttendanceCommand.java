@@ -36,10 +36,10 @@ public class ShowAttendanceCommand implements Command {
         long courseId = ParamsFromRequestHandler.getLongParameter(req, RequestConstant.COURSE_ID);
         Long lessonId = ParamsFromRequestHandler.getLongParameter(req, RequestConstant.LESSON_ID);
 
-            List<Attendance> attendances = teacherService.findAllAttendances(lessonId, courseId, teacher);
-            req.setAttribute(RequestConstant.ATTENDANCES, attendances);
-            req.setAttribute(RequestConstant.STATUSES, AttendanceStatus.values());
-            req.getSession().setAttribute(RequestConstant.LESSON_ID, lessonId);
+        List<Attendance> attendances = teacherService.findAllAttendances(lessonId, courseId, teacher);
+        req.setAttribute(RequestConstant.ATTENDANCES, attendances);
+        req.setAttribute(RequestConstant.STATUSES, AttendanceStatus.values());
+        req.getSession().setAttribute(RequestConstant.LESSON_ID, lessonId);
         return resolver;
     }
 }

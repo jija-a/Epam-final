@@ -1,6 +1,6 @@
 package by.alex.testing.domain;
 
-public enum AttendanceStatus {
+public enum AttendanceStatus implements BaseEntity {
     NOT_PRESENT(0, "Not present"),
     ATTENDED(1, "Attended"),
     LATE(2, "Was late");

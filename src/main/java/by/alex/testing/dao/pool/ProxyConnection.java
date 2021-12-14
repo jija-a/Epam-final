@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-public class ProxyConnection implements Connection, Comparable<ProxyConnection> {
+public class ProxyConnection implements Connection {
 
     private final Connection connection;
 
@@ -289,10 +289,5 @@ public class ProxyConnection implements Connection, Comparable<ProxyConnection> 
     @Override
     public void setTypeMap(Map<String, Class<?>> arg0) throws SQLException {
         connection.setTypeMap(arg0);
-    }
-
-    @Override
-    public int compareTo(ProxyConnection connection) {
-        return hashCode() - connection.hashCode();
     }
 }

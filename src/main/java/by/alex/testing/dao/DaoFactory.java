@@ -4,7 +4,6 @@ import by.alex.testing.dao.mysql.*;
 
 public abstract class DaoFactory {
 
-
     public enum DaoType{
         MYSQL;
     }
@@ -17,12 +16,10 @@ public abstract class DaoFactory {
     public abstract AttendanceDaoImpl getAttendanceDao();
 
     public static DaoFactory getDaoFactory(DaoType type) throws RuntimeException {
-        switch (type) {
-            case MYSQL:
-                return MySqlDaoFactory.getInstance();
-            default:
-                throw new RuntimeException("Wrong DAO type");
+        if (type == DaoType.MYSQL) {
+            return MySqlDaoFactory.getInstance();
         }
+        throw new RuntimeException("Wrong DAO type");
     }
 
 }

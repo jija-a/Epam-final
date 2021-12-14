@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ShowCourseUsersCommand implements Command {
@@ -35,7 +34,7 @@ public class ShowCourseUsersCommand implements Command {
     public ViewResolver execute(HttpServletRequest req, HttpServletResponse resp)
             throws ServiceException, NotEnoughParametersException, AccessDeniedException {
 
-        List<CourseUser> users = new ArrayList<>();
+        List<CourseUser> users;
         long courseId = ParamsFromRequestHandler.getLongParameter(req, RequestConstant.COURSE_ID);
         User teacher = (User) req.getSession().getAttribute(RequestConstant.USER);
 
@@ -48,10 +47,6 @@ public class ShowCourseUsersCommand implements Command {
 
         if (!StringUtils.isNullOrEmpty(search)) {
             users = this.findBySearchRequest(req, courseId, recordsPerPage, search, teacher);
-            if (users.isEmpty()) {
-                req.setAttribute(RequestConstant.ERROR,
-                        MessageManager.INSTANCE.getMessage(MessageConstant.NOT_FOUND));
-            }
         } else {
             users = this.findAll(req, courseId, recordsPerPage, teacher);
         }

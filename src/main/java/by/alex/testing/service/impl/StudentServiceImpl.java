@@ -1,10 +1,21 @@
 package by.alex.testing.service.impl;
 
+import by.alex.testing.dao.AttendanceDao;
+import by.alex.testing.dao.CourseCategoryDao;
+import by.alex.testing.dao.CourseDao;
+import by.alex.testing.dao.CourseUserDao;
 import by.alex.testing.dao.DaoException;
 import by.alex.testing.dao.DaoFactory;
+import by.alex.testing.dao.LessonDao;
 import by.alex.testing.dao.TransactionHandler;
-import by.alex.testing.dao.mysql.*;
-import by.alex.testing.domain.*;
+import by.alex.testing.dao.UserDao;
+import by.alex.testing.domain.Attendance;
+import by.alex.testing.domain.Course;
+import by.alex.testing.domain.CourseCategory;
+import by.alex.testing.domain.CourseUser;
+import by.alex.testing.domain.Lesson;
+import by.alex.testing.domain.User;
+import by.alex.testing.domain.UserCourseStatus;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.StudentService;
 import org.slf4j.Logger;
@@ -26,12 +37,12 @@ public class StudentServiceImpl implements StudentService {
         return instance;
     }
 
-    private final CourseDaoImpl courseDao;
-    private final CourseUserDaoImpl courseUserDao;
-    private final CourseCategoryDaoImpl courseCategoryDao;
-    private final UserDaoImpl userDao;
-    private final AttendanceDaoImpl attendanceDao;
-    private final LessonDaoImpl lessonDao;
+    private final CourseDao courseDao;
+    private final CourseUserDao courseUserDao;
+    private final CourseCategoryDao courseCategoryDao;
+    private final UserDao userDao;
+    private final AttendanceDao attendanceDao;
+    private final LessonDao lessonDao;
     private final TransactionHandler handler;
 
     protected StudentServiceImpl() {
@@ -55,7 +66,7 @@ public class StudentServiceImpl implements StudentService {
             handler.beginNoTransaction(courseUserDao, courseDao, courseCategoryDao, userDao);
             for (Course course : allCourses) {
                 this.setCourseLinks(course);
-                CourseUser userCourse = courseUserDao.readById(course.getId(), studentId);
+                CourseUser userCourse = courseUserDao.findByUserAndCourseId(studentId, course.getId());
                 userCourse.setCourse(course);
                 userCourses.add(userCourse);
             }
@@ -73,7 +84,7 @@ public class StudentServiceImpl implements StudentService {
 
         try {
             handler.beginNoTransaction(courseUserDao, courseDao, courseCategoryDao, userDao);
-            List<Course> courses = courseDao.readExcludingUserCourses(studentId, start, recordsPerPage);
+            List<Course> courses = courseDao.findExcludingUserCourses(studentId, start, recordsPerPage);
             for (Course course : courses) {
                 this.setCourseLinks(course);
             }
@@ -89,7 +100,7 @@ public class StudentServiceImpl implements StudentService {
     public List<Course> readAvailableCourses(long studentId, int start, int recordsPerPage, String search) throws ServiceException {
         try {
             handler.beginNoTransaction(courseUserDao, courseDao, courseCategoryDao, userDao);
-            List<Course> courses = courseDao.readExcludingUserCourses(studentId, start, recordsPerPage, search);
+            List<Course> courses = courseDao.findExcludingUserCourses(studentId, start, recordsPerPage, search);
             for (Course course : courses) {
                 this.setCourseLinks(course);
             }
@@ -106,9 +117,9 @@ public class StudentServiceImpl implements StudentService {
         try {
             List<Course> courses = new ArrayList<>();
             handler.beginNoTransaction(courseUserDao, courseDao, courseCategoryDao, userDao);
-            List<CourseUser> courseUser = courseUserDao.readUserCoursesByStatus(studentId, status);
+            List<CourseUser> courseUser = courseUserDao.findByUserIdAndStatus(studentId, status);
             for (CourseUser courseU : courseUser) {
-                Course course = courseDao.readById(courseU.getCourse().getId());
+                Course course = courseDao.findOne(courseU.getCourse().getId());
                 courses.add(course);
             }
             for (Course course : courses) {
@@ -128,9 +139,9 @@ public class StudentServiceImpl implements StudentService {
             List<Course> courses = new ArrayList<>();
             handler.beginNoTransaction(courseUserDao, courseDao, courseCategoryDao, userDao);
             List<CourseUser> courseUser =
-                    courseUserDao.readUserCoursesByStatus(studentId, status, start, recordsPerPage);
+                    courseUserDao.findByUserIdAndStatus(studentId, status, start, recordsPerPage);
             for (CourseUser courseU : courseUser) {
-                Course course = courseDao.readById(courseU.getCourse().getId());
+                Course course = courseDao.findOne(courseU.getCourse().getId());
                 courses.add(course);
             }
             for (Course course : courses) {
@@ -191,7 +202,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public int countAvailableCourses(long studentId) throws ServiceException {
+    public Integer countAvailableCourses(long studentId) throws ServiceException {
         try {
             logger.info("Counting student courses");
             handler.beginNoTransaction(courseUserDao);
@@ -204,7 +215,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public int countAvailableCourses(long studentId, String search) throws ServiceException {
+    public Integer countAvailableCourses(long studentId, String search) throws ServiceException {
         try {
             logger.info("Counting student courses");
             handler.beginNoTransaction(courseUserDao);
@@ -222,7 +233,7 @@ public class StudentServiceImpl implements StudentService {
         try {
             logger.info("Counting student courses");
             handler.begin(courseUserDao);
-            isSigned = courseUserDao.create(courseUser);
+            isSigned = courseUserDao.save(courseUser);
             handler.commit();
         } catch (DaoException e) {
             throw new ServiceException(e.getMessage(), e);
@@ -252,8 +263,8 @@ public class StudentServiceImpl implements StudentService {
 
 
     private void setCourseLinks(Course course) throws DaoException {
-        User user = userDao.readById(course.getOwner().getId());
-        CourseCategory category = courseCategoryDao.readById(course.getCategory().getId());
+        User user = userDao.findOne(course.getOwner().getId());
+        CourseCategory category = courseCategoryDao.findOne(course.getCategory().getId());
         course.setOwner(user);
         course.setCategory(category);
     }

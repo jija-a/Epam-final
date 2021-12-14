@@ -34,7 +34,7 @@ public class MessageConstant {
     public static final String COPYRIGHT = "footer.p.copyright";
     public static final String CONFIRMATION_PSW_ERROR = "error.conf_psw";
     public static final String LOGIN_ERROR = "error.login";
-    public static final String LOGIN_PATTERN_ERROR = "error.registration.login.pattern";
+    public static final String LOGIN_PATTERN_ERROR = "error.registration.login";
     public static final String LOGIN_IS_TAKEN_ERROR = "error.registration.login.taken";
-    public static final String PASSWORD_PATTERN_ERROR = "error.registration.password.pattern";
+    public static final String PASSWORD_PATTERN_ERROR = "error.registration.password";
 }

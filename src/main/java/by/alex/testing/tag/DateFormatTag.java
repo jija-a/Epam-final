@@ -12,9 +12,9 @@ import java.time.temporal.Temporal;
 
 public class DateFormatTag extends TagSupport {
 
-    protected Temporal value;
+    protected Temporal temporal;
     protected String pattern;
-    private String var;
+    private String varVal;
     private int scope;
 
     public DateFormatTag() {
@@ -24,13 +24,13 @@ public class DateFormatTag extends TagSupport {
 
     private void init() {
 
-        this.pattern = this.var = null;
-        this.value = null;
+        this.pattern = this.varVal = null;
+        this.temporal = null;
         this.scope = PageContext.PAGE_SCOPE;
     }
 
-    public void setVar(final String var) {
-        this.var = var;
+    public void setVar(final String varVal) {
+        this.varVal = varVal;
     }
 
     public void setScope(final String scope) {
@@ -38,7 +38,7 @@ public class DateFormatTag extends TagSupport {
     }
 
     public void setValue(final Temporal value) {
-        this.value = value;
+        this.temporal = value;
     }
 
     public void setPattern(final String pattern) {
@@ -50,22 +50,22 @@ public class DateFormatTag extends TagSupport {
 
         String formatted = null;
 
-        if (this.value == null) {
-            if (this.var != null) {
-                this.pageContext.removeAttribute(this.var, this.scope);
+        if (this.temporal == null) {
+            if (this.varVal != null) {
+                this.pageContext.removeAttribute(this.varVal, this.scope);
             }
             return EVAL_PAGE;
         }
 
         if (this.pattern != null) {
             final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(this.pattern);
-            formatted = formatter.format(this.value);
+            formatted = formatter.format(this.temporal);
         } else {
-            formatted = this.value.toString();
+            formatted = this.temporal.toString();
         }
 
-        if (this.var != null) {
-            this.pageContext.setAttribute(this.var, formatted, this.scope);
+        if (this.varVal != null) {
+            this.pageContext.setAttribute(this.varVal, formatted, this.scope);
         } else {
             try {
                 this.pageContext.getOut().print(formatted);

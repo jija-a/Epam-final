@@ -1,5 +1,8 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title><fmt:message key="head.title.project_name"/></title>
+</head>
 <body>
 <c:if test="${sessionScope.user != null}">
     <jsp:forward page="/controller?command=to_home_page"/>

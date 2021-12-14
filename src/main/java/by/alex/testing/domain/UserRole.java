@@ -1,6 +1,6 @@
 package by.alex.testing.domain;
 
-public enum UserRole {
+public enum UserRole implements BaseEntity {
     ADMIN(0, "admin"),
     TEACHER(1, "teacher"),
     STUDENT(2, "student"),

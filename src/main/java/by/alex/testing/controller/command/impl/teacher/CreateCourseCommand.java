@@ -37,6 +37,7 @@ public class CreateCourseCommand implements Command {
         if (StringUtils.isNullOrEmpty(courseName)) {
             throw new NotEnoughParametersException("Not enough parameters");
         }
+        courseName = courseName.trim();
 
         Course course = Course.builder()
                 .name(courseName.trim())

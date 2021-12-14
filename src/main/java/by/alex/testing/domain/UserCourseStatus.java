@@ -1,8 +1,6 @@
 package by.alex.testing.domain;
 
-import java.io.Serializable;
-
-public enum UserCourseStatus implements Cloneable, Serializable {
+public enum UserCourseStatus implements BaseEntity {
     REQUESTED(0, "Requested"),
     ON_COURSE(1, "On course"),
     FINISHED(2, "Finished");

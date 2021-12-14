@@ -4,19 +4,19 @@ import by.alex.testing.domain.Course;
 
 import java.util.List;
 
-public interface CourseDao {
+public interface CourseDao extends BaseDao<Course> {
 
-    List<Course> readCourseByTitle(String title, int start, int recOnPage) throws DaoException;
+    List<Course> findAll(int start, int recOnPage) throws DaoException;
 
-    List<Course> readByOwnerId(Long userId, int start, int recOnPage) throws DaoException;
+    List<Course> findExcludingUserCourses(long studentId, int start, int recordsPerPage) throws DaoException;
 
-    Course readByOwnerIdAndName(long teacherId, String courseName) throws DaoException;
+    List<Course> findExcludingUserCourses(long studentId, int start, int recordsPerPage, String search) throws DaoException;
 
-    List<Course> readAll(int start, int recOnPage) throws DaoException;
+    List<Course> findByOwnerId(Long userId, int start, int recOnPage) throws DaoException;
 
-    List<Course> readExcludingUserCourses(long studentId, int start, int recordsPerPage) throws DaoException;
+    List<Course> findCourseByTitle(String title, int start, int recOnPage) throws DaoException;
 
-    List<Course> readExcludingUserCourses(long studentId, int start, int recordsPerPage, String search) throws DaoException;
+    Course findByOwnerIdAndName(long teacherId, String courseName) throws DaoException;
 
     Integer count() throws DaoException;
 
@@ -24,7 +24,7 @@ public interface CourseDao {
 
     Integer countOwnerCourses(long userId) throws DaoException;
 
-    int countAvailableCourses(long studentId) throws DaoException;
+    Integer countAvailableCourses(long studentId) throws DaoException;
 
-    int countAvailableCourses(long studentId, String search) throws DaoException;
+    Integer countAvailableCourses(long studentId, String search) throws DaoException;
 }

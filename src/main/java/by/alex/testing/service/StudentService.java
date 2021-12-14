@@ -23,9 +23,9 @@ public interface StudentService {
 
     int countStudentCourses(long studentId) throws ServiceException;
 
-    int countAvailableCourses(long studentId) throws ServiceException;
+    Integer countAvailableCourses(long studentId) throws ServiceException;
 
-    int countAvailableCourses(long studentId, String search) throws ServiceException;
+    Integer countAvailableCourses(long studentId, String search) throws ServiceException;
 
     boolean signOnCourse(CourseUser courseUser) throws ServiceException;
 

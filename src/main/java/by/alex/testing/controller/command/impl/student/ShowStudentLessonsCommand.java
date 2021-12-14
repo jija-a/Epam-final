@@ -9,24 +9,24 @@ import by.alex.testing.controller.command.ParamsFromRequestHandler;
 import by.alex.testing.domain.Attendance;
 import by.alex.testing.domain.Lesson;
 import by.alex.testing.domain.User;
-import by.alex.testing.service.*;
+import by.alex.testing.service.AccessDeniedException;
+import by.alex.testing.service.ServiceException;
+import by.alex.testing.service.ServiceFactory;
+import by.alex.testing.service.StudentService;
 import com.mysql.cj.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 import java.util.Map;
 
 public class ShowStudentLessonsCommand implements Command {
 
     private final StudentService studentService;
-    private final TeacherService teacherService;
 
     private static final int DEFAULT_PAGINATION_LIMIT = 5;
 
     public ShowStudentLessonsCommand() {
         studentService = ServiceFactory.getInstance().getStudentService();
-        teacherService = ServiceFactory.getInstance().getTeacherService();
     }
 
     @Override

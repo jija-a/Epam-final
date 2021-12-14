@@ -1,21 +1,19 @@
 package by.alex.testing.dao;
 
 import by.alex.testing.domain.CourseUser;
-import by.alex.testing.domain.User;
 import by.alex.testing.domain.UserCourseStatus;
-import by.alex.testing.service.ServiceException;
 
 import java.util.List;
 
-public interface CourseUserDao {
+public interface CourseUserDao extends BaseDao<CourseUser> {
 
-    CourseUser readById(long courseId, long userId) throws DaoException;
+    CourseUser findByUserAndCourseId(long userId, long courseId) throws DaoException;
 
-    List<CourseUser> readUserCoursesByStatus(Long userId, UserCourseStatus status) throws DaoException;
+    List<CourseUser> findByUserIdAndStatus(Long userId, UserCourseStatus status) throws DaoException;
 
-    List<CourseUser> readUserCoursesByStatus(long studentId, UserCourseStatus status, int start, int recordsPerPage) throws DaoException;
+    List<CourseUser> findByUserIdAndStatus(long studentId, UserCourseStatus status, int start, int recordsPerPage) throws DaoException;
 
-    List<CourseUser> readAllRequests(int start, int recOnPage, long userId) throws DaoException;
+    List<CourseUser> readAllRequestsByTeacherId(int start, int recOnPage, long userId) throws DaoException;
 
     boolean delete(CourseUser courseUser) throws DaoException;
 

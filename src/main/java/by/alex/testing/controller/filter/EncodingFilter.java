@@ -38,9 +38,4 @@ public class EncodingFilter extends BaseFilter {
 
         chain.doFilter(request, response);
     }
-
-    @Override
-    public void destroy() {
-        super.destroy();
-    }
 }

@@ -7,8 +7,8 @@
     <title><fmt:message key="head.title.project_name"/> | <fmt:message key="head.title.login"/></title>
 
 </head>
-
 <body>
+<%@include file="jspf/header.jspf" %>
 <div class="sidenav">
     <div class="sidebar-main-text">
         <h2><fmt:message key="head.title.project_name"/></h2>
@@ -19,7 +19,7 @@
     <div class="col-md-6 col-sm-12">
         <div class="login-form">
 
-            <%@include file="jspf/error-success.jspf"%>
+            <%@include file="jspf/error-success.jspf" %>
 
             <form action="<c:url value="/controller"/>" method="POST">
                 <input type="hidden" name="command" value="login">

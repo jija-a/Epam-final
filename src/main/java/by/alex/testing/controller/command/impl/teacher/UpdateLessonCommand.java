@@ -55,6 +55,7 @@ public class UpdateLessonCommand implements Command {
         if (BaseParameterValidator.isNullOrEmpty(lessonIdParam, title, startDate, endDate)) {
             throw new NotEnoughParametersException("Not enough parameters for executing command");
         }
+        title = title.trim();
         long lessonId = Long.parseLong(lessonIdParam);
 
         Lesson lesson = teacherService.findLessonById(lessonId);

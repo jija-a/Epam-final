@@ -7,17 +7,12 @@ import by.alex.testing.domain.Course;
 import by.alex.testing.domain.CourseCategory;
 import by.alex.testing.domain.User;
 import by.alex.testing.service.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 public class UpdateCourseCommand implements Command {
-
-    private static final Logger logger =
-            LoggerFactory.getLogger(UpdateCourseCommand.class);
 
     private final TeacherService teacherService;
     private final CommonService commonService;
@@ -40,7 +35,7 @@ public class UpdateCourseCommand implements Command {
         long categoryId = Long.parseLong(req.getParameter(RequestConstant.COURSE_CATEGORY_ID));
 
         Course course = commonService.readCourseById(courseId);
-        course.setName(courseName);
+        course.setName(courseName.trim());
         course.setCategory(CourseCategory.builder()
                 .id(categoryId)
                 .build());

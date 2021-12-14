@@ -3,10 +3,10 @@ package by.alex.testing.controller.command.impl.common;
 import by.alex.testing.controller.*;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.domain.User;
+import by.alex.testing.domain.UserRole;
 import by.alex.testing.service.CommonService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
-import by.alex.testing.service.TeacherService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,11 +20,9 @@ public class LogInCommand implements Command {
             LoggerFactory.getLogger(LogInCommand.class);
 
     private final CommonService commonService;
-    private final TeacherService teacherService;
 
     public LogInCommand() {
         commonService = ServiceFactory.getInstance().getCommonService();
-        teacherService = ServiceFactory.getInstance().getTeacherService();
     }
 
     @Override
@@ -39,7 +37,7 @@ public class LogInCommand implements Command {
 
         User user = commonService.login(login, password);
         if (user != null) {
-            HttpSession session = req.getSession(false);
+            HttpSession session = req.getSession();
             session.setAttribute(RequestConstant.USER, user);
 
             String page = createRedirectURL(req, CommandName.TO_HOME_PAGE);

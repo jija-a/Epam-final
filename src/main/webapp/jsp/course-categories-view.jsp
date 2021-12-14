@@ -1,24 +1,19 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-
     <title><fmt:message key="head.title.project_name"/> | <fmt:message key="head.title.course_categories"/></title>
-
 </head>
-
 <body class="d-flex flex-column h-100">
-
 <%@include file="jspf/header.jspf" %>
-
 <main class="flex-shrink-0">
+    <h1 class="text-center"><fmt:message key="head.title.course_categories"/></h1>
     <div class="container">
         <%@include file="jspf/error-success.jspf" %>
         <form action="<c:url value="/controller"/>" id="searchForm" method="get"></form>
         <input type="hidden" name="command" value="show_course_categories" form="searchForm">
         <%@include file="jspf/search.jspf" %>
         <table class="table caption-top table-bordered table-hover">
-        <caption><fmt:message key="head.title.course_categories"/></caption>
+            <caption><fmt:message key="head.title.course_categories"/></caption>
             <thead>
             <tr>
                 <th scope="col">#</th>
@@ -66,8 +61,6 @@
         </div>
     </div>
 </main>
-
 <%@include file="jspf/footer.jspf" %>
-
 </body>
 </html>

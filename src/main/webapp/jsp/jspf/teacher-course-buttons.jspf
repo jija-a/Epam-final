@@ -1,4 +1,3 @@
-<input type="hidden" name="command" value="show_teacher_courses" form="searchForm">
 <table class="table caption-top table-bordered table-hover">
     <caption><fmt:message key="head.title.courses_list"/></caption>
     <thead>
@@ -12,8 +11,8 @@
     </thead>
     <tbody>
     <c:forEach var="course" varStatus="st" items="${courses}">
-        <tr>
-            <form action="<c:url value="/controller"/>" method="post">
+        <form action="<c:url value="/controller"/>" method="post">
+            <tr>
                 <input type="hidden" name="command" value="update_course">
                 <input type="hidden" name="course_id" value="${course.id}">
                 <th scope="row">
@@ -42,8 +41,8 @@
                             <fmt:message key="label.delete"/></a>
                     </div>
                 </td>
-            </form>
-        </tr>
+            </tr>
+        </form>
     </c:forEach>
     <tr>
         <%@include file="../jspf/teacher-course-creation.jspf" %>

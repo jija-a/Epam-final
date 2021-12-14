@@ -1,11 +1,12 @@
 package by.alex.testing.dao.mysql;
 
-import by.alex.testing.dao.AbstractDao;
 import by.alex.testing.dao.DaoException;
 import by.alex.testing.dao.UserDao;
 import by.alex.testing.domain.User;
 import by.alex.testing.domain.UserCourseStatus;
 import by.alex.testing.domain.UserRole;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,7 +15,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserDaoImpl extends AbstractDao<User, Long> implements UserDao {
+public class UserDaoImpl extends AbstractMySqlDao implements UserDao {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(UserDaoImpl.class);
 
     private static final String SQL_CREATE =
             "INSERT INTO `user`(`login`, `first_name`, `last_name`, `password`, `role`) VALUES (?, ?, ?, ?, ?);";
@@ -59,7 +63,7 @@ public class UserDaoImpl extends AbstractDao<User, Long> implements UserDao {
     }
 
     @Override
-    public boolean create(User user) throws DaoException {
+    public boolean save(User user) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_CREATE, Statement.RETURN_GENERATED_KEYS)) {
             this.mapFromEntity(ps, user);
             if (ps.executeUpdate() > 0) {
@@ -76,7 +80,7 @@ public class UserDaoImpl extends AbstractDao<User, Long> implements UserDao {
     }
 
     @Override
-    public List<User> readAll() throws DaoException {
+    public List<User> findAll() throws DaoException {
         List<User> users = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL)) {
             ResultSet rs = ps.executeQuery();
@@ -108,7 +112,7 @@ public class UserDaoImpl extends AbstractDao<User, Long> implements UserDao {
     }
 
     @Override
-    public User readById(Long id) throws DaoException {
+    public User findOne(long id) throws DaoException {
         User user = null;
         try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_ID)) {
             ps.setLong(1, id);
@@ -141,7 +145,7 @@ public class UserDaoImpl extends AbstractDao<User, Long> implements UserDao {
     public List<User> readByNameOrLogin(int start, int total, String name) throws DaoException {
         List<User> users = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_NAME_OR_LOGIN_WITH_LIMIT)) {
-            String param = "%" + name + "%";
+            String param = createLikeParameter(name);
             ps.setString(1, param);
             ps.setString(2, param);
             ps.setString(3, param);
@@ -198,7 +202,7 @@ public class UserDaoImpl extends AbstractDao<User, Long> implements UserDao {
     public List<User> readByCourseId(int start, int total, long courseId, String search) throws DaoException {
         List<User> users = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_COURSE_ID_AND_NAME_WITH_LIMIT)) {
-            String param = "%" + search + "%";
+            String param = createLikeParameter(search);
             ps.setLong(1, courseId);
             ps.setLong(2, UserCourseStatus.ON_COURSE.getId());
             ps.setString(3, param);
@@ -218,7 +222,7 @@ public class UserDaoImpl extends AbstractDao<User, Long> implements UserDao {
     }
 
     @Override
-    public boolean delete(Long id) throws DaoException {
+    public boolean delete(long id) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_DELETE)) {
             ps.setLong(1, id);
             return ps.executeUpdate() > 0;
@@ -256,7 +260,7 @@ public class UserDaoImpl extends AbstractDao<User, Long> implements UserDao {
     public Integer count(String search) throws DaoException {
         int count = 0;
         try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_ALL_BY_NAME)) {
-            String param = "%" + search + "%";
+            String param = createLikeParameter(search);
             ps.setString(1, param);
             ps.setString(2, param);
             ps.setString(3, param);
@@ -271,6 +275,7 @@ public class UserDaoImpl extends AbstractDao<User, Long> implements UserDao {
     }
 
     private User mapToEntity(ResultSet rs) throws SQLException {
+        logger.info("Mapping to entity from rs");
         return User.builder()
                 .id(rs.getLong("user.id"))
                 .login(rs.getString("user.login"))
@@ -282,6 +287,7 @@ public class UserDaoImpl extends AbstractDao<User, Long> implements UserDao {
     }
 
     private void mapFromEntity(PreparedStatement ps, User user) throws SQLException {
+        logger.info("Mapping from entity to ps");
         ps.setString(1, user.getLogin());
         ps.setString(2, user.getFirstName());
         ps.setString(3, user.getLastName());

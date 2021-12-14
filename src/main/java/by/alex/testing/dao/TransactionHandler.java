@@ -14,32 +14,32 @@ public class TransactionHandler {
 
     private ProxyConnection connection;
 
-    public TransactionHandler() {
+    public static void init() {
+        ConnectionPool.getInstance();
     }
 
-    public void beginNoTransaction(AbstractDao dao, AbstractDao... daos) {
+    public void beginNoTransaction(BaseDao dao, BaseDao... daos) {
         if (connection == null) {
             connection = (ProxyConnection) ConnectionPool.getInstance().getConnection();
         }
         dao.setConnection(connection);
-        dao.setConnection(connection);
-        for (AbstractDao entity : daos) {
+        for (BaseDao entity : daos) {
             entity.setConnection(connection);
         }
     }
 
-    public void begin(AbstractDao dao, AbstractDao... daos) {
+    public void begin(BaseDao dao, BaseDao... daos) {
         if (connection == null) {
             connection = (ProxyConnection) ConnectionPool.getInstance().getConnection();
+        }
+        dao.setConnection(connection);
+        for (BaseDao entity : daos) {
+            entity.setConnection(connection);
         }
         try {
             connection.setAutoCommit(false);
         } catch (SQLException e) {
             logger.error(" Error executing query ", e);
-        }
-        dao.setConnection(connection);
-        for (AbstractDao entity : daos) {
-            entity.setConnection(connection);
         }
     }
 
@@ -48,7 +48,7 @@ public class TransactionHandler {
             try {
                 connection.setAutoCommit(true);
             } catch (SQLException e) {
-                logger.error("Error changing autocommit status",  e);
+                logger.error("Error changing autocommit status", e);
             }
             ConnectionPool.getInstance().releaseConnection(connection);
             connection = null;
@@ -61,6 +61,7 @@ public class TransactionHandler {
             connection = null;
         }
     }
+
     public void commit() {
         try {
             connection.commit();

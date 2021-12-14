@@ -8,7 +8,10 @@ import com.mysql.cj.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.*;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -98,6 +101,7 @@ public class CommandFilter extends BaseFilter {
 
     private static Set<String> initGuestCommands() {
         Set<String> commands = new HashSet<>();
+        commands.add(CommandName.CHANGE_LOCALE);
         commands.add(CommandName.LOGIN);
         commands.add(CommandName.REGISTER);
         commands.add(CommandName.TO_INDEX_PAGE);

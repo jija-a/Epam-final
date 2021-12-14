@@ -1,9 +1,10 @@
 package by.alex.testing.dao.mysql;
 
-import by.alex.testing.dao.AbstractDao;
 import by.alex.testing.dao.CourseCategoryDao;
 import by.alex.testing.dao.DaoException;
 import by.alex.testing.domain.CourseCategory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,7 +13,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CourseCategoryDaoImpl extends AbstractDao<CourseCategory, Long> implements CourseCategoryDao {
+public class CourseCategoryDaoImpl extends AbstractMySqlDao implements CourseCategoryDao {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(CourseCategoryDaoImpl.class);
 
     private static final String SQL_CREATE =
             "INSERT INTO `course_category`(`name`) VALUE (?);";
@@ -26,11 +30,8 @@ public class CourseCategoryDaoImpl extends AbstractDao<CourseCategory, Long> imp
     private static final String SQL_READ_ALL_WITH_LIMIT =
             "SELECT `course_category`.`id`, `course_category`.`name` FROM `course_category` LIMIT ?, ?;";
 
-    private static final String SQL_READ_BY_TITLE =
-            "SELECT `course_category`.`id`, `course_category`.`name` FROM `course_category` WHERE name = ?;";
-
     private static final String SQL_READ_BY_TITLE_WITH_LIMIT =
-            "SELECT `course_category`.`id`, `course_category`.`name` FROM `course_category` WHERE name LIKE ? LIMIT ?, ?;";
+            "SELECT `course_category`.`id`, `course_category`.`name` FROM `course_category` WHERE `course_category`.`name` LIKE ? LIMIT ?, ?;";
 
     private static final String SQL_UPDATE =
             "UPDATE `course_category` SET `course_category`.name = ? WHERE `course_category`.`id` = ?;";
@@ -42,16 +43,19 @@ public class CourseCategoryDaoImpl extends AbstractDao<CourseCategory, Long> imp
             "SELECT COUNT(*) FROM `course_category`;";
 
     private static final String SQL_COUNT_ALL_BY_NAME =
-            "SELECT COUNT(*) FROM `course_category` WHERE course_category.name LIKE ?;";
+            "SELECT COUNT(*) FROM `course_category` WHERE `course_category`.`name` LIKE ?;";
+
+    private static final String SQL_EXISTS =
+            "SELECT `course_category`.`id` FROM `course_category` WHERE `course_category`.`name` = ?;";
 
     protected CourseCategoryDaoImpl() {
     }
 
     @Override
-    public boolean create(CourseCategory category) throws DaoException {
+    public boolean save(CourseCategory category) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_CREATE,
                 Statement.RETURN_GENERATED_KEYS)) {
-            this.mapFromEntity(ps, category);
+            this.mapFromEntityForSave(ps, category);
             if (ps.executeUpdate() > 0) {
                 ResultSet rs = ps.getGeneratedKeys();
                 if (rs.next()) {
@@ -59,14 +63,14 @@ public class CourseCategoryDaoImpl extends AbstractDao<CourseCategory, Long> imp
                     return true;
                 }
             }
-            return false;
         } catch (SQLException e) {
             throw new DaoException("Exception while creating category: ", e);
         }
+        return false;
     }
 
     @Override
-    public List<CourseCategory> readAll() throws DaoException {
+    public List<CourseCategory> findAll() throws DaoException {
         List<CourseCategory> categories = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(SQL_READ_ALL)) {
             ResultSet rs = ps.executeQuery();
@@ -81,7 +85,24 @@ public class CourseCategoryDaoImpl extends AbstractDao<CourseCategory, Long> imp
     }
 
     @Override
-    public CourseCategory readById(Long id) throws DaoException {
+    public List<CourseCategory> findAll(int start, int recOnPage) throws DaoException {
+        List<CourseCategory> categories = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(SQL_READ_ALL_WITH_LIMIT)) {
+            ps.setInt(1, start);
+            ps.setInt(2, recOnPage);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                CourseCategory category = this.mapToEntity(rs);
+                categories.add(category);
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while reading all categories with limit: ", e);
+        }
+        return categories;
+    }
+
+    @Override
+    public CourseCategory findOne(long id) throws DaoException {
         CourseCategory category = null;
         try (PreparedStatement ps = connection.prepareStatement(SQL_READ_BY_ID)) {
             ps.setLong(1, id);
@@ -96,42 +117,10 @@ public class CourseCategoryDaoImpl extends AbstractDao<CourseCategory, Long> imp
     }
 
     @Override
-    public List<CourseCategory> readAll(int start, int recOnPage) throws DaoException {
-        List<CourseCategory> categories = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(SQL_READ_ALL_WITH_LIMIT)) {
-            ps.setInt(1, start);
-            ps.setInt(2, recOnPage);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                CourseCategory category = this.mapToEntity(rs);
-                categories.add(category);
-            }
-        } catch (SQLException e) {
-            throw new DaoException("Exception while reading categories with limit: ", e);
-        }
-        return categories;
-    }
-
-    @Override
-    public CourseCategory readByTitle(String name) throws DaoException {
-        CourseCategory category = null;
-        try (PreparedStatement ps = connection.prepareStatement(SQL_READ_BY_TITLE)) {
-            ps.setString(1, name);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                category = this.mapToEntity(rs);
-            }
-        } catch (SQLException e) {
-            throw new DaoException("Exception while reading categories by title: ", e);
-        }
-        return category;
-    }
-
-    @Override
-    public List<CourseCategory> readByTitle(int start, int recOnPage, String search) throws DaoException {
+    public List<CourseCategory> findByTitle(int start, int recOnPage, String search) throws DaoException {
         List<CourseCategory> categories = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(SQL_READ_BY_TITLE_WITH_LIMIT)) {
-            ps.setString(1, "%" + search + "%");
+            ps.setString(1, createLikeParameter(search));
             ps.setInt(2, start);
             ps.setInt(3, recOnPage);
             ResultSet rs = ps.executeQuery();
@@ -148,7 +137,7 @@ public class CourseCategoryDaoImpl extends AbstractDao<CourseCategory, Long> imp
     @Override
     public boolean update(CourseCategory category) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_UPDATE)) {
-            this.mapFromEntity(ps, category);
+            this.mapFromEntityForUpdate(ps, category);
             ps.setLong(2, category.getId());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -157,7 +146,7 @@ public class CourseCategoryDaoImpl extends AbstractDao<CourseCategory, Long> imp
     }
 
     @Override
-    public boolean delete(Long id) throws DaoException {
+    public boolean delete(long id) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_DELETE)) {
             ps.setLong(1, id);
             return ps.executeUpdate() > 0;
@@ -184,15 +173,29 @@ public class CourseCategoryDaoImpl extends AbstractDao<CourseCategory, Long> imp
     public Integer count(String title) throws DaoException {
         int count = 0;
         try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_ALL_BY_NAME)) {
-            ps.setString(1, "%" + title + "%");
+            ps.setString(1, createLikeParameter(title));
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 count = rs.getInt(1);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while counting categories by title: ", e);
+            throw new DaoException("Exception while counting all categories by title: ", e);
         }
         return count;
+    }
+
+    @Override
+    public boolean exists(String title) throws DaoException {
+        try (PreparedStatement ps = connection.prepareStatement(SQL_EXISTS)) {
+            ps.setString(1, title);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return true;
+            }
+        } catch (SQLException e) {
+            throw new DaoException("Exception while finding out if category exists: ", e);
+        }
+        return false;
     }
 
     private CourseCategory mapToEntity(ResultSet rs) throws SQLException {
@@ -202,7 +205,14 @@ public class CourseCategoryDaoImpl extends AbstractDao<CourseCategory, Long> imp
                 .build();
     }
 
-    private void mapFromEntity(PreparedStatement ps, CourseCategory category) throws SQLException {
+    private void mapFromEntityForSave(PreparedStatement ps, CourseCategory category) throws SQLException {
+        logger.debug("Mapping course category for saving");
         ps.setString(1, category.getName());
+    }
+
+    private void mapFromEntityForUpdate(PreparedStatement ps, CourseCategory category) throws SQLException {
+        logger.debug("Mapping course category for updating");
+        ps.setString(1, category.getName());
+        ps.setLong(2, category.getId());
     }
 }

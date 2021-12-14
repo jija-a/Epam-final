@@ -36,13 +36,13 @@ public class UpdateCategoryCommand implements Command {
         String categoryId = req.getParameter(RequestConstant.COURSE_CATEGORY_ID);
         String name = req.getParameter(RequestConstant.COURSE_CATEGORY_NAME);
 
-        if (adminService.readCategoryByTitle(name) != null) {
-            req.setAttribute(RequestConstant.ERROR,
-                    MessageManager.INSTANCE.getMessage(MessageConstant.ALREADY_EXISTS));
-            return resolver;
-        }
-
         if (!StringUtils.isNullOrEmpty(categoryId)) {
+            name = name.trim();
+            if (adminService.isCategoryExists(name)) {
+                req.setAttribute(RequestConstant.ERROR,
+                        MessageManager.INSTANCE.getMessage(MessageConstant.ALREADY_EXISTS));
+                return resolver;
+            }
             CourseCategory category = adminService.readCategoryById(Long.parseLong(categoryId));
             category.setName(name);
             List<String> errors = adminService.updateCategory(category);

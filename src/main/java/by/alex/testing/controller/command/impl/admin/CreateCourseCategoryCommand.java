@@ -35,13 +35,13 @@ public class CreateCourseCategoryCommand implements Command {
         ViewResolver resolver = new ViewResolver(page);
 
         String name = req.getParameter(RequestConstant.COURSE_CATEGORY_NAME);
-        if (adminService.readCategoryByTitle(name) != null) {
-            req.setAttribute(RequestConstant.ERROR,
-                    MessageManager.INSTANCE.getMessage(MessageConstant.ALREADY_EXISTS));
-            return resolver;
-        }
-
         if (!StringUtils.isNullOrEmpty(name)) {
+            name = name.trim();
+            if (adminService.isCategoryExists(name)) {
+                req.setAttribute(RequestConstant.ERROR,
+                        MessageManager.INSTANCE.getMessage(MessageConstant.ALREADY_EXISTS));
+                return resolver;
+            }
             CourseCategory category = new CourseCategory(name);
             List<String> errors = adminService.create(category);
             if (errors.isEmpty()) {

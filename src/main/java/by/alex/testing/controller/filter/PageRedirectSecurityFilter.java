@@ -1,23 +1,15 @@
 package by.alex.testing.controller.filter;
 
 import by.alex.testing.controller.PageConstant;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.servlet.*;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class PageRedirectSecurityFilter extends BaseFilter {
-
-    private static final Logger logger =
-            LoggerFactory.getLogger(PageRedirectSecurityFilter.class);
-
-    @Override
-    public void init(FilterConfig fConfig) throws ServletException {
-        super.init(fConfig);
-    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,
@@ -27,10 +19,5 @@ public class PageRedirectSecurityFilter extends BaseFilter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         httpResponse.sendRedirect(req.getContextPath() + PageConstant.INDEX_PAGE);
-    }
-
-    @Override
-    public void destroy() {
-        super.destroy();
     }
 }

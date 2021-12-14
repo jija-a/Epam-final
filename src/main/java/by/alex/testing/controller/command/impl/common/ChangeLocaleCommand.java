@@ -42,6 +42,7 @@ public class ChangeLocaleCommand implements Command {
     private String getRedirectPage(HttpServletRequest request) {
         String redirectPage = request.getParameter(RequestConstant.LANG_REDIRECT_PARAMS);
         String redirectUrl = request.getParameter(RequestConstant.LANG_REDIRECT_URL);
+        logger.debug("Creating redirect after changing locale, params: {}, url: {}", redirectPage, redirectUrl);
         if (!StringUtils.isNullOrEmpty(redirectPage)) {
             return request.getServletPath() + "?" + redirectPage;
         } else if (!StringUtils.isNullOrEmpty(redirectUrl)) {

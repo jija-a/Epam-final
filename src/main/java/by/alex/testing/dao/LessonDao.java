@@ -4,7 +4,7 @@ import by.alex.testing.domain.Lesson;
 
 import java.util.List;
 
-public interface LessonDao {
+public interface LessonDao extends BaseDao<Lesson> {
     List<Lesson> readByCourseId(long courseId, int start, int recordsPerPage) throws DaoException;
 
     List<Lesson> readByCourseAndStudentId(long courseId, long studentId, int start, int recordsPerPage) throws DaoException;

@@ -33,7 +33,7 @@ public class DatabaseConfig {
             PASSWORD = rb.getString("db.password");
             POOL_SIZE = Integer.parseInt(rb.getString("db.pool_size"));
         } catch (ExceptionInInitializerError | MissingResourceException e) {
-            throw new InitializingException("Error while initializing database configuration", e);
+            throw new InitializingError("Error while initializing database configuration", e);
         }
     }
 

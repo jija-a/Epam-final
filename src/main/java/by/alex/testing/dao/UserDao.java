@@ -4,7 +4,7 @@ import by.alex.testing.domain.User;
 
 import java.util.List;
 
-public interface UserDao {
+public interface UserDao extends BaseDao<User> {
 
     List<User> readAll(int start, int total) throws DaoException;
 

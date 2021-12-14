@@ -44,10 +44,6 @@ public class ShowUsersCommand implements Command {
             int count = commonService.countAllUsers(search.trim());
             int start = this.definePagination(req, count, recordsPerPage, DEFAULT_PAGINATION_LIMIT);
             users = commonService.findUsersByName(start, recordsPerPage, search);
-            if (users.isEmpty()) {
-                req.setAttribute(RequestConstant.ERROR,
-                        MessageManager.INSTANCE.getMessage(MessageConstant.NOT_FOUND));
-            }
         } else {
             logger.debug("Search all users request received");
             int count = commonService.countAllUsers();

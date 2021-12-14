@@ -76,10 +76,4 @@ public class LocaleFilter extends BaseFilter {
         session.setAttribute(RequestConstant.LOCALE, locale);
         MessageManager.INSTANCE.changeLocale(new Locale(defaultLocale));
     }
-
-    @Override
-    public void destroy() {
-        super.destroy();
-    }
-
 }

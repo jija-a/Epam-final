@@ -4,7 +4,6 @@ import by.alex.testing.controller.*;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.domain.Course;
 import by.alex.testing.domain.User;
-import by.alex.testing.domain.UserCourseStatus;
 import by.alex.testing.service.AccessDeniedException;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
@@ -13,7 +12,6 @@ import com.mysql.cj.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ShowAvailableCoursesCommand implements Command {
@@ -42,10 +40,6 @@ public class ShowAvailableCoursesCommand implements Command {
         if (!StringUtils.isNullOrEmpty(search)) {
             req.setAttribute(RequestConstant.SEARCH, search.trim());
             courses = this.findBySearchRequest(req, recordsPerPage, search, studentId);
-            if (courses.isEmpty()) {
-                req.setAttribute(RequestConstant.ERROR,
-                        MessageManager.INSTANCE.getMessage(MessageConstant.NOT_FOUND));
-            }
         } else {
             courses = this.findAll(req, recordsPerPage, studentId);
         }

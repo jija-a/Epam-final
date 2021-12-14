@@ -1,4 +1,3 @@
-<input type="hidden" name="command" value="show_available_courses" form="searchForm">
 <table class="table caption-top table-bordered table-hover">
     <caption><fmt:message key="head.title.courses_list"/></caption>
     <thead>

@@ -16,7 +16,7 @@ public interface AdminService {
 
     void deleteCourseCategory(long parseLong) throws ServiceException;
 
-    CourseCategory readCategoryByTitle(String title) throws ServiceException;
+    boolean isCategoryExists(String title) throws ServiceException;
 
     Integer countAllCourseCategories() throws ServiceException;
 

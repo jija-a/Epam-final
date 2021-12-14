@@ -1,12 +1,12 @@
 package by.alex.testing.service.impl;
 
+import by.alex.testing.dao.CourseCategoryDao;
+import by.alex.testing.dao.CourseDao;
+import by.alex.testing.dao.CourseUserDao;
 import by.alex.testing.dao.DaoException;
 import by.alex.testing.dao.DaoFactory;
 import by.alex.testing.dao.TransactionHandler;
-import by.alex.testing.dao.mysql.CourseCategoryDaoImpl;
-import by.alex.testing.dao.mysql.CourseDaoImpl;
-import by.alex.testing.dao.mysql.CourseUserDaoImpl;
-import by.alex.testing.dao.mysql.UserDaoImpl;
+import by.alex.testing.dao.UserDao;
 import by.alex.testing.domain.Course;
 import by.alex.testing.domain.CourseCategory;
 import by.alex.testing.domain.User;
@@ -31,10 +31,10 @@ public class CommonServiceImpl implements CommonService {
     }
 
     private final TransactionHandler handler;
-    private final UserDaoImpl userDao;
-    private final CourseCategoryDaoImpl courseCategoryDao;
-    private final CourseDaoImpl courseDao;
-    private final CourseUserDaoImpl courseUserDao;
+    private final UserDao userDao;
+    private final CourseCategoryDao courseCategoryDao;
+    private final CourseDao courseDao;
+    private final CourseUserDao courseUserDao;
 
     private CommonServiceImpl() {
         DaoFactory factory = DaoFactory.getDaoFactory(DaoFactory.DaoType.MYSQL);
@@ -71,7 +71,7 @@ public class CommonServiceImpl implements CommonService {
                 char[] password = user.getPassword();
                 String hashedPsw = HashService.hash(password);
                 user.setPassword(hashedPsw.toCharArray());
-                userDao.create(user);
+                userDao.save(user);
                 handler.commit();
             } catch (DaoException e) {
                 handler.rollback();
@@ -107,7 +107,7 @@ public class CommonServiceImpl implements CommonService {
         logger.info("Searching user by id: {}", id);
         try {
             handler.beginNoTransaction(userDao);
-            return userDao.readById(id);
+            return userDao.findOne(id);
         } catch (DaoException e) {
             throw new ServiceException(e.getMessage(), e);
         } finally {
@@ -193,7 +193,7 @@ public class CommonServiceImpl implements CommonService {
         logger.info("Reading all course categories");
         try {
             handler.beginNoTransaction(courseCategoryDao);
-            return courseCategoryDao.readAll();
+            return courseCategoryDao.findAll();
         } catch (DaoException e) {
             throw new ServiceException(e.getMessage(), e);
         } finally {
@@ -208,7 +208,7 @@ public class CommonServiceImpl implements CommonService {
 
         try {
             handler.beginNoTransaction(courseDao);
-            List<Course> courses = courseDao.readCourseByTitle(title, start, recOnPage);
+            List<Course> courses = courseDao.findCourseByTitle(title, start, recOnPage);
             for (Course course : courses) {
                 this.setCourseLinks(course);
             }
@@ -222,7 +222,7 @@ public class CommonServiceImpl implements CommonService {
 
     @Override
     public Integer countAllCourses(String search) throws ServiceException {
-        logger.info("Counting courses");
+        logger.info("Counting courses, search req: {}", search);
         try {
             handler.beginNoTransaction(courseDao);
             return courseDao.count(search);
@@ -251,7 +251,7 @@ public class CommonServiceImpl implements CommonService {
         logger.info("Reading all courses, start - {}, rec on page - {}", start, recOnPage);
         try {
             handler.beginNoTransaction(courseUserDao, courseDao, courseCategoryDao, userDao);
-            List<Course> courses = courseDao.readAll(start, recOnPage);
+            List<Course> courses = courseDao.findAll(start, recOnPage);
             for (Course course : courses) {
                 this.setCourseLinks(course);
             }
@@ -268,7 +268,7 @@ public class CommonServiceImpl implements CommonService {
         logger.info("Reading course by id - {}", courseId);
         try {
             handler.beginNoTransaction(courseDao);
-            return courseDao.readById(courseId);
+            return courseDao.findOne(courseId);
         } catch (DaoException e) {
             throw new ServiceException(e.getMessage(), e);
         } finally {
@@ -277,8 +277,8 @@ public class CommonServiceImpl implements CommonService {
     }
 
     private void setCourseLinks(Course course) throws DaoException {
-        User user = userDao.readById(course.getOwner().getId());
-        CourseCategory category = courseCategoryDao.readById(course.getCategory().getId());
+        User user = userDao.findOne(course.getOwner().getId());
+        CourseCategory category = courseCategoryDao.findOne(course.getCategory().getId());
         course.setOwner(user);
         course.setCategory(category);
     }

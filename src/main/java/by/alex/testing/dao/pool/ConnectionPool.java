@@ -44,17 +44,17 @@ public class ConnectionPool {
         return instance;
     }
 
-    private void init() throws InitializingException {
+    private void init() throws InitializingError {
         logger.trace("Initializing connection pool");
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
-            throw new InitializingException("Initializing connection pool failed", e);
+            throw new InitializingError("Initializing connection pool failed", e);
         }
         initConnectionPool();
     }
 
-    private void initConnectionPool() throws InitializingException {
+    private void initConnectionPool() throws InitializingError {
         this.config = DatabaseConfig.getInstance();
         this.availableConnections = new ArrayBlockingQueue<>(config.getPoolSize());
         this.takenConnections = new ArrayDeque<>();
@@ -63,11 +63,11 @@ public class ConnectionPool {
                 availableConnections.add(this.createConnection());
                 logger.info("Connection {} added", i + 1);
             } catch (SQLException e) {
-                throw new InitializingException("Database connection failed: ", e);
+                throw new InitializingError("Database connection failed: ", e);
             }
         }
         if (availableConnections.isEmpty()) {
-            throw new InitializingException("Pool isn't created");
+            throw new InitializingError("Pool isn't created");
         }
         checkConnectionsSize();
     }

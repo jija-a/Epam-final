@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ShowCourseCategoriesCommand implements Command {
@@ -43,7 +42,7 @@ public class ShowCourseCategoriesCommand implements Command {
                 Integer.parseInt(req.getParameter(RequestConstant.PAGE_NUMBER)) : 1;
         String search = req.getParameter(RequestConstant.SEARCH);
 
-        List<CourseCategory> categories = new ArrayList<>();
+        List<CourseCategory> categories;
         int pages = 1;
         int entitiesQty;
         int start;
@@ -53,10 +52,6 @@ public class ShowCourseCategoriesCommand implements Command {
             start = paginationService.defineStartEntityNumber(page, pageLimit);
             pages = paginationService.defineNumberOfPages(entitiesQty, pageLimit);
             categories = adminService.readAllCourseCategories(start, pageLimit, search);
-            if (categories.isEmpty()){
-                req.setAttribute(RequestConstant.ERROR,
-                        MessageManager.INSTANCE.getMessage(MessageConstant.NOT_FOUND));
-            }
         } else {
             entitiesQty = adminService.countAllCourseCategories();
             start = paginationService.defineStartEntityNumber(page, pageLimit);

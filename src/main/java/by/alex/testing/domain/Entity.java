@@ -6,14 +6,12 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import java.io.Serializable;
-
 @Getter
 @Setter
 @SuperBuilder
 @EqualsAndHashCode
 @ToString
-public abstract class Entity implements Serializable {
+public abstract class Entity implements BaseEntity {
 
     private Long id;
 

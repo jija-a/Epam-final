@@ -44,6 +44,7 @@ public class UpdateAttendanceCommand implements Command {
 
         List<String> errors = teacherService.updateAttendance(attendance, courseId, teacher);
         if (errors.isEmpty()) {
+            logger.debug("Errors is empty");
             req.getSession().setAttribute(RequestConstant.SUCCESS,
                     MessageManager.INSTANCE.getMessage(MessageConstant.UPDATED_SUCCESS));
             resolver.setResolveAction(ViewResolver.ResolveAction.REDIRECT);

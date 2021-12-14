@@ -56,6 +56,7 @@ public class CreateLessonCommand implements Command {
         if (BaseParameterValidator.isNullOrEmpty(title, startDate, endDate) || courseId == null) {
             throw new NotEnoughParametersException();
         }
+        title = title.trim();
 
         Lesson lesson = Lesson.builder()
                 .title(title)
