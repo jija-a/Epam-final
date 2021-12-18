@@ -1,69 +1,90 @@
 package by.alex.testing.controller.command.impl.admin;
 
-import by.alex.testing.controller.*;
+import by.alex.testing.controller.PageConstant;
+import by.alex.testing.controller.RequestConstant;
+import by.alex.testing.controller.ViewResolver;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.domain.Course;
 import by.alex.testing.domain.CourseCategory;
-import by.alex.testing.service.CommonService;
+import by.alex.testing.service.CourseCategoryService;
+import by.alex.testing.service.CourseService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
 import com.mysql.cj.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
-public class ShowCoursesCommand implements Command {
+public final class ShowCoursesCommand implements Command {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(ShowCoursesCommand.class);
-
+    /**
+     * Default max quantity of entities on page.
+     */
     private static final int DEFAULT_PAGINATION_LIMIT = 5;
 
-    private final CommonService commonService;
+    /**
+     * @see CourseService
+     */
+    private final CourseService courseService;
 
+    /**
+     * @see CourseCategoryService
+     */
+    private final CourseCategoryService courseCategoryService;
+
+    /**
+     * Class constructor. Initializes service.
+     */
     public ShowCoursesCommand() {
-        this.commonService = ServiceFactory.getInstance().getCommonService();
+        ServiceFactory factory = ServiceFactory.getInstance();
+        this.courseService = factory.getCourseService();
+        this.courseCategoryService = factory.getCourseCategoryService();
     }
 
     @Override
-    public ViewResolver execute(HttpServletRequest req,
-                                HttpServletResponse resp) throws ServiceException {
+    public ViewResolver execute(final HttpServletRequest req,
+                                final HttpServletResponse resp)
+            throws ServiceException {
 
         List<Course> courses;
-
-        String recordsParam = req.getParameter(RequestConstant.RECORDS_PER_PAGE);
-        int recordsPerPage = StringUtils.isNullOrEmpty(recordsParam) ? DEFAULT_PAGINATION_LIMIT :
-                Integer.parseInt(recordsParam);
+        String recordsParam =
+                req.getParameter(RequestConstant.RECORDS_PER_PAGE);
+        int recordsPerPage = StringUtils.isNullOrEmpty(recordsParam)
+                ? DEFAULT_PAGINATION_LIMIT : Integer.parseInt(recordsParam);
 
         String search = req.getParameter(RequestConstant.SEARCH);
-        if (!StringUtils.isNullOrEmpty(search)) {
-            req.setAttribute(RequestConstant.SEARCH, search);
-            courses = this.findBySearchRequest(req, recordsPerPage, search);
-        } else {
+        if (StringUtils.isNullOrEmpty(search)) {
             courses = this.findAll(req, recordsPerPage);
+        } else {
+            courses = this.findByRequest(req, recordsPerPage, search);
         }
 
-        List<CourseCategory> categories = commonService.readAllCourseCategories();
+        List<CourseCategory> categories =
+                courseCategoryService.findAllCategories();
         req.setAttribute(RequestConstant.COURSE_CATEGORIES, categories);
         req.setAttribute(RequestConstant.COURSES, courses);
         return new ViewResolver(PageConstant.COURSES_LIST_PAGE);
     }
 
-    private List<Course> findAll(HttpServletRequest req, int recordsPerPage) throws ServiceException {
-        logger.debug("Search all courses");
-        int count = commonService.countAllCourses();
-        int start = this.definePagination(req, count, recordsPerPage, DEFAULT_PAGINATION_LIMIT);
-        return commonService.readAllCourses(start, recordsPerPage);
+    private List<Course> findAll(final HttpServletRequest req,
+                                 final int recordsPerPage)
+            throws ServiceException {
+
+        int count = courseService.countAllCourses();
+        int start = this.definePagination(req, count, recordsPerPage);
+        return courseService.findAllCourses(start, recordsPerPage);
     }
 
-    private List<Course> findBySearchRequest(HttpServletRequest req, int recordsPerPage, String search)
+    private List<Course> findByRequest(final HttpServletRequest req,
+                                       final int recordsPerPage,
+                                       final String search)
             throws ServiceException {
-        logger.debug("Search courses by '{}'", search);
-        int count = commonService.countAllCourses(search.trim());
-        int start = this.definePagination(req, count, recordsPerPage, DEFAULT_PAGINATION_LIMIT);
-        return commonService.readCourseByTitle(start, recordsPerPage, search.trim());
+
+       req.setAttribute(RequestConstant.SEARCH, search.trim());
+        int count = courseService.countAllCourses(search.trim());
+        int start = this.definePagination(req, count, recordsPerPage);
+        return courseService
+                .findCoursesByTitle(start, recordsPerPage, search.trim());
     }
 }

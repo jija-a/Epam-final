@@ -6,31 +6,43 @@ import org.slf4j.LoggerFactory;
 
 public class PaginationServiceImpl implements PaginationService {
 
-    private static final Logger logger =
+    /**
+     * @see Logger
+     */
+    private static final Logger LOGGER =
             LoggerFactory.getLogger(PaginationServiceImpl.class);
 
-    private static final PaginationServiceImpl instance = new PaginationServiceImpl();
+    /**
+     * {@link PaginationService} instance. Singleton pattern.
+     */
+    private static final PaginationService SERVICE =
+            new PaginationServiceImpl();
 
-    public static PaginationServiceImpl getInstance() {
-        return instance;
+    /**
+     * @return {@link PaginationService} instance.
+     */
+    public static PaginationService getInstance() {
+        return SERVICE;
     }
 
     @Override
-    public int defineStartEntityNumber(int page, int pageLimit) {
-        logger.info("Defining start number, page - {}, page limit - {}", page, pageLimit);
+    public final int defineStartNumber(final int page,
+                                       final int recordsPerPage) {
+        LOGGER.info("Defining start number, page: {}, rec: {}",
+                page, recordsPerPage);
         int start = page - 1;
         if (page > 1) {
-            start = start * pageLimit;
+            start = start * recordsPerPage;
         }
-        logger.info("Start number is: {}", start);
         return start;
     }
 
     @Override
-    public int defineNumberOfPages(int entitiesQty, int pageLimit) {
-        logger.info("Defining number of pages, entity qty - {}, pageLimit - {}", entitiesQty, pageLimit);
-        int pages = entitiesQty % pageLimit != 0 ? entitiesQty / pageLimit + 1 : entitiesQty / pageLimit;
-        logger.info("Number of pages is: {}", pages);
-        return pages;
+    public final int defineNumberOfPages(final int qty,
+                                   final int recordsPerPage) {
+        LOGGER.info("Defining number of pages, entity qty: {}, rec: {}",
+                qty, recordsPerPage);
+        return qty % recordsPerPage != 0
+                ? qty / recordsPerPage + 1 : qty / recordsPerPage;
     }
 }

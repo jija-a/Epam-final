@@ -7,21 +7,41 @@ import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 
+/**
+ * Base filter. Provides default implementation for
+ * {@link Filter#init(FilterConfig)} and {@link Filter#destroy()}
+ * methods.
+ */
 public abstract class BaseFilter implements Filter {
 
-    private static final Logger logger =
+    /**
+     * @see Logger
+     */
+    private static final Logger LOGGER =
             LoggerFactory.getLogger(BaseFilter.class);
 
+    /**
+     * @see FilterConfig
+     */
     protected FilterConfig filterConfig;
 
+    /**
+     * Method initializes {@link BaseFilter} and extensions.
+     *
+     * @param filterConfig {@link FilterConfig}
+     * @throws ServletException
+     */
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        logger.info("Initialize filter: {}", getClass().getSimpleName());
+    public void init(final FilterConfig filterConfig) throws ServletException {
+        LOGGER.info("Initialize filter: {}", getClass().getSimpleName());
         this.filterConfig = filterConfig;
     }
 
+    /**
+     * Method calls when filters destroyed.
+     */
     @Override
     public void destroy() {
-        logger.info("Destroy filter: {}", getClass().getSimpleName());
+        LOGGER.info("Destroy filter: {}", getClass().getSimpleName());
     }
 }

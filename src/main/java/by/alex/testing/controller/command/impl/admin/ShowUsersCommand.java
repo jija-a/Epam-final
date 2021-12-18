@@ -1,57 +1,77 @@
 package by.alex.testing.controller.command.impl.admin;
 
-import by.alex.testing.controller.*;
+import by.alex.testing.controller.PageConstant;
+import by.alex.testing.controller.RequestConstant;
+import by.alex.testing.controller.ViewResolver;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.domain.User;
-import by.alex.testing.service.CommonService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
+import by.alex.testing.service.UserService;
 import com.mysql.cj.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
-public class ShowUsersCommand implements Command {
+public final class ShowUsersCommand implements Command {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(ShowUsersCommand.class);
-
+    /**
+     * Default max quantity of entities on page.
+     */
     private static final int DEFAULT_PAGINATION_LIMIT = 5;
 
-    private final CommonService commonService;
+    /**
+     * @see UserService
+     */
+    private final UserService userService;
 
+    /**
+     * Class constructor. Initializes service.
+     */
     public ShowUsersCommand() {
-        commonService = ServiceFactory.getInstance().getCommonService();
+        userService = ServiceFactory.getInstance().getCommonService();
     }
 
     @Override
-    public ViewResolver execute(HttpServletRequest req,
-                                HttpServletResponse resp) throws ServiceException {
+    public ViewResolver execute(final HttpServletRequest req,
+                                final HttpServletResponse resp)
+            throws ServiceException {
 
         List<User> users;
-
-        int recordsPerPage = req.getParameter(RequestConstant.RECORDS_PER_PAGE) != null ?
-                Integer.parseInt(req.getParameter(RequestConstant.RECORDS_PER_PAGE)) :
-                DEFAULT_PAGINATION_LIMIT;
-        logger.debug("Records per page - {}", recordsPerPage);
+        String recordsParam =
+                req.getParameter(RequestConstant.RECORDS_PER_PAGE);
+        int recordsPerPage = StringUtils.isNullOrEmpty(recordsParam)
+                ? DEFAULT_PAGINATION_LIMIT : Integer.parseInt(recordsParam);
 
         String search = req.getParameter(RequestConstant.SEARCH);
-        if (!StringUtils.isNullOrEmpty(search)) {
-            logger.debug("Search users request by '{}' received", search);
-            int count = commonService.countAllUsers(search.trim());
-            int start = this.definePagination(req, count, recordsPerPage, DEFAULT_PAGINATION_LIMIT);
-            users = commonService.findUsersByName(start, recordsPerPage, search);
+        if (StringUtils.isNullOrEmpty(search)) {
+            users = this.findAll(req, recordsPerPage);
         } else {
-            logger.debug("Search all users request received");
-            int count = commonService.countAllUsers();
-            int start = this.definePagination(req, count, recordsPerPage, DEFAULT_PAGINATION_LIMIT);
-            users = commonService.findAllUsers(start, recordsPerPage);
+            users = this.findByRequest(req, recordsPerPage, search);
         }
 
         req.setAttribute(RequestConstant.USERS, users);
         return new ViewResolver(PageConstant.USERS_LIST_PAGE);
+    }
+
+    private List<User> findAll(final HttpServletRequest req,
+                               final int recordsPerPage)
+            throws ServiceException {
+
+        int count = userService.countAllUsers();
+        int start = this.definePagination(req, count, recordsPerPage);
+        return userService.findAllUsers(start, recordsPerPage);
+    }
+
+    private List<User> findByRequest(final HttpServletRequest req,
+                                     final int recordsPerPage,
+                                     final String search)
+            throws ServiceException {
+
+        req.setAttribute(RequestConstant.SEARCH, search.trim());
+        int count = userService.countAllUsers(search.trim());
+        int start = this.definePagination(req, count, recordsPerPage);
+        return userService.findAllUsers(start, recordsPerPage, search.trim());
     }
 }

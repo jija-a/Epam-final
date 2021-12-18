@@ -9,11 +9,11 @@
 <body class="d-flex flex-column h-100">
 <%@include file="jspf/header.jspf" %>
 <main class="flex-shrink-0">
-    <h1 class="text-center"><fmt:message key="head.title.users_list"/></h1>
     <div class="container">
         <%@include file="jspf/error-success.jspf" %>
         <form action="<c:url value="/controller"/>" id="searchForm" method="get">
             <input type="hidden" name="command" value="show_course_users">
+            <h1 class="text-center"><fmt:message key="head.title.users_list"/></h1>
             <%@include file="jspf/search.jspf" %>
             <c:choose>
                 <c:when test="${not empty course_users}">
@@ -46,16 +46,16 @@
                         </c:forEach>
                         </tbody>
                     </table>
+                    <div class="container">
+                        <nav aria-label="Page navigation example">
+                            <%@include file="jspf/pagination.jspf" %>
+                        </nav>
+                    </div>
                 </c:when>
                 <c:otherwise>
                     <h1 class="text-center text-muted"><fmt:message key="error.not.found"/></h1>
                 </c:otherwise>
             </c:choose>
-            <div class="container">
-                <nav aria-label="Page navigation example">
-                    <%@include file="jspf/pagination.jspf" %>
-                </nav>
-            </div>
         </form>
     </div>
 </main>

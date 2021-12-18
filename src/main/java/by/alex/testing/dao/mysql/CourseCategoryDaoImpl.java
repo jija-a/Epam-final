@@ -13,46 +13,78 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CourseCategoryDaoImpl extends AbstractMySqlDao implements CourseCategoryDao {
+public final class CourseCategoryDaoImpl extends AbstractMySqlDao
+        implements CourseCategoryDao {
 
-    private static final Logger logger =
+    /**
+     * @see Logger
+     */
+    private static final Logger LOGGER =
             LoggerFactory.getLogger(CourseCategoryDaoImpl.class);
 
+    /**
+     * MySQL query to create {@link CourseCategory}.
+     */
     private static final String SQL_CREATE =
             "INSERT INTO `course_category`(`name`) VALUE (?);";
 
-    private static final String SQL_READ_ALL =
+    /**
+     * MySQL query to select all {@link CourseCategory}'es.
+     */
+    private static final String SQL_SELECT_ALL =
             "SELECT `course_category`.`id`, `course_category`.`name` FROM `course_category`";
 
-    private static final String SQL_READ_BY_ID =
+    /**
+     * MySQL query to select {@link CourseCategory} by id.
+     */
+    private static final String SQL_SELECT_BY_ID =
             "SELECT `course_category`.`id`, `course_category`.`name` FROM `course_category` WHERE `course_category`.`id` = ?";
 
-    private static final String SQL_READ_ALL_WITH_LIMIT =
+    /**
+     * MySQL query to select all {@link CourseCategory}'es with limit.
+     */
+    private static final String SQL_SELECT_ALL_WITH_LIMIT =
             "SELECT `course_category`.`id`, `course_category`.`name` FROM `course_category` LIMIT ?, ?;";
 
-    private static final String SQL_READ_BY_TITLE_WITH_LIMIT =
+    /**
+     * MySQL query to select {@link CourseCategory}'es by title with limit.
+     */
+    private static final String SQL_SELECT_BY_TITLE_WITH_LIMIT =
             "SELECT `course_category`.`id`, `course_category`.`name` FROM `course_category` WHERE `course_category`.`name` LIKE ? LIMIT ?, ?;";
 
+    /**
+     * MySQL query to update {@link CourseCategory}.
+     */
     private static final String SQL_UPDATE =
             "UPDATE `course_category` SET `course_category`.name = ? WHERE `course_category`.`id` = ?;";
 
+    /**
+     * MySQL query to delete {@link CourseCategory}.
+     */
     private static final String SQL_DELETE =
             "DELETE FROM `course_category` WHERE `course_category`.`id` = ?;";
 
+    /**
+     * MySQL query to count all {@link CourseCategory}'es.
+     */
     private static final String SQL_COUNT_ALL =
             "SELECT COUNT(*) FROM `course_category`;";
 
-    private static final String SQL_COUNT_ALL_BY_NAME =
+    /**
+     * MySQL query to count all {@link CourseCategory}'es by title.
+     */
+    private static final String SQL_COUNT_ALL_BY_TITLE =
             "SELECT COUNT(*) FROM `course_category` WHERE `course_category`.`name` LIKE ?;";
 
+    /**
+     * MySQL query to find out if {@link CourseCategory}
+     * with certain title exists.
+     */
     private static final String SQL_EXISTS =
             "SELECT `course_category`.`id` FROM `course_category` WHERE `course_category`.`name` = ?;";
 
-    protected CourseCategoryDaoImpl() {
-    }
-
     @Override
-    public boolean save(CourseCategory category) throws DaoException {
+    public boolean save(final CourseCategory category) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_CREATE,
                 Statement.RETURN_GENERATED_KEYS)) {
             this.mapFromEntityForSave(ps, category);
@@ -72,22 +104,26 @@ public class CourseCategoryDaoImpl extends AbstractMySqlDao implements CourseCat
     @Override
     public List<CourseCategory> findAll() throws DaoException {
         List<CourseCategory> categories = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(SQL_READ_ALL)) {
+        try (PreparedStatement ps =
+                     connection.prepareStatement(SQL_SELECT_ALL)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 CourseCategory category = this.mapToEntity(rs);
                 categories.add(category);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while reading all categories: ", e);
+            throw new DaoException("Exception while reading all categories: ",
+                    e);
         }
         return categories;
     }
 
     @Override
-    public List<CourseCategory> findAll(int start, int recOnPage) throws DaoException {
+    public List<CourseCategory> findAll(final int start, final int recOnPage)
+            throws DaoException {
         List<CourseCategory> categories = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(SQL_READ_ALL_WITH_LIMIT)) {
+        try (PreparedStatement ps =
+                     connection.prepareStatement(SQL_SELECT_ALL_WITH_LIMIT)) {
             ps.setInt(1, start);
             ps.setInt(2, recOnPage);
             ResultSet rs = ps.executeQuery();
@@ -96,30 +132,37 @@ public class CourseCategoryDaoImpl extends AbstractMySqlDao implements CourseCat
                 categories.add(category);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while reading all categories with limit: ", e);
+            throw new DaoException("Exception while reading all categories"
+                    + " with limit: ", e);
         }
         return categories;
     }
 
     @Override
-    public CourseCategory findOne(long id) throws DaoException {
+    public CourseCategory findOne(final long id) throws DaoException {
         CourseCategory category = null;
-        try (PreparedStatement ps = connection.prepareStatement(SQL_READ_BY_ID)) {
+        try (PreparedStatement ps =
+                     connection.prepareStatement(SQL_SELECT_BY_ID)) {
             ps.setLong(1, id);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 category = this.mapToEntity(rs);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while reading category by id: ", e);
+            throw new DaoException("Exception while"
+                    + " reading category by id: ", e);
         }
         return category;
     }
 
     @Override
-    public List<CourseCategory> findByTitle(int start, int recOnPage, String search) throws DaoException {
+    public List<CourseCategory> findByTitle(final int start,
+                                            final int recOnPage,
+                                            final String search)
+            throws DaoException {
         List<CourseCategory> categories = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(SQL_READ_BY_TITLE_WITH_LIMIT)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_SELECT_BY_TITLE_WITH_LIMIT)) {
             ps.setString(1, createLikeParameter(search));
             ps.setInt(2, start);
             ps.setInt(3, recOnPage);
@@ -129,13 +172,14 @@ public class CourseCategoryDaoImpl extends AbstractMySqlDao implements CourseCat
                 categories.add(category);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while reading categories by title with limit: ", e);
+            throw new DaoException("Exception while reading categories "
+                    + "by title with limit: ", e);
         }
         return categories;
     }
 
     @Override
-    public boolean update(CourseCategory category) throws DaoException {
+    public boolean update(final CourseCategory category) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_UPDATE)) {
             this.mapFromEntityForUpdate(ps, category);
             ps.setLong(2, category.getId());
@@ -146,7 +190,7 @@ public class CourseCategoryDaoImpl extends AbstractMySqlDao implements CourseCat
     }
 
     @Override
-    public boolean delete(long id) throws DaoException {
+    public boolean delete(final long id) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_DELETE)) {
             ps.setLong(1, id);
             return ps.executeUpdate() > 0;
@@ -158,34 +202,38 @@ public class CourseCategoryDaoImpl extends AbstractMySqlDao implements CourseCat
     @Override
     public Integer count() throws DaoException {
         int count = 0;
-        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_ALL)) {
+        try (PreparedStatement ps =
+                     connection.prepareStatement(SQL_COUNT_ALL)) {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 count = rs.getInt(1);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while counting all categories: ", e);
+            throw new DaoException("Exception while "
+                    + "counting all categories: ", e);
         }
         return count;
     }
 
     @Override
-    public Integer count(String title) throws DaoException {
+    public Integer count(final String title) throws DaoException {
         int count = 0;
-        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_ALL_BY_NAME)) {
+        try (PreparedStatement ps =
+                     connection.prepareStatement(SQL_COUNT_ALL_BY_TITLE)) {
             ps.setString(1, createLikeParameter(title));
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 count = rs.getInt(1);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while counting all categories by title: ", e);
+            throw new DaoException("Exception while "
+                    + "counting all categories by title: ", e);
         }
         return count;
     }
 
     @Override
-    public boolean exists(String title) throws DaoException {
+    public boolean exists(final String title) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_EXISTS)) {
             ps.setString(1, title);
             ResultSet rs = ps.executeQuery();
@@ -193,25 +241,30 @@ public class CourseCategoryDaoImpl extends AbstractMySqlDao implements CourseCat
                 return true;
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while finding out if category exists: ", e);
+            throw new DaoException("Exception while "
+                    + "finding out if category exists: ", e);
         }
         return false;
     }
 
-    private CourseCategory mapToEntity(ResultSet rs) throws SQLException {
+    private CourseCategory mapToEntity(final ResultSet rs) throws SQLException {
         return CourseCategory.builder()
                 .id(rs.getLong("course_category.id"))
                 .name(rs.getString("course_category.name"))
                 .build();
     }
 
-    private void mapFromEntityForSave(PreparedStatement ps, CourseCategory category) throws SQLException {
-        logger.debug("Mapping course category for saving");
+    private void mapFromEntityForSave(final PreparedStatement ps,
+                                      final CourseCategory category)
+            throws SQLException {
+        LOGGER.debug("Mapping course category for saving");
         ps.setString(1, category.getName());
     }
 
-    private void mapFromEntityForUpdate(PreparedStatement ps, CourseCategory category) throws SQLException {
-        logger.debug("Mapping course category for updating");
+    private void mapFromEntityForUpdate(final PreparedStatement ps,
+                                        final CourseCategory category)
+            throws SQLException {
+        LOGGER.debug("Mapping course category for updating");
         ps.setString(1, category.getName());
         ps.setLong(2, category.getId());
     }

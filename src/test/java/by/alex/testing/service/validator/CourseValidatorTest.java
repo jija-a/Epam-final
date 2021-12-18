@@ -1,7 +1,6 @@
 package by.alex.testing.service.validator;
 
 import by.alex.testing.domain.Course;
-import by.alex.testing.domain.CourseCategory;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

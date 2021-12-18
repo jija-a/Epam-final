@@ -1,52 +1,61 @@
 package by.alex.testing.controller.command.impl.admin;
 
-import by.alex.testing.controller.*;
+import by.alex.testing.controller.CommandName;
+import by.alex.testing.controller.MessageConstant;
+import by.alex.testing.controller.MessageManager;
+import by.alex.testing.controller.RequestConstant;
+import by.alex.testing.controller.ViewResolver;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.domain.User;
 import by.alex.testing.domain.UserRole;
 import by.alex.testing.service.AdminService;
-import by.alex.testing.service.CommonService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
+import by.alex.testing.service.UserService;
 import com.mysql.cj.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class DeleteUserCommand implements Command {
+public final class DeleteUserCommand implements Command {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(DeleteUserCommand.class);
+    /**
+     * @see UserService
+     */
+    private final UserService userService;
 
-    private final CommonService commonService;
+    /**
+     * @see AdminService
+     */
     private final AdminService adminService;
 
+    /**
+     * Class constructor. Initializes service.
+     */
     public DeleteUserCommand() {
-        commonService = ServiceFactory.getInstance().getCommonService();
+        this.userService = ServiceFactory.getInstance().getCommonService();
         this.adminService = ServiceFactory.getInstance().getAdminService();
     }
 
     @Override
-    public ViewResolver execute(HttpServletRequest req, HttpServletResponse resp)
+    public ViewResolver execute(final HttpServletRequest req,
+                                final HttpServletResponse resp)
             throws ServiceException {
 
-        logger.info("Delete course command received");
-
         String userId = req.getParameter(RequestConstant.USER_ID);
-
         if (!StringUtils.isNullOrEmpty(userId)) {
             long id = Long.parseLong(userId);
-            User user = commonService.findUserById(id);
+            User user = userService.findUser(id);
             if (user.getRole().equals(UserRole.ADMIN)) {
-                req.setAttribute(RequestConstant.ERROR,
-                        MessageManager.INSTANCE.getMessage(MessageConstant.CANT_DELETE_ADMIN));
+                String msg = MessageManager.INSTANCE
+                        .getMessage(MessageConstant.CANT_DELETE_ADMIN);
+                req.setAttribute(RequestConstant.ERROR, msg);
                 return new ShowUsersCommand().execute(req, resp);
             }
             adminService.deleteUser(id);
-            req.getSession().setAttribute(RequestConstant.SUCCESS,
-                    MessageManager.INSTANCE.getMessage(MessageConstant.DELETED));
+            String msg = MessageManager.INSTANCE
+                    .getMessage(MessageConstant.DELETED);
+            req.getSession().setAttribute(RequestConstant.SUCCESS, msg);
         }
 
         String page = createRedirectURL(req, CommandName.SHOW_USERS);

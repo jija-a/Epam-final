@@ -5,8 +5,6 @@ import by.alex.testing.dao.DaoException;
 import by.alex.testing.domain.Course;
 import by.alex.testing.domain.CourseCategory;
 import by.alex.testing.domain.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,64 +13,106 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
+public final class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(CourseDaoImpl.class);
-
+    /**
+     * Query creates {@link Course}.
+     */
     private static final String SQL_CREATE =
             "INSERT INTO `course`(`name`, `user_id`, `course_category_id`) VALUES (?, ?, ?);";
 
+    /**
+     * Query select all {@link Course}'s.
+     */
     private static final String SQL_SELECT_ALL =
             "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course`";
 
+    /**
+     * Query select {@link Course} by id.
+     */
     private static final String SQL_SELECT_BY_ID =
             "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`id` = ?;";
 
+    /**
+     * Query select all {@link Course} with limit.
+     */
     private static final String SQL_SELECT_ALL_WITH_LIMIT =
             "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` LIMIT ?, ?;";
 
+    /**
+     * Query select all {@link Course} by title with limit.
+     */
     private static final String SQL_SELECT_BY_TITLE_WITH_LIMIT =
             "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`name` LIKE ? LIMIT ?, ?;";
 
+    /**
+     * Query select all {@link Course} by owner id with limit.
+     */
     private static final String SQL_SELECT_BY_OWNER_ID_WITH_LIMIT =
             "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`user_id` = ? LIMIT ?, ?;";
 
+    /**
+     * Query select all {@link Course} by owner id and title with limit.
+     */
     private static final String SQL_SELECT_BY_OWNER_ID_AND_NAME =
             "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`user_id` = ? AND `course`.`name` = ?;";
 
+    /**
+     * Query select all not {@link User} {@link Course}'s with limit.
+     */
     private static final String SQL_SELECT_ALL_EXCLUDING =
             "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE NOT EXISTS(SELECT `course_user`.`course_id` FROM `course_user` WHERE `course`.`id` = `course_user`.`course_id` AND `course_user`.`user_id` = ?) LIMIT ?,?;";
 
+    /**
+     * Query select all not {@link User} {@link Course}'s by title with limit.
+     */
     private static final String SQL_SELECT_ALL_EXCLUDING_WITH_SEARCH_REQ =
             "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE NOT EXISTS(SELECT `course_user`.`course_id` FROM `course_user` WHERE `course`.`id` = `course_user`.`course_id` AND `course_user`.`user_id` = ?) AND `course`.`name` LIKE ? LIMIT ?,?;";
 
+    /**
+     * Query updates {@link Course}.
+     */
     private static final String SQL_UPDATE =
             "UPDATE `course` SET `course`.`name` = ?, `course`.`user_id` = ?, `course`.`course_category_id` = ? WHERE `course`.`id` = ?;";
 
+    /**
+     * Query deletes {@link Course}.
+     */
     private static final String SQL_DELETE =
             "DELETE FROM `course` WHERE `course`.`id` = ?;";
 
+    /**
+     * Query counts all {@link Course}'s.
+     */
     private static final String SQL_COUNT_ALL =
             "SELECT COUNT(*) FROM `course`;";
 
+    /**
+     * Query counts all {@link Course}'s by title.
+     */
     private static final String SQL_COUNT_ALL_BY_NAME =
             "SELECT COUNT(*) FROM `course` WHERE `course`.`name` LIKE ?;";
 
+    /**
+     * Query counts all {@link Course}'s by owner id.
+     */
     private static final String SQL_COUNT_ALL_BY_OWNER =
             "SELECT COUNT(*) FROM `course` WHERE `course`.`user_id` = ?;";
 
+    /**
+     * Query counts all not user courses.
+     */
     private static final String SQL_COUNT_AVAILABLE_COURSES =
             "SELECT COUNT(*) FROM `course` WHERE NOT EXISTS(SELECT `course_user`.`course_id` FROM `course_user` WHERE `course`.`id` = `course_user`.`course_id` AND `course_user`.`user_id` = ?);";
 
+    /**
+     * Query counts all not user courses by title.
+     */
     private static final String SQL_COUNT_AVAILABLE_COURSES_WITH_SEARCH =
             "SELECT COUNT(*) FROM `course` WHERE NOT EXISTS(SELECT `course_user`.`course_id` FROM `course_user` WHERE `course`.`id` = `course_user`.`course_id` AND `course_user`.`user_id` = ?) AND `course`.`name` LIKE ?;";
 
-    protected CourseDaoImpl() {
-    }
-
     @Override
-    public boolean save(Course course) throws DaoException {
+    public boolean save(final Course course) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_CREATE,
                 Statement.RETURN_GENERATED_KEYS)) {
 
@@ -93,7 +133,8 @@ public class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
     @Override
     public List<Course> findAll() throws DaoException {
         List<Course> courses = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_SELECT_ALL)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Course course = this.mapToEntity(rs);
@@ -106,9 +147,11 @@ public class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
     }
 
     @Override
-    public List<Course> findAll(int start, int recOnPage) throws DaoException {
+    public List<Course> findAll(final int start, final int recOnPage)
+            throws DaoException {
         List<Course> courses = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL_WITH_LIMIT)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_SELECT_ALL_WITH_LIMIT)) {
             ps.setInt(1, start);
             ps.setInt(2, recOnPage);
             ResultSet rs = ps.executeQuery();
@@ -117,15 +160,20 @@ public class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
                 courses.add(course);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while reading all courses with limit: ", e);
+            throw new DaoException("Exception while reading all courses with"
+                    + " limit: ", e);
         }
         return courses;
     }
 
     @Override
-    public List<Course> findExcludingUserCourses(long studentId, int start, int recordsPerPage) throws DaoException {
+    public List<Course> findNotUserCourses(final long studentId,
+                                           final int start,
+                                           final int recordsPerPage)
+            throws DaoException {
         List<Course> courses = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL_EXCLUDING)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_SELECT_ALL_EXCLUDING)) {
             ps.setLong(1, studentId);
             ps.setInt(2, start);
             ps.setInt(3, recordsPerPage);
@@ -135,17 +183,22 @@ public class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
                 courses.add(course);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while reading all courses user does not enter: ", e);
+            throw new DaoException("Exception while reading all courses"
+                    + " user does not enter: ", e);
         }
         return courses;
     }
 
     @Override
-    public List<Course> findExcludingUserCourses(long studentId, int start, int recordsPerPage, String search)
+    public List<Course> findNotUserCourses(final long studentId,
+                                           final int start,
+                                           final int recordsPerPage,
+                                           final String search)
             throws DaoException {
 
         List<Course> courses = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL_EXCLUDING_WITH_SEARCH_REQ)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_SELECT_ALL_EXCLUDING_WITH_SEARCH_REQ)) {
             ps.setLong(1, studentId);
             ps.setString(2, createLikeParameter(search));
             ps.setInt(3, start);
@@ -156,15 +209,20 @@ public class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
                 courses.add(course);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while reading all courses user does not enter with limit: ", e);
+            throw new DaoException("Exception while reading all courses"
+                    + " user does not enter with limit: ", e);
         }
         return courses;
     }
 
     @Override
-    public List<Course> findByOwnerId(Long userId, int start, int recOnPage) throws DaoException {
+    public List<Course> findByOwnerId(final long userId,
+                                      final int start,
+                                      final int recOnPage)
+            throws DaoException {
         List<Course> courses = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_OWNER_ID_WITH_LIMIT)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_SELECT_BY_OWNER_ID_WITH_LIMIT)) {
             ps.setLong(1, userId);
             ps.setInt(2, start);
             ps.setInt(3, recOnPage);
@@ -174,15 +232,20 @@ public class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
                 courses.add(course);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while reading courses by owner id with limit: ", e);
+            throw new DaoException("Exception while reading"
+                    + " courses by owner id with limit: ", e);
         }
         return courses;
     }
 
     @Override
-    public List<Course> findCourseByTitle(String title, int start, int recOnPage) throws DaoException {
+    public List<Course> findCourseByTitle(final String title,
+                                          final int start,
+                                          final int recOnPage)
+            throws DaoException {
         List<Course> courses = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_TITLE_WITH_LIMIT)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_SELECT_BY_TITLE_WITH_LIMIT)) {
             ps.setString(1, createLikeParameter(title));
             ps.setInt(2, start);
             ps.setInt(3, recOnPage);
@@ -192,15 +255,17 @@ public class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
                 courses.add(course);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while reading courses by title with limit: ", e);
+            throw new DaoException("Exception while reading"
+                    + " courses by title with limit: ", e);
         }
         return courses;
     }
 
     @Override
-    public Course findOne(long id) throws DaoException {
+    public Course findOne(final long id) throws DaoException {
         Course course = null;
-        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_ID)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_SELECT_BY_ID)) {
             ps.setLong(1, id);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -213,23 +278,27 @@ public class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
     }
 
     @Override
-    public Course findByOwnerIdAndName(long userId, String courseName) throws DaoException {
+    public Course findByOwnerIdAndTitle(final long userId,
+                                        final String title)
+            throws DaoException {
         Course course = null;
-        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_OWNER_ID_AND_NAME)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_SELECT_BY_OWNER_ID_AND_NAME)) {
             ps.setLong(1, userId);
-            ps.setString(2, courseName);
+            ps.setString(2, title);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 course = this.mapToEntity(rs);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while reading courses by owner id with limit: ", e);
+            throw new DaoException("Exception while reading courses"
+                    + " by owner id with limit: ", e);
         }
         return course;
     }
 
     @Override
-    public boolean update(Course course) throws DaoException {
+    public boolean update(final Course course) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_UPDATE)) {
             this.mapFromEntityForUpdate(ps, course);
             return ps.executeUpdate() > 0;
@@ -239,7 +308,7 @@ public class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
     }
 
     @Override
-    public boolean delete(long id) throws DaoException {
+    public boolean delete(final long id) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_DELETE)) {
             ps.setLong(1, id);
             return ps.executeUpdate() > 0;
@@ -251,7 +320,8 @@ public class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
     @Override
     public Integer count() throws DaoException {
         int count = 0;
-        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_ALL)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_COUNT_ALL)) {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 count = rs.getInt(1);
@@ -263,67 +333,78 @@ public class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
     }
 
     @Override
-    public Integer count(String search) throws DaoException {
+    public Integer count(final String title) throws DaoException {
         int count = 0;
-        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_ALL_BY_NAME)) {
-            ps.setString(1, createLikeParameter(search));
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_COUNT_ALL_BY_NAME)) {
+            ps.setString(1, createLikeParameter(title));
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 count = rs.getInt(1);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while counting all courses by search: ", e);
+            throw new DaoException("Exception while counting"
+                    + " all courses by search: ", e);
         }
         return count;
     }
 
     @Override
-    public Integer countOwnerCourses(long userId) throws DaoException {
+    public Integer countOwnerCourses(final long userId) throws DaoException {
         int count = 0;
-        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_ALL_BY_OWNER)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_COUNT_ALL_BY_OWNER)) {
             ps.setLong(1, userId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 count = rs.getInt(1);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while counting all courses by user id: ", e);
+            throw new DaoException("Exception while counting "
+                    + "all courses by user id: ", e);
         }
         return count;
     }
 
     @Override
-    public Integer countAvailableCourses(long studentId) throws DaoException {
+    public Integer countAvailableCourses(final long studentId)
+            throws DaoException {
         int count = 0;
-        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_AVAILABLE_COURSES)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_COUNT_AVAILABLE_COURSES)) {
             ps.setLong(1, studentId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 count = rs.getInt(1);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while counting available courses: ", e);
+            throw new DaoException("Exception while counting"
+                    + " available courses: ", e);
         }
         return count;
     }
 
     @Override
-    public Integer countAvailableCourses(long studentId, String search) throws DaoException {
+    public Integer countAvailableCourses(final long studentId,
+                                         final String title)
+            throws DaoException {
         int count = 0;
-        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_AVAILABLE_COURSES_WITH_SEARCH)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_COUNT_AVAILABLE_COURSES_WITH_SEARCH)) {
             ps.setLong(1, studentId);
-            ps.setString(2, createLikeParameter(search));
+            ps.setString(2, createLikeParameter(title));
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 count = rs.getInt(1);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while counting available courses with limit: ", e);
+            throw new DaoException("Exception while counting "
+                    + "available courses with limit: ", e);
         }
         return count;
     }
 
-    private Course mapToEntity(ResultSet rs) throws SQLException {
+    private Course mapToEntity(final ResultSet rs) throws SQLException {
         return Course.builder()
                 .id(rs.getLong("course.id"))
                 .name(rs.getString("course.name"))
@@ -339,15 +420,19 @@ public class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
                 .build();
     }
 
-    protected void mapFromEntityForSave(PreparedStatement ps, Course course) throws SQLException {
-        logger.debug("Mapping course for saving");
+    private void mapFromEntityForSave(final PreparedStatement ps,
+                                      final Course course)
+            throws SQLException {
+
         ps.setString(1, course.getName());
         ps.setLong(2, course.getOwner().getId());
         ps.setLong(3, course.getCategory().getId());
     }
 
-    protected void mapFromEntityForUpdate(PreparedStatement ps, Course course) throws SQLException {
-        logger.debug("Mapping course for updating");
+    private void mapFromEntityForUpdate(final PreparedStatement ps,
+                                        final Course course)
+            throws SQLException {
+
         ps.setString(1, course.getName());
         ps.setLong(2, course.getOwner().getId());
         ps.setLong(3, course.getCategory().getId());

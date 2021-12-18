@@ -6,56 +6,85 @@ import by.alex.testing.domain.Course;
 import by.alex.testing.domain.CourseUser;
 import by.alex.testing.domain.User;
 import by.alex.testing.domain.UserCourseStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CourseUserDaoImpl extends AbstractMySqlDao implements CourseUserDao {
+public final class CourseUserDaoImpl extends AbstractMySqlDao implements CourseUserDao {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(CourseUserDaoImpl.class);
-
+    /**
+     * Query to create course user.
+     */
     private static final String SQL_CREATE =
             "INSERT INTO `course_user`(`course_id`, `user_id`, `status`, `rating`, `attendance_percent`) VALUES (?, ?, ?, ?, ?);";
 
+    /**
+     * Query to select course user by user and course id.
+     */
     private static final String SQL_SELECT_BY_USER_AND_COURSE_ID =
             "SELECT `course_user`.`user_id`, `course_user`.`course_id`, `course_user`.`status`, `course_user`.`rating`, `course_user`.`attendance_percent` FROM `course_user` WHERE `course_user`.`user_id` = ? AND `course_user`.`course_id` = ?;";
 
+    /**
+     * Query to select all user requests on courses.
+     */
     private static final String SQL_SELECT_ALL_REQUESTS =
             "SELECT `course_user`.`user_id`, `course_user`.`course_id`, `course_user`.`status`, `course_user`.`rating`, `course_user`.`attendance_percent` FROM `course_user` JOIN `course` `c` on `c`.`id` = `course_user`.`course_id` WHERE `c`.`user_id` = ? AND `course_user`.`status` = 0 LIMIT ?, ?;";
 
+    /**
+     * Query to select all user courses.
+     */
     private static final String SQL_SELECT_ALL_USER_COURSES =
             "SELECT `course_user`.`user_id`, `course_user`.`course_id`, `course_user`.`status`, `course_user`.`rating`, `course_user`.`attendance_percent` FROM `course_user` WHERE `course_user`.`user_id` = ? AND `course_user`.`status` = ?;";
 
+    /**
+     * Query to select user courses limited.
+     */
     private static final String SQL_SELECT_ALL_USER_COURSES_WITH_LIMIT =
             "SELECT `course_user`.`user_id`, `course_user`.`course_id`, `course_user`.`status`, `course_user`.`rating`, `course_user`.`attendance_percent` FROM `course_user` WHERE `course_user`.`user_id` = ? AND `course_user`.`status` = ? LIMIT ?, ?;";
 
+    /**
+     * Query to update course user.
+     */
     private static final String SQL_UPDATE =
             "UPDATE `course_user` SET `course_user`.`status` = ?, `course_user`.`rating` = ?, `course_user`.`attendance_percent` = ? WHERE `course_user`.`user_id` = ? AND `course_user`.`course_id` = ?;";
 
+    /**
+     * Query to delete course user.
+     */
     private static final String SQL_DELETE =
             "DELETE FROM `course_user` WHERE `course_user`.`course_id` = ? AND `course_user`.`user_id` = ? AND `course_user`.`status` = ?";
 
+    /**
+     * Query to count all course users by course id.
+     */
     private static final String SQL_COUNT_ALL =
             "SELECT COUNT(*) FROM `course_user` WHERE `course_user`.`course_id` = ? AND `course_user`.`status` = 1";
 
+    /**
+     * Query to count all course users by name or login.
+     */
     private static final String SQL_COUNT_ALL_BY_NAME =
-            "SELECT COUNT(*) FROM `course_user` JOIN `user` `u` on `u`.`id` = `course_user`.`user_id` WHERE `course_user`.`course_id` = ? AND `u`.`first_name` LIKE ? OR `u`.`last_name` LIKE ? or `u`.`login` LIKE ? AND `course_user`.`status` = 1;";
+            "SELECT COUNT(*) FROM `course_user` JOIN `user` `u` on `u`.`id` = `course_user`.`user_id` WHERE `course_user`.`course_id` = ? AND (`u`.`first_name` LIKE ? OR `u`.`last_name` LIKE ? or `u`.`login` LIKE ?) AND `course_user`.`status` = 1;";
 
+    /**
+     * Query to count all requests on course.
+     */
     private static final String SQL_COUNT_ALL_REQUESTS =
             "SELECT COUNT(*) FROM `course_user` JOIN `course` `c` on `c`.`id` = `course_user`.`course_id` WHERE `c`.`user_id` = ? AND `course_user`.`status` = 0";
 
+    /**
+     * Query to count all student courses.
+     */
     private static final String SQL_COUNT_STUDENT_COURSES =
             "SELECT COUNT(*) FROM `course_user` WHERE `course_user`.`user_id` = ? AND `course_user`.`status` = ?;";
 
-    protected CourseUserDaoImpl() {
-    }
-
     @Override
-    public boolean save(CourseUser courseUser) throws DaoException {
+    public boolean save(final CourseUser courseUser) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_CREATE,
                 Statement.RETURN_GENERATED_KEYS)) {
 
@@ -68,18 +97,21 @@ public class CourseUserDaoImpl extends AbstractMySqlDao implements CourseUserDao
 
     @Override
     public List<CourseUser> findAll() throws DaoException {
-        throw new UnsupportedOperationException("Reading all course users is unsupported");
+        throw new UnsupportedOperationException("Reading all is unsupported");
     }
 
     @Override
-    public CourseUser findOne(long userId) throws DaoException {
+    public CourseUser findOne(final long userId) throws DaoException {
         throw new UnsupportedOperationException("Reading by id is unsupported");
     }
 
     @Override
-    public CourseUser findByUserAndCourseId(long userId, long courseId) throws DaoException {
+    public CourseUser findByUserAndCourseId(final long userId,
+                                            final long courseId)
+            throws DaoException {
         CourseUser courseUser = null;
-        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_BY_USER_AND_COURSE_ID)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_SELECT_BY_USER_AND_COURSE_ID)) {
             ps.setLong(1, userId);
             ps.setLong(2, courseId);
             ResultSet rs = ps.executeQuery();
@@ -87,16 +119,19 @@ public class CourseUserDaoImpl extends AbstractMySqlDao implements CourseUserDao
                 courseUser = this.mapToEntity(rs);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while reading course user by user id: ", e);
+            throw new DaoException("Exception while reading course"
+                    + " user by user id: ", e);
         }
         return courseUser;
     }
 
     @Override
-    public List<CourseUser> findByUserIdAndStatus(Long userId, UserCourseStatus status)
+    public List<CourseUser> findByUserIdAndStatus(final Long userId,
+                                                  final UserCourseStatus status)
             throws DaoException {
         List<CourseUser> users = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL_USER_COURSES)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_SELECT_ALL_USER_COURSES)) {
             ps.setLong(1, userId);
             ps.setInt(2, status.getId());
             ResultSet rs = ps.executeQuery();
@@ -105,15 +140,21 @@ public class CourseUserDaoImpl extends AbstractMySqlDao implements CourseUserDao
                 users.add(user);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while reading all user courses: ", e);
+            throw new DaoException("Exception while reading "
+                    + "all user courses: ", e);
         }
         return users;
     }
 
     @Override
-    public List<CourseUser> findByUserIdAndStatus(long studentId, UserCourseStatus status, int start, int recordsPerPage) throws DaoException {
+    public List<CourseUser> findByUserIdAndStatus(final long studentId,
+                                                  final UserCourseStatus status,
+                                                  final int start,
+                                                  final int recordsPerPage)
+            throws DaoException {
         List<CourseUser> users = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL_USER_COURSES_WITH_LIMIT)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_SELECT_ALL_USER_COURSES_WITH_LIMIT)) {
             ps.setLong(1, studentId);
             ps.setInt(2, status.getId());
             ps.setInt(3, start);
@@ -124,16 +165,20 @@ public class CourseUserDaoImpl extends AbstractMySqlDao implements CourseUserDao
                 users.add(user);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while reading all user courses: ", e);
+            throw new DaoException("Exception while reading"
+                    + " all user courses: ", e);
         }
         return users;
     }
 
     @Override
-    public List<CourseUser> readAllRequestsByTeacherId(int start, int recOnPage, long userId)
+    public List<CourseUser> findRequests(final int start,
+                                         final int recOnPage,
+                                         final long userId)
             throws DaoException {
         List<CourseUser> users = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_ALL_REQUESTS)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_SELECT_ALL_REQUESTS)) {
             ps.setLong(1, userId);
             ps.setInt(2, start);
             ps.setInt(3, recOnPage);
@@ -144,13 +189,14 @@ public class CourseUserDaoImpl extends AbstractMySqlDao implements CourseUserDao
                 users.add(user);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while reading all course requests: ", e);
+            throw new DaoException("Exception while reading"
+                    + " all course requests: ", e);
         }
         return users;
     }
 
     @Override
-    public boolean update(CourseUser courseUser) throws DaoException {
+    public boolean update(final CourseUser courseUser) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_UPDATE)) {
             this.mapFromEntityForUpdate(ps, courseUser);
             return ps.executeUpdate() > 0;
@@ -160,7 +206,7 @@ public class CourseUserDaoImpl extends AbstractMySqlDao implements CourseUserDao
     }
 
     @Override
-    public boolean delete(CourseUser courseUser) throws DaoException {
+    public boolean delete(final CourseUser courseUser) throws DaoException {
         try (PreparedStatement ps = connection.prepareStatement(SQL_DELETE)) {
             ps.setLong(1, courseUser.getCourse().getId());
             ps.setLong(2, courseUser.getUser().getId());
@@ -172,29 +218,34 @@ public class CourseUserDaoImpl extends AbstractMySqlDao implements CourseUserDao
     }
 
     @Override
-    public boolean delete(long id) throws DaoException {
-        throw new UnsupportedOperationException("Deleting by id is unsupported");
+    public boolean delete(final long id) throws DaoException {
+        throw new UnsupportedOperationException("Deleting by id is"
+                + " unsupported");
     }
 
     @Override
-    public Integer count(long courseId) throws DaoException {
+    public Integer count(final long courseId) throws DaoException {
         int count = 0;
-        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_ALL)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_COUNT_ALL)) {
             ps.setLong(1, courseId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 count = rs.getInt(1);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while reading all course users: ", e);
+            throw new DaoException("Exception while"
+                    + " reading all course users: ", e);
         }
         return count;
     }
 
     @Override
-    public Integer count(long courseId, String search) throws DaoException {
+    public Integer count(final long courseId, final String search)
+            throws DaoException {
         int count = 0;
-        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_ALL_BY_NAME)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_COUNT_ALL_BY_NAME)) {
             String param = createLikeParameter(search);
             ps.setLong(1, courseId);
             ps.setString(2, param);
@@ -205,15 +256,17 @@ public class CourseUserDaoImpl extends AbstractMySqlDao implements CourseUserDao
                 count = rs.getInt(1);
             }
         } catch (SQLException e) {
-            throw new DaoException("Exception while reading all course users: ", e);
+            throw new DaoException("Exception while "
+                    + "reading all course users: ", e);
         }
         return count;
     }
 
     @Override
-    public int countRequests(long teacherId) throws DaoException {
+    public int countRequests(final long teacherId) throws DaoException {
         int count = 0;
-        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_ALL_REQUESTS)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_COUNT_ALL_REQUESTS)) {
             ps.setLong(1, teacherId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -226,9 +279,12 @@ public class CourseUserDaoImpl extends AbstractMySqlDao implements CourseUserDao
     }
 
     @Override
-    public int countStudentCourses(long studentId, UserCourseStatus status) throws DaoException {
+    public int countStudentCourses(final long studentId,
+                                   final UserCourseStatus status)
+            throws DaoException {
         int count = 0;
-        try (PreparedStatement ps = connection.prepareStatement(SQL_COUNT_STUDENT_COURSES)) {
+        try (PreparedStatement ps = connection
+                .prepareStatement(SQL_COUNT_STUDENT_COURSES)) {
             ps.setLong(1, studentId);
             ps.setInt(2, status.getId());
             ResultSet rs = ps.executeQuery();
@@ -241,7 +297,7 @@ public class CourseUserDaoImpl extends AbstractMySqlDao implements CourseUserDao
         return count;
     }
 
-    private CourseUser mapToEntity(ResultSet rs) throws SQLException {
+    private CourseUser mapToEntity(final ResultSet rs) throws SQLException {
         CourseUser courseUser = CourseUser.builder()
                 .user(User.builder()
                         .id(rs.getLong("course_user.user_id"))
@@ -265,8 +321,9 @@ public class CourseUserDaoImpl extends AbstractMySqlDao implements CourseUserDao
         return courseUser;
     }
 
-    protected void mapFromEntityForSave(PreparedStatement ps, CourseUser courseUser) throws SQLException {
-        logger.debug("Mapping course user for saving");
+    private void mapFromEntityForSave(final PreparedStatement ps,
+                                      final CourseUser courseUser)
+            throws SQLException {
         ps.setLong(1, courseUser.getCourse().getId());
         ps.setLong(2, courseUser.getUser().getId());
         ps.setInt(3, courseUser.getStatus().getId());
@@ -274,8 +331,9 @@ public class CourseUserDaoImpl extends AbstractMySqlDao implements CourseUserDao
         this.handleAttendancePercent(5, courseUser.getAttendancePercent(), ps);
     }
 
-    protected void mapFromEntityForUpdate(PreparedStatement ps, CourseUser courseUser) throws SQLException {
-        logger.debug("Mapping course user for updating");
+    private void mapFromEntityForUpdate(final PreparedStatement ps,
+                                        final CourseUser courseUser)
+            throws SQLException {
         ps.setInt(1, courseUser.getStatus().getId());
         this.handleRating(2, courseUser.getRating(), ps);
         this.handleAttendancePercent(3, courseUser.getAttendancePercent(), ps);
@@ -283,7 +341,10 @@ public class CourseUserDaoImpl extends AbstractMySqlDao implements CourseUserDao
         ps.setLong(5, courseUser.getCourse().getId());
     }
 
-    private void handleRating(int index, Double rating, PreparedStatement ps) throws SQLException {
+    private void handleRating(final int index,
+                              final Double rating,
+                              final PreparedStatement ps)
+            throws SQLException {
         if (rating != null) {
             ps.setDouble(index, rating);
         } else {
@@ -291,7 +352,9 @@ public class CourseUserDaoImpl extends AbstractMySqlDao implements CourseUserDao
         }
     }
 
-    private void handleAttendancePercent(int index, Double attendancePercent, PreparedStatement ps)
+    private void handleAttendancePercent(final int index,
+                                         final Double attendancePercent,
+                                         final PreparedStatement ps)
             throws SQLException {
         if (attendancePercent != null) {
             ps.setDouble(index, attendancePercent);

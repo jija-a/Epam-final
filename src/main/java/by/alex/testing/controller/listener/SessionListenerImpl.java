@@ -9,37 +9,45 @@ import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
+/**
+ * Filter listens and logg when session starts/destroys.
+ * Also, everything that was added/removed/updated in session.
+ */
 @WebListener
-public class SessionListenerImpl implements HttpSessionListener, HttpSessionAttributeListener {
+public final class SessionListenerImpl implements
+        HttpSessionListener, HttpSessionAttributeListener {
 
-    private static final Logger logger =
+    /**
+     * @see Logger
+     */
+    private static final Logger LOGGER =
             LoggerFactory.getLogger(SessionListenerImpl.class);
 
     @Override
-    public void attributeAdded(HttpSessionBindingEvent ev) {
-        logger.info("add: {} : {} : {}", ev.getClass().getSimpleName(),
+    public void attributeAdded(final HttpSessionBindingEvent ev) {
+        LOGGER.info("add: {} : {} : {}", ev.getClass().getSimpleName(),
                 ev.getName(), ev.getValue());
     }
 
     @Override
-    public void attributeRemoved(HttpSessionBindingEvent ev) {
-        logger.info("remove: {} : {} : {}", ev.getClass().getSimpleName(),
+    public void attributeRemoved(final HttpSessionBindingEvent ev) {
+        LOGGER.info("remove: {} : {} : {}", ev.getClass().getSimpleName(),
                 ev.getName(), ev.getValue());
     }
 
     @Override
-    public void attributeReplaced(HttpSessionBindingEvent ev) {
-        logger.info("replace: {} : {} : {}", ev.getClass().getSimpleName(),
+    public void attributeReplaced(final HttpSessionBindingEvent ev) {
+        LOGGER.info("replace: {} : {} : {}", ev.getClass().getSimpleName(),
                 ev.getName(), ev.getValue());
     }
 
     @Override
-    public void sessionCreated(HttpSessionEvent event) {
-        logger.debug("Session created");
+    public void sessionCreated(final HttpSessionEvent event) {
+        LOGGER.debug("Session created");
     }
 
     @Override
-    public void sessionDestroyed(HttpSessionEvent event) {
-        logger.debug("Session destroyed");
+    public void sessionDestroyed(final HttpSessionEvent event) {
+        LOGGER.debug("Session destroyed");
     }
 }

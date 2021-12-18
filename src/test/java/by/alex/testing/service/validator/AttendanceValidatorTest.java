@@ -15,11 +15,11 @@ public class AttendanceValidatorTest {
         return new Object[]{
                 Attendance.builder()
                         .mark(6)
-                        .status(AttendanceStatus.ATTENDED)
+                        .status(AttendanceStatus.PRESENT)
                         .build(),
                 Attendance.builder()
                         .mark(1)
-                        .status(AttendanceStatus.LATE)
+                        .status(AttendanceStatus.PRESENT)
                         .build()
         };
     }
@@ -33,7 +33,7 @@ public class AttendanceValidatorTest {
                         .build(),
                 Attendance.builder()
                         .mark(-1)
-                        .status(AttendanceStatus.ATTENDED)
+                        .status(AttendanceStatus.PRESENT)
                         .build()
         };
     }

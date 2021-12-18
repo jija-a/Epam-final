@@ -2,12 +2,18 @@ package by.alex.testing.dao.mysql;
 
 import by.alex.testing.dao.DaoFactory;
 
-public class MySqlDaoFactory extends DaoFactory {
+public final class MySqlDaoFactory extends DaoFactory {
 
-    private static final MySqlDaoFactory instance = new MySqlDaoFactory();
+    /**
+     * {@link MySqlDaoFactory} instance. Singleton pattern.
+     */
+    private static final MySqlDaoFactory FACTORY = new MySqlDaoFactory();
 
+    /**
+     * @return {@link MySqlDaoFactory} instance
+     */
     public static MySqlDaoFactory getInstance() {
-        return instance;
+        return FACTORY;
     }
 
     @Override

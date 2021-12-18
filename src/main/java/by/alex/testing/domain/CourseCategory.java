@@ -1,6 +1,10 @@
 package by.alex.testing.domain;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Getter
@@ -11,5 +15,8 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 public class CourseCategory extends Entity {
 
+    /**
+     * Category name.
+     */
     private String name;
 }

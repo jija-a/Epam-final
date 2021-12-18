@@ -1,52 +1,53 @@
 package by.alex.testing.controller.command.impl.admin;
 
-import by.alex.testing.controller.*;
+import by.alex.testing.controller.CommandName;
+import by.alex.testing.controller.MessageConstant;
+import by.alex.testing.controller.MessageManager;
+import by.alex.testing.controller.RequestConstant;
+import by.alex.testing.controller.ViewResolver;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.domain.CourseCategory;
-import by.alex.testing.service.AdminService;
+import by.alex.testing.service.CourseCategoryService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
 import com.mysql.cj.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
-public class CreateCourseCategoryCommand implements Command {
+public final class CreateCourseCategoryCommand implements Command {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(CreateCourseCategoryCommand.class);
+    /**
+     * @see CourseCategoryService
+     */
+    private final CourseCategoryService courseCategoryService;
 
-    private final AdminService adminService;
-
+    /**
+     * Class constructor. Initializes service.
+     */
     public CreateCourseCategoryCommand() {
-        adminService = ServiceFactory.getInstance().getAdminService();
+        courseCategoryService =
+                ServiceFactory.getInstance().getCourseCategoryService();
     }
 
-
     @Override
-    public ViewResolver execute(HttpServletRequest req, HttpServletResponse resp)
+    public ViewResolver execute(final HttpServletRequest req,
+                                final HttpServletResponse resp)
             throws ServiceException {
 
-        logger.info("Create course category command received");
-        String page = createRedirectURL(req, CommandName.SHOW_COURSE_CATEGORIES);
+        String page =
+                createRedirectURL(req, CommandName.SHOW_COURSE_CATEGORIES);
         ViewResolver resolver = new ViewResolver(page);
 
         String name = req.getParameter(RequestConstant.COURSE_CATEGORY_NAME);
         if (!StringUtils.isNullOrEmpty(name)) {
-            name = name.trim();
-            if (adminService.isCategoryExists(name)) {
-                req.setAttribute(RequestConstant.ERROR,
-                        MessageManager.INSTANCE.getMessage(MessageConstant.ALREADY_EXISTS));
-                return resolver;
-            }
-            CourseCategory category = new CourseCategory(name);
-            List<String> errors = adminService.create(category);
+            CourseCategory category = new CourseCategory(name.trim());
+            List<String> errors = courseCategoryService.create(category);
             if (errors.isEmpty()) {
-                req.getSession().setAttribute(RequestConstant.SUCCESS,
-                        MessageManager.INSTANCE.getMessage(MessageConstant.CREATE_SUCCESS));
+                String msg = MessageManager.INSTANCE
+                        .getMessage(MessageConstant.CREATE_SUCCESS);
+                req.getSession().setAttribute(RequestConstant.SUCCESS, msg);
                 resolver.setResolveAction(ViewResolver.ResolveAction.REDIRECT);
             } else {
                 req.setAttribute(RequestConstant.ERRORS, errors);

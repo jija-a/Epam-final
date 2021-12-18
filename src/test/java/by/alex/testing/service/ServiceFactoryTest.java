@@ -32,6 +32,6 @@ public class ServiceFactoryTest {
 
     @Test
     public void testAdminServiceNotNull() {
-        Assert.assertNotNull(ServiceFactory.getInstance().getAdminService());
+        Assert.assertNotNull(ServiceFactory.getInstance().getCourseCategoryService());
     }
 }

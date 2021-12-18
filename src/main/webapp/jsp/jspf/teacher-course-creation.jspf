@@ -1,4 +1,4 @@
-<form action="<c:url value="/controller"/>">
+<form action="<c:url value="/controller"/>" method="post">
     <input type="hidden" name="command" value="create_course">
     <th scope="row">#</th>
     <td><input type="text" minlength="5" maxlength="150" name="course_name" placeholder="Course Name"></td>

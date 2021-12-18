@@ -1,13 +1,11 @@
 package by.alex.testing.service.validator;
 
-import by.alex.testing.domain.Course;
 import by.alex.testing.domain.Lesson;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -25,7 +23,7 @@ public class LessonValidatorTest {
     private Object[] provideCorrectData() {
         return new Object[]{
                 Lesson.builder()
-                        .title("Lesson")
+                        .title("Основы HTML")
                         .startDate(LocalDateTime.parse("2013-04-05 14:00", formatter))
                         .endDate(LocalDateTime.parse("2013-04-05 14:45", formatter))
                         .build(),

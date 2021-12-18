@@ -17,18 +17,19 @@
         <form action="<c:url value="/controller"/>" id="searchForm" method="get"></form>
         <%@include file="jspf/error-success.jspf" %>
         <c:choose>
-            <c:when test="${not empty lessons}">
-            <c:choose>
-                <c:when test="${user.role.id == 1}">
-                    <%@include file="jspf/teacher-lesson-buttons.jspf" %>
-                </c:when>
-                <c:when test="${user.role.id == 2}">
-                    <%@include file="jspf/student-lesson-buttons.jspf" %>
-                </c:when>
-            </c:choose>
-            <c:otherwise>
-                <h1 class="text-muted text-center"><fmt:message key="error.not.found"/></h1>
-            </c:otherwise>
+            <c:when test="${user.role.id == 1}">
+                <%@include file="jspf/teacher-lesson-buttons.jspf" %>
+            </c:when>
+            <c:when test="${user.role.id == 2}">
+                <c:choose>
+                    <c:when test="${not empty lessons}">
+                        <%@include file="jspf/student-lesson-buttons.jspf" %>
+                    </c:when>
+                    <c:otherwise>
+                        <h1 class="text-muted text-center"><fmt:message key="error.not.found"/></h1>
+                    </c:otherwise>
+                </c:choose>
+            </c:when>
         </c:choose>
         <%@include file="jspf/pagination.jspf" %>
     </div>

@@ -9,20 +9,27 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+/**
+ * Filter in order to initialize everything that needs
+ * to be initialized when the application starts.
+ */
 @WebListener
-public class ContextListener implements ServletContextListener {
+public final class ContextListener implements ServletContextListener {
 
+    /**
+     * @see Logger
+     */
     private static final Logger LOGGER =
             LoggerFactory.getLogger(ContextListener.class);
 
     @Override
-    public void contextInitialized(ServletContextEvent sce) {
+    public void contextInitialized(final ServletContextEvent sce) {
         ServiceFactory.getInstance();
         LOGGER.debug("Context listener initialized");
     }
 
     @Override
-    public void contextDestroyed(ServletContextEvent sce) {
+    public void contextDestroyed(final ServletContextEvent sce) {
         ConnectionPool.getInstance().destroyPool();
         LOGGER.debug("Context listener destroyed");
     }

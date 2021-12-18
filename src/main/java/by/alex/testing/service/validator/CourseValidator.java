@@ -5,26 +5,28 @@ import by.alex.testing.controller.MessageManager;
 import by.alex.testing.domain.Course;
 import by.alex.testing.service.RegexStorage;
 import com.mysql.cj.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CourseValidator extends BaseValidator {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(CourseValidator.class);
+    /**
+     * Method to validate {@link Course} fields.
+     *
+     * @param course {@link Course} to validate
+     * @return {@link List} of errors if validated unsuccessful,
+     * otherwise empty
+     */
+    public static List<String> validate(final Course course) {
+        String error = MessageManager.INSTANCE
+                .getMessage(MessageConstant.COURSE_TITLE_ERROR);
+        String name = course.getName();
 
-    private CourseValidator() {
-    }
-
-    public static List<String> validate(Course course) {
-        logger.info("Validating course");
         List<String> errors = new ArrayList<>();
-        if (StringUtils.isNullOrEmpty(course.getName())
-                || !validatePattern(course.getName(), RegexStorage.TITLE_PATTERN)) {
-            errors.add(MessageManager.INSTANCE.getMessage(MessageConstant.COURSE_NAME_ERROR));
+        if (StringUtils.isNullOrEmpty(name)
+                || !validatePattern(name, RegexStorage.TITLE_PATTERN)) {
+            errors.add(error);
         }
         return errors;
     }

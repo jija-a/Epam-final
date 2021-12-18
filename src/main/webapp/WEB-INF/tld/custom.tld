@@ -10,7 +10,7 @@
     <uri>custom_tag</uri>
     <tag>
         <name>copyright</name>
-        <tag-class>by.alex.testing.tag.CopyrightTag</tag-class>
+        <tag-class>by.alex.testing.controller.tag.CopyrightTag</tag-class>
         <body-content>empty</body-content>
     </tag>
     <tag>
@@ -18,7 +18,7 @@
             FormatDate with java8 type
         </description>
         <name>formatDate</name>
-        <tag-class>by.alex.testing.tag.DateFormatTag</tag-class>
+        <tag-class>by.alex.testing.controller.tag.DateFormatTag</tag-class>
         <body-content>empty</body-content>
         <attribute>
             <description>

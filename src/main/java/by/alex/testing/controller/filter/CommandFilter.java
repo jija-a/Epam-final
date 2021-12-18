@@ -19,26 +19,80 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class CommandFilter extends BaseFilter {
+/**
+ * Filter to check user role and {@link User} permission to
+ * execute {@link by.alex.testing.controller.command.Command}.
+ */
+public final class CommandFilter extends BaseFilter {
 
-    private static final Logger logger =
+    /**
+     * @see Logger
+     */
+    private static final Logger LOGGER =
             LoggerFactory.getLogger(CommandFilter.class);
 
+    /**
+     * Guest commands.
+     *
+     * @see by.alex.testing.controller.command.Command
+     * @see UserRole
+     * @see by.alex.testing.controller.FrontController
+     * @see by.alex.testing.controller.command.CommandProvider
+     * @see CommandName
+     */
     private static final Set<String> GUEST_COMMANDS = initGuestCommands();
 
+    /**
+     * Common commands.
+     *
+     * @see by.alex.testing.controller.command.Command
+     * @see UserRole
+     * @see by.alex.testing.controller.FrontController
+     * @see by.alex.testing.controller.command.CommandProvider
+     * @see CommandName
+     */
     private static final Set<String> COMMON_COMMANDS = initCommonCommands();
 
+    /**
+     * Student commands.
+     *
+     * @see by.alex.testing.controller.command.Command
+     * @see UserRole
+     * @see by.alex.testing.controller.FrontController
+     * @see by.alex.testing.controller.command.CommandProvider
+     * @see CommandName
+     */
     private static final Set<String> STUDENT_COMMANDS = initStudentCommands();
 
+    /**
+     * Teacher commands.
+     *
+     * @see by.alex.testing.controller.command.Command
+     * @see UserRole
+     * @see by.alex.testing.controller.FrontController
+     * @see by.alex.testing.controller.command.CommandProvider
+     * @see CommandName
+     */
     private static final Set<String> TEACHER_COMMANDS = initTeacherCommands();
 
+    /**
+     * Administrator commands.
+     *
+     * @see by.alex.testing.controller.command.Command
+     * @see UserRole
+     * @see by.alex.testing.controller.FrontController
+     * @see by.alex.testing.controller.command.CommandProvider
+     * @see CommandName
+     */
     private static final Set<String> ADMIN_COMMANDS = initAdminCommands();
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+    public void doFilter(final ServletRequest request,
+                         final ServletResponse response,
+                         final FilterChain chain)
             throws IOException, ServletException {
 
-        logger.debug("Command Filter processing");
+        LOGGER.debug("Command Filter processing");
 
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
@@ -46,13 +100,13 @@ public class CommandFilter extends BaseFilter {
 
         String commandName = req.getParameter(RequestConstant.COMMAND);
         if (StringUtils.isNullOrEmpty(commandName)) {
-            logger.info("Command not found, redirecting to error page");
+            LOGGER.info("Command not found, redirecting to error page");
             res.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
 
             User user = (User) session.getAttribute(RequestConstant.USER);
             UserRole role = user != null ? user.getRole() : UserRole.GUEST;
-            logger.info("User role is: {}", role);
+            LOGGER.info("User role is: {}", role);
             Set<String> accessibleCommands;
             switch (role) {
                 case STUDENT:
@@ -68,21 +122,25 @@ public class CommandFilter extends BaseFilter {
                     accessibleCommands = GUEST_COMMANDS;
             }
 
-            logger.info("{} command received", commandName);
+            LOGGER.info("{} command received", commandName);
             if (accessibleCommands.contains(commandName)) {
-                logger.info("User HAVE permission to '{}' command", commandName);
+                LOGGER.info("User HAVE permission to '{}' command",
+                        commandName);
                 chain.doFilter(request, response);
             } else {
                 String page;
-                logger.info("User DO NOT have permission to '{}' command", commandName);
+                LOGGER.info("User DO NOT have permission to '{}' command",
+                        commandName);
                 if (role.equals(UserRole.GUEST)) {
                     page = req.getContextPath() + req.getServletPath() + "?"
-                            + RequestConstant.COMMAND + "=" + CommandName.TO_LOGIN_PAGE;
+                            + RequestConstant.COMMAND + "="
+                            + CommandName.TO_LOGIN_PAGE;
                 } else {
                     page = req.getContextPath() + req.getServletPath() + "?"
-                            + RequestConstant.COMMAND + "=" + CommandName.TO_HOME_PAGE;
+                            + RequestConstant.COMMAND + "="
+                            + CommandName.TO_HOME_PAGE;
                 }
-                logger.info("Redirecting to: '{}'", page);
+                LOGGER.info("Redirecting to: '{}'", page);
                 res.sendRedirect(page);
             }
         }

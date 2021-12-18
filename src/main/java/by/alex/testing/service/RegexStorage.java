@@ -1,15 +1,31 @@
 package by.alex.testing.service;
 
-public class RegexStorage {
+public final class RegexStorage {
 
     private RegexStorage() {
     }
 
-    public static final String TITLE_PATTERN = "^[a-zA-Z0-9]([ ._-](?![ ._-])|[a-zA-Z0-9]){1,33}[a-zA-Z0-9]$";
+    /**
+     * Regular expression for title.
+     */
+    public static final String TITLE_PATTERN =
+            "^[a-zA-Zа-яА-Я0-9]([ ._-](?![ ._-])|[a-zA-Zа-яА-Я0-9]){1,33}[a-zA-Zа-яА-Я0-9]$";
 
-    public static final String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,16}$";
+    /**
+     * Regular expression for password.
+     */
+    public static final String PASSWORD_PATTERN =
+            "^(?=.*[a-zA-Zа-яА-Я])(?=.*\\d)[[a-zA-Zа-яА-Я]\\d]{8,16}$";
 
-    public static final String LOGIN_PATTERN = "^[a-zA-Z0-9]([._-](?![._-])|[a-zA-Z0-9]){3,18}[a-zA-Z0-9]$";
+    /**
+     * Regular expression for login.
+     */
+    public static final String LOGIN_PATTERN =
+            "^[a-zA-Z0-9]([._-](?![._-])|[a-zA-Z0-9]){3,253}[a-zA-Z0-9]$";
 
-    public static final String NAME_PATTERN = "^[a-zA-Z]([._-](?![._-])|[a-zA-Z]){1,23}[a-zA-Z]$";
+    /**
+     * Regular expression for name.
+     */
+    public static final String NAME_PATTERN =
+            "^[a-zA-Zа-яА-Я]([ ._-](?![ ._-])|[a-zA-Zа-яА-Я]){1,33}[a-zA-Zа-яА-Я]$";
 }

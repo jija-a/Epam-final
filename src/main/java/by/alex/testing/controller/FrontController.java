@@ -2,7 +2,7 @@ package by.alex.testing.controller;
 
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.controller.command.CommandProvider;
-import by.alex.testing.service.AccessDeniedException;
+import by.alex.testing.service.AccessException;
 import by.alex.testing.service.ServiceException;
 import com.mysql.cj.util.StringUtils;
 import org.slf4j.Logger;
@@ -16,40 +16,70 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * Servlet implementation class FrontController. This servlet handles all
+ * requests by the client and then processes them according to specified command
+ * name.
+ */
 @WebServlet(urlPatterns = "/controller")
 public class FrontController extends HttpServlet {
 
-    private static final Logger logger =
+    /**
+     * @see Logger
+     */
+    private static final Logger LOGGER =
             LoggerFactory.getLogger(FrontController.class.getName());
 
+    /**
+     * @param req  {@link HttpServletRequest}
+     * @param resp {@link HttpServletResponse}
+     * @see HttpServlet#doPost(HttpServletRequest, HttpServletResponse)
+     */
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doPost(final HttpServletRequest req,
+                          final HttpServletResponse resp) {
 
         try {
             this.handleRequest(req, resp);
         } catch (ServletException | IOException e) {
-            logger.error("Controller provided exception: ", e);
+            LOGGER.error("Controller provided exception: ", e);
         }
     }
 
+    /**
+     * @param req  {@link HttpServletRequest}
+     * @param resp {@link HttpServletResponse}
+     * @see HttpServlet#doGet(HttpServletRequest, HttpServletResponse)
+     */
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doGet(final HttpServletRequest req,
+                         final HttpServletResponse resp) {
 
         try {
             this.handleRequest(req, resp);
         } catch (ServletException | IOException e) {
-            logger.error("Controller provided exception: ", e);
+            LOGGER.error("Controller provided exception: ", e);
         }
     }
 
-    private void handleRequest(HttpServletRequest req, HttpServletResponse resp)
+    /**
+     * Handles all requests coming from the client by executing the specified
+     * command name in a request.
+     *
+     * @param req  {@link HttpServletRequest}
+     * @param resp {@link HttpServletResponse}
+     * @throws IOException
+     * @throws ServletException
+     */
+    private void handleRequest(final HttpServletRequest req,
+                               final HttpServletResponse resp)
             throws ServletException, IOException {
 
-        logger.debug("Handling controller request");
+        LOGGER.debug("Handling controller request");
 
         String commandName = req.getParameter(RequestConstant.COMMAND);
         if (StringUtils.isNullOrEmpty(commandName)) {
-            logger.warn("Command name is empty");
+            LOGGER.warn("Command name is empty");
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -58,37 +88,56 @@ public class FrontController extends HttpServlet {
             Command command = CommandProvider.resolveCommand(commandName);
             ViewResolver resolver = command.execute(req, resp);
             this.dispatch(req, resp, resolver);
-        } catch (NotEnoughParametersException | NumberFormatException e) {
-            logger.error(e.getMessage(), e);
+        } catch (ParametersException | NumberFormatException e) {
+            LOGGER.error(e.getMessage(), e);
             req.getSession().setAttribute(RequestConstant.ERROR,
-                    MessageManager.INSTANCE.getMessage(MessageConstant.WRONG_PARAMETERS));
+                    MessageManager.INSTANCE
+                            .getMessage(MessageConstant.WRONG_PARAMETERS));
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
-        } catch (AccessDeniedException e) {
-            logger.error(e.getMessage(), e);
+        } catch (AccessException e) {
+            LOGGER.error(e.getMessage(), e);
             req.getSession().setAttribute(RequestConstant.ERROR,
-                    MessageManager.INSTANCE.getMessage(MessageConstant.ACCESS_DENIED));
+                    MessageManager.INSTANCE
+                            .getMessage(MessageConstant.ACCESS_DENIED));
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
         } catch (ServiceException e) {
-            logger.error("Service provided exception to front controller," +
-                    " redirecting to 500 error page: : ", e);
+            LOGGER.error("Service provided exception to front controller,"
+                    + " redirecting to 500 error page: ", e);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
-            logger.error("Unhandled exception, redirecting to 500 error page: ", e);
+            LOGGER.error("Unhandled exception, "
+                    + "redirecting to 500 error page: ", e);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
-    private void dispatch(HttpServletRequest req, HttpServletResponse resp,
-                          ViewResolver resolver) throws ServletException, IOException {
+
+    /**
+     * Implements PRG pattern by checking action type
+     * specified by the invoked method.
+     *
+     * @param req      {@link HttpServletRequest}
+     * @param resp     {@link HttpServletResponse}
+     * @param resolver {@link ViewResolver}
+     * @throws ServletException
+     * @throws IOException
+     * @see ViewResolver
+     * @see by.alex.testing.controller.ViewResolver.ResolveAction
+     */
+    private void dispatch(final HttpServletRequest req,
+                          final HttpServletResponse resp,
+                          final ViewResolver resolver)
+            throws ServletException, IOException {
 
         String view = resolver.getView();
         ViewResolver.ResolveAction action = resolver.getResolveAction();
         if (action.equals(ViewResolver.ResolveAction.FORWARD)) {
-            logger.info("Forwarding to '{}'", view);
-            RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(view);
+            LOGGER.info("Forwarding to: '{}'", view);
+            RequestDispatcher dispatcher =
+                    getServletContext().getRequestDispatcher(view);
             dispatcher.forward(req, resp);
         } else {
-            logger.info("Redirecting to '{}'", view);
+            LOGGER.info("Redirecting to: '{}'", view);
             resp.sendRedirect(req.getContextPath() + view);
         }
     }

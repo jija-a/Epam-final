@@ -1,19 +1,39 @@
 package by.alex.testing.dao.pool;
 
-public class InitializingError extends Error{
+public class InitializingError extends Error {
 
+    /**
+     * Default constructor.
+     */
     public InitializingError() {
+        super();
     }
 
-    public InitializingError(String message) {
+    /**
+     * Constructor.
+     *
+     * @param message {@link String} exception message
+     */
+    public InitializingError(final String message) {
         super(message);
     }
 
-    public InitializingError(String message, Throwable cause) {
+    /**
+     * Constructor.
+     *
+     * @param message {@link String} exception message
+     * @param cause   {@link Throwable} exception cause
+     */
+    public InitializingError(final String message, final Throwable cause) {
         super(message, cause);
     }
 
-    public InitializingError(Throwable cause) {
+    /**
+     * Constructor.
+     *
+     * @param cause `{@link Throwable} exception cause
+     */
+    public InitializingError(final Throwable cause) {
         super(cause);
     }
 }

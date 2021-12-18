@@ -6,41 +6,52 @@ import by.alex.testing.controller.ViewResolver;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.domain.CourseUser;
 import by.alex.testing.domain.User;
+import by.alex.testing.service.CourseService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
-import by.alex.testing.service.TeacherService;
 import com.mysql.cj.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
-public class ShowCourseRequestsCommand implements Command {
+public final class ShowCourseRequestsCommand implements Command {
 
+    /**
+     * Default max quantity of entities on page.
+     */
     private static final int DEFAULT_PAGINATION_LIMIT = 5;
 
-    private final TeacherService teacherService;
+    /**
+     * @see CourseService
+     */
+    private final CourseService courseService;
 
+    /**
+     * Class constructor. Initializes service.
+     */
     public ShowCourseRequestsCommand() {
-        teacherService = ServiceFactory.getInstance().getTeacherService();
+        this.courseService = ServiceFactory.getInstance().getCourseService();
     }
 
     @Override
-    public ViewResolver execute(HttpServletRequest req, HttpServletResponse resp)
+    public ViewResolver execute(final HttpServletRequest req,
+                                final HttpServletResponse resp)
             throws ServiceException {
 
         User user = (User) req.getSession().getAttribute(RequestConstant.USER);
         long teacherId = user.getId();
 
-        String recordsParam = req.getParameter(RequestConstant.RECORDS_PER_PAGE);
-        int recordsPerPage = StringUtils.isNullOrEmpty(recordsParam) ? DEFAULT_PAGINATION_LIMIT :
-                Integer.parseInt(recordsParam);
+        String recordsParam =
+                req.getParameter(RequestConstant.RECORDS_PER_PAGE);
+        int recordsPerPage = StringUtils.isNullOrEmpty(recordsParam)
+                ? DEFAULT_PAGINATION_LIMIT : Integer.parseInt(recordsParam);
 
-        int count = teacherService.countAllRequests(teacherId);
-        int start = this.definePagination(req, count, recordsPerPage, DEFAULT_PAGINATION_LIMIT);
+        int count = courseService.countAllRequests(teacherId);
+        int start = this.definePagination(req, count, recordsPerPage);
 
-        List<CourseUser> courseUsers =
-                teacherService.findRequestsOnCourse(start, recordsPerPage, teacherId);
+        List<CourseUser> courseUsers = courseService
+                .findRequestsOnCourse(start, recordsPerPage, teacherId);
         req.setAttribute(RequestConstant.USERS, courseUsers);
 
         return new ViewResolver(PageConstant.COURSE_REQUESTS);

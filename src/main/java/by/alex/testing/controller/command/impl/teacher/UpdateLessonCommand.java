@@ -1,42 +1,63 @@
 package by.alex.testing.controller.command.impl.teacher;
 
-import by.alex.testing.controller.*;
+import by.alex.testing.controller.CommandName;
+import by.alex.testing.controller.MessageConstant;
+import by.alex.testing.controller.MessageManager;
+import by.alex.testing.controller.ParametersException;
+import by.alex.testing.controller.RequestConstant;
+import by.alex.testing.controller.ViewResolver;
 import by.alex.testing.controller.command.Command;
-import by.alex.testing.controller.validator.BaseParameterValidator;
+import by.alex.testing.controller.validator.ParameterValidator;
 import by.alex.testing.domain.Lesson;
 import by.alex.testing.domain.User;
-import by.alex.testing.service.AccessDeniedException;
+import by.alex.testing.service.AccessException;
+import by.alex.testing.service.LessonService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
 import by.alex.testing.service.TeacherService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
 import java.util.List;
 
-public class UpdateLessonCommand implements Command {
+public final class UpdateLessonCommand implements Command {
 
+    /**
+     * @see TeacherService
+     */
     private final TeacherService teacherService;
 
+    /**
+     * @see LessonService
+     */
+    private final LessonService lessonService;
+
+    /**
+     * Class constructor. Initializes service.
+     */
     public UpdateLessonCommand() {
-        teacherService = ServiceFactory.getInstance().getTeacherService();
+        ServiceFactory factory = ServiceFactory.getInstance();
+        this.teacherService = factory.getTeacherService();
+        this.lessonService = factory.getLessonService();
     }
 
     @Override
-    public ViewResolver execute(HttpServletRequest req, HttpServletResponse resp)
-            throws ServiceException, NotEnoughParametersException, AccessDeniedException {
+    public ViewResolver execute(final HttpServletRequest req,
+                                final HttpServletResponse resp)
+            throws ServiceException, ParametersException, AccessException {
 
         String page = createRedirectURL(req, CommandName.SHOW_LESSONS);
         ViewResolver resolver = new ViewResolver(page);
 
-        User teacher = (User) req.getSession().getAttribute(RequestConstant.USER);
+        User teacher = (User) req.getSession()
+                .getAttribute(RequestConstant.USER);
         Lesson lesson = this.findAndUpdateFields(req);
 
         List<String> errors = teacherService.updateLesson(lesson, teacher);
         if (errors.isEmpty()) {
-            req.getSession().setAttribute(RequestConstant.SUCCESS,
-                    MessageManager.INSTANCE.getMessage(MessageConstant.UPDATED_SUCCESS));
+            String msg = MessageManager.INSTANCE
+                    .getMessage(MessageConstant.UPDATED_SUCCESS);
+            req.getSession().setAttribute(RequestConstant.SUCCESS, msg);
             resolver.setResolveAction(ViewResolver.ResolveAction.REDIRECT);
         } else {
             req.setAttribute(RequestConstant.ERRORS, errors);
@@ -44,24 +65,20 @@ public class UpdateLessonCommand implements Command {
         return resolver;
     }
 
-    private Lesson findAndUpdateFields(HttpServletRequest req)
-            throws NotEnoughParametersException, ServiceException {
+    private Lesson findAndUpdateFields(final HttpServletRequest req)
+            throws ParametersException, ServiceException {
 
         String lessonIdParam = req.getParameter(RequestConstant.LESSON_ID);
         String title = req.getParameter(RequestConstant.LESSON_TITLE);
-        String startDate = req.getParameter(RequestConstant.START_DATE);
-        String endDate = req.getParameter(RequestConstant.END_DATE);
 
-        if (BaseParameterValidator.isNullOrEmpty(lessonIdParam, title, startDate, endDate)) {
-            throw new NotEnoughParametersException("Not enough parameters for executing command");
+        if (ParameterValidator.isNullOrEmpty(lessonIdParam, title)) {
+            throw new ParametersException();
         }
         title = title.trim();
         long lessonId = Long.parseLong(lessonIdParam);
 
-        Lesson lesson = teacherService.findLessonById(lessonId);
+        Lesson lesson = lessonService.findLessonById(lessonId);
         lesson.setTitle(title);
-        lesson.setStartDate(LocalDateTime.parse(startDate));
-        lesson.setEndDate(LocalDateTime.parse(endDate));
 
         return lesson;
     }

@@ -1,44 +1,49 @@
 package by.alex.testing.controller.command.impl.admin;
 
-import by.alex.testing.controller.*;
+import by.alex.testing.controller.CommandName;
+import by.alex.testing.controller.MessageConstant;
+import by.alex.testing.controller.MessageManager;
+import by.alex.testing.controller.RequestConstant;
+import by.alex.testing.controller.ViewResolver;
 import by.alex.testing.controller.command.Command;
-import by.alex.testing.service.AdminService;
+import by.alex.testing.service.CourseCategoryService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
 import com.mysql.cj.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class DeleteCourseCategoryCommand implements Command {
+public final class DeleteCourseCategoryCommand implements Command {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(DeleteCourseCategoryCommand.class);
+    /**
+     * @see CourseCategoryService
+     */
+    private final CourseCategoryService courseCategoryService;
 
-    private final AdminService adminService;
-
+    /**
+     * Class constructor. Initializes service.
+     */
     public DeleteCourseCategoryCommand() {
-        adminService = ServiceFactory.getInstance().getAdminService();
+        courseCategoryService =
+                ServiceFactory.getInstance().getCourseCategoryService();
     }
 
-
     @Override
-    public ViewResolver execute(HttpServletRequest req, HttpServletResponse resp)
+    public ViewResolver execute(final HttpServletRequest req,
+                                final HttpServletResponse resp)
             throws ServiceException {
 
-        logger.info("Delete course category command received");
-
-        String categoryId = req.getParameter(RequestConstant.COURSE_CATEGORY_ID);
-
-        if (!StringUtils.isNullOrEmpty(categoryId)) {
-            adminService.deleteCourseCategory(Long.parseLong(categoryId));
-            req.getSession().setAttribute(RequestConstant.SUCCESS,
-                    MessageManager.INSTANCE.getMessage(MessageConstant.DELETED));
+        String catId = req.getParameter(RequestConstant.COURSE_CATEGORY_ID);
+        if (!StringUtils.isNullOrEmpty(catId)) {
+            courseCategoryService.deleteCategory(Long.parseLong(catId));
+            String msg =
+                    MessageManager.INSTANCE.getMessage(MessageConstant.DELETED);
+            req.getSession().setAttribute(RequestConstant.SUCCESS, msg);
         }
 
-        String page = createRedirectURL(req, CommandName.SHOW_COURSE_CATEGORIES);
+        String page =
+                createRedirectURL(req, CommandName.SHOW_COURSE_CATEGORIES);
         return new ViewResolver(page, ViewResolver.ResolveAction.REDIRECT);
     }
 }

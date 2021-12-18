@@ -5,34 +5,45 @@ import by.alex.testing.controller.MessageManager;
 import by.alex.testing.domain.User;
 import by.alex.testing.service.RegexStorage;
 import com.mysql.cj.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserValidator extends BaseValidator {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(UserValidator.class);
+    /**
+     * Method to validate {@link User} fields.
+     *
+     * @param user {@link User} to validate
+     * @return {@link List} of errors if validated unsuccessful,
+     * otherwise empty
+     */
+    public static List<String> validate(final User user) {
+        String fName = user.getFirstName();
+        String lName = user.getLastName();
+        String login = user.getLogin();
+        String psw = String.valueOf(user.getPassword());
 
-    private UserValidator() {
-    }
-
-    public static List<String> validate(User user) {
-        logger.info("Validating user");
         List<String> errors = new ArrayList<>();
-        if (StringUtils.isNullOrEmpty(user.getLogin()) || !validatePattern(user.getLogin(), RegexStorage.LOGIN_PATTERN)) {
-            errors.add(MessageManager.INSTANCE.getMessage(MessageConstant.LOGIN_PATTERN_ERROR));
+        if (StringUtils.isNullOrEmpty(user.getLogin())
+                || !validatePattern(login, RegexStorage.LOGIN_PATTERN)) {
+            String error = MessageManager.INSTANCE
+                    .getMessage(MessageConstant.LOGIN_REG_ERROR);
+            errors.add(error);
         }
-        if (StringUtils.isNullOrEmpty(String.valueOf(user.getPassword()))
-                || !validatePattern(String.valueOf(user.getPassword()), RegexStorage.PASSWORD_PATTERN)) {
-            errors.add(MessageManager.INSTANCE.getMessage(MessageConstant.PASSWORD_PATTERN_ERROR));
+        if (StringUtils.isNullOrEmpty(psw)
+                || !validatePattern(psw, RegexStorage.PASSWORD_PATTERN)) {
+            String error = MessageManager.INSTANCE
+                    .getMessage(MessageConstant.PSW_REG_ERROR);
+            errors.add(error);
         }
-        if (StringUtils.isNullOrEmpty(user.getFirstName()) || StringUtils.isNullOrEmpty(user.getLastName())
-                || !validatePattern(user.getFirstName(), RegexStorage.NAME_PATTERN)
-                || !validatePattern(user.getLastName(), RegexStorage.NAME_PATTERN)) {
-            errors.add(MessageManager.INSTANCE.getMessage(MessageConstant.NAME_ERROR));
+        if (StringUtils.isNullOrEmpty(fName)
+                || StringUtils.isNullOrEmpty(lName)
+                || !validatePattern(fName, RegexStorage.NAME_PATTERN)
+                || !validatePattern(lName, RegexStorage.NAME_PATTERN)) {
+            String error = MessageManager.INSTANCE
+                    .getMessage(MessageConstant.USER_NAME_ERROR);
+            errors.add(error);
         }
         return errors;
     }

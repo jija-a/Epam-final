@@ -1,47 +1,55 @@
 package by.alex.testing.controller.command.impl.common;
 
-import by.alex.testing.controller.*;
+import by.alex.testing.controller.CommandName;
+import by.alex.testing.controller.MessageConstant;
+import by.alex.testing.controller.MessageManager;
+import by.alex.testing.controller.PageConstant;
+import by.alex.testing.controller.RequestConstant;
+import by.alex.testing.controller.ViewResolver;
 import by.alex.testing.controller.command.Command;
 import by.alex.testing.domain.UnknownEntityException;
 import by.alex.testing.domain.User;
 import by.alex.testing.domain.UserRole;
-import by.alex.testing.service.CommonService;
 import by.alex.testing.service.ServiceException;
 import by.alex.testing.service.ServiceFactory;
+import by.alex.testing.service.UserService;
 import com.mysql.cj.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
-public class RegistrationCommand implements Command {
+public final class RegistrationCommand implements Command {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(RegistrationCommand.class);
+    /**
+     * @see UserService
+     */
+    private final UserService userService;
 
-    private final CommonService commonService;
-
+    /**
+     * Class constructor. Initializes service.
+     */
     public RegistrationCommand() {
-        commonService = ServiceFactory.getInstance().getCommonService();
+        userService = ServiceFactory.getInstance().getCommonService();
     }
 
     @Override
-    public ViewResolver execute(HttpServletRequest req, HttpServletResponse resp)
+    public ViewResolver execute(final HttpServletRequest req,
+                                final HttpServletResponse resp)
             throws ServiceException, UnknownEntityException {
 
-        logger.info("Register command received");
-        ViewResolver resolver;
+        ViewResolver resolver =
+                new ViewResolver(PageConstant.REGISTRATION_PAGE);
 
         String login = req.getParameter(RequestConstant.LOGIN);
         String firstName = req.getParameter(RequestConstant.FIRST_NAME);
         String lastName = req.getParameter(RequestConstant.LAST_NAME);
         String role = req.getParameter(RequestConstant.USER_ROLE);
         String psw = req.getParameter(RequestConstant.PASSWORD);
-        String confPsw = req.getParameter(RequestConstant.CONFIRMATION_PASSWORD);
+        String confPsw =
+                req.getParameter(RequestConstant.CONFIRMATION_PASSWORD);
 
-        if (commonService.findUserByLogin(login) == null) {
+        if (userService.findUserByLogin(login) == null) {
             if (!StringUtils.isNullOrEmpty(psw) && psw.equals(confPsw)) {
 
                 User user = User.builder()
@@ -52,30 +60,27 @@ public class RegistrationCommand implements Command {
                         .role(UserRole.resolveRoleById(Integer.parseInt(role)))
                         .build();
 
-                List<String> errors = commonService.register(user);
+                List<String> errors = userService.register(user);
                 if (errors.isEmpty()) {
-                    req.getSession().setAttribute(RequestConstant.SUCCESS,
-                            MessageManager.INSTANCE.getMessage(MessageConstant.REGISTRATION_SUCCESS));
-                    String page = createRedirectURL(req, CommandName.TO_LOGIN_PAGE);
-                    resolver = new ViewResolver(page, ViewResolver.ResolveAction.REDIRECT);
-                    logger.info("User successfully registered");
+                    String msg = MessageManager.INSTANCE
+                            .getMessage(MessageConstant.REGISTRATION_SUCCESS);
+                    req.getSession().setAttribute(RequestConstant.SUCCESS, msg);
+                    String page = createRedirectURL(req,
+                            CommandName.TO_LOGIN_PAGE);
+                    resolver = new ViewResolver(page,
+                            ViewResolver.ResolveAction.REDIRECT);
                 } else {
                     req.setAttribute(RequestConstant.ERRORS, errors);
-                    resolver = new ViewResolver(PageConstant.REGISTRATION_PAGE);
-                    logger.info("Wrong input data from user while registering");
                 }
-
             } else {
-                req.setAttribute(RequestConstant.ERROR,
-                        MessageManager.INSTANCE.getMessage(MessageConstant.CONFIRMATION_PSW_ERROR));
-                resolver = new ViewResolver(PageConstant.REGISTRATION_PAGE);
-                logger.info("Wrong confirmation password");
+                String msg = MessageManager.INSTANCE
+                        .getMessage(MessageConstant.CONFIRMATION_PSW_ERROR);
+                req.setAttribute(RequestConstant.ERROR, msg);
             }
         } else {
-            req.setAttribute(RequestConstant.ERROR,
-                    MessageManager.INSTANCE.getMessage(MessageConstant.LOGIN_IS_TAKEN_ERROR));
-            resolver = new ViewResolver(PageConstant.REGISTRATION_PAGE);
-            logger.info("Input already registered user login");
+            String msg = MessageManager.INSTANCE
+                    .getMessage(MessageConstant.LOGIN_IS_TAKEN_ERROR);
+            req.setAttribute(RequestConstant.ERROR, msg);
         }
 
         return resolver;

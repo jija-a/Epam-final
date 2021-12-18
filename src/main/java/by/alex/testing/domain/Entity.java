@@ -13,12 +13,15 @@ import lombok.experimental.SuperBuilder;
 @ToString
 public abstract class Entity implements BaseEntity {
 
+    /**
+     * Entity identity.
+     */
     private Long id;
 
     protected Entity() {
     }
 
-    protected Entity(Long id) {
+    protected Entity(final Long id) {
         this.id = id;
     }
 }

@@ -10,16 +10,25 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
-public class XSSFilter extends BaseFilter {
+/**
+ * Filter protect application from XSS attacks.
+ */
+public final class XSSFilter extends BaseFilter {
 
-    private static final Logger logger =
+    /**
+     * @see Logger
+     */
+    private static final Logger LOGGER =
             LoggerFactory.getLogger(XSSFilter.class);
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+    public void doFilter(final ServletRequest request,
+                         final ServletResponse response,
+                         final FilterChain chain)
             throws IOException, ServletException {
 
-        logger.info("XSS Filter processing");
-        chain.doFilter(new XSSRequestWrapper((HttpServletRequest) request), response);
+        LOGGER.info("XSS Filter processing");
+        HttpServletRequest req = (HttpServletRequest) request;
+        chain.doFilter(new XSSRequestWrapper(req), response);
     }
 }

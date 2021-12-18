@@ -1,4 +1,4 @@
-package by.alex.testing.tag;
+package by.alex.testing.controller.tag;
 
 import by.alex.testing.controller.MessageConstant;
 import by.alex.testing.controller.MessageManager;
@@ -10,15 +10,22 @@ import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.TagSupport;
 import java.io.IOException;
 
-public class CopyrightTag extends TagSupport {
+/**
+ * Class provides localized copyright message to view layer.
+ */
+public final class CopyrightTag extends TagSupport {
 
-    private static final Logger logger =
+    /**
+     * @see Logger
+     */
+    private static final Logger LOGGER =
             LoggerFactory.getLogger(CopyrightTag.class);
 
     @Override
     public int doStartTag() throws JspTagException {
-        logger.debug("Copyright tag started");
-        String copyright = MessageManager.INSTANCE.getMessage(MessageConstant.COPYRIGHT);
+        LOGGER.debug("Copyright tag started");
+        String copyright =
+                MessageManager.INSTANCE.getMessage(MessageConstant.COPYRIGHT);
         try {
             JspWriter out = pageContext.getOut();
             out.write(copyright);

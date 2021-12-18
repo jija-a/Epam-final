@@ -6,7 +6,11 @@ import by.alex.testing.controller.RequestConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.*;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,24 +20,41 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 
-public class LocaleFilter extends BaseFilter {
+/**
+ * Filter resolves user locale.
+ * Set it to default if {@link by.alex.testing.domain.User}
+ * currently do not have locale.
+ * Set it to {@link Cookie} and {@link HttpSession}.
+ *
+ * @see LocaleManager
+ * @see Locale
+ */
+public final class LocaleFilter extends BaseFilter {
 
-    private static final Logger logger =
+    /**
+     * @see Logger
+     */
+    private static final Logger LOGGER =
             LoggerFactory.getLogger(LocaleFilter.class);
 
+    /**
+     * Default locale. Located in web.xml file.
+     */
     private String defaultLocale;
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(final FilterConfig filterConfig) throws ServletException {
         super.init(filterConfig);
         defaultLocale = filterConfig.getInitParameter("default-locale");
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+    public void doFilter(final ServletRequest request,
+                         final ServletResponse response,
+                         final FilterChain chain)
             throws IOException, ServletException {
 
-        logger.debug("Locale filter processing request");
+        LOGGER.debug("Locale filter processing request");
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
 
@@ -41,22 +62,24 @@ public class LocaleFilter extends BaseFilter {
         chain.doFilter(req, response);
     }
 
-    private void dealWithLocale(HttpServletRequest req, HttpServletResponse resp) {
+    private void dealWithLocale(final HttpServletRequest req,
+                                final HttpServletResponse resp) {
         HttpSession session = req.getSession();
         Locale locale;
         Object lang = session.getAttribute(RequestConstant.LOCALE);
         if (lang == null) {
-            logger.info("Session attribute locale is null");
+            LOGGER.info("Session attribute locale is null");
             Cookie[] cookies = req.getCookies();
             if (cookies == null) {
-                logger.info("Cookies is null");
+                LOGGER.info("Cookies is null");
                 this.setDefaultLocale(session, resp);
             } else {
-                Optional<Cookie> cookie = Arrays.stream(cookies)
+                Optional<Cookie> optionalCookie = Arrays.stream(cookies)
                         .filter(c -> c.getName().equals(RequestConstant.LOCALE))
                         .findAny();
-                if (cookie.isPresent()) {
-                    locale = LocaleManager.resolveLocale(cookie.get().getValue());
+                if (optionalCookie.isPresent()) {
+                    Cookie cookie = optionalCookie.get();
+                    locale = LocaleManager.resolveLocale(cookie.getValue());
                     session.setAttribute(RequestConstant.LOCALE, locale);
                     MessageManager.INSTANCE.changeLocale(locale);
                 } else {
@@ -65,11 +88,12 @@ public class LocaleFilter extends BaseFilter {
             }
         }
         locale = (Locale) session.getAttribute(RequestConstant.LOCALE);
-        logger.info("Current locale: {}", locale);
+        LOGGER.info("Current locale: {}", locale);
     }
 
-    private void setDefaultLocale(HttpSession session, HttpServletResponse resp) {
-        logger.info("Setting default locale - {}", defaultLocale);
+    private void setDefaultLocale(final HttpSession session,
+                                  final HttpServletResponse resp) {
+        LOGGER.info("Setting default locale - {}", defaultLocale);
         Locale locale = LocaleManager.resolveLocale(defaultLocale);
         Cookie langCookie = new Cookie(RequestConstant.LOCALE, defaultLocale);
         resp.addCookie(langCookie);
