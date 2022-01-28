@@ -60,10 +60,7 @@
                             <div class="col-md-12"><label class="labels"><fmt:message
                                     key="input.placeholder.login"/></label>
                                 <input type="text" class="form-control" name="login" disabled
-                                       placeholder="<fmt:message key="input.placeholder.login"/>"
-                                       pattern="^[a-zA-Z]{3,25}$"
-                                       value="${user.login}"
-                                       required>
+                                       value="${user.login}">
                             </div>
                         </div>
                         <div class="row mt-3">

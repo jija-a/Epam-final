@@ -15,7 +15,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class CourseUserDaoImpl extends AbstractMySqlDao implements CourseUserDao {
+public class CourseUserDaoImpl extends AbstractMySqlDao implements CourseUserDao {
 
     /**
      * Query to create course user.

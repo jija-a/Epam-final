@@ -30,8 +30,15 @@
                         <th scope="row">
                             <%@include file="jspf/entity-number.jspf" %>
                         </th>
-                        <td><input type="text" maxlength="128" minlength="3" name="category_name"
-                                   value="${category.name}"></td>
+                        <td>
+                            <input type="text"
+                                   maxlength="128"
+                                   minlength="3"
+                                   name="category_name"
+                                   pattern="^(?:[\p{L}]+)(?:[\p{L}0-9 _]*)$"
+                                   value="${category.name}"
+                                   placeholder="<fmt:message key="label.course.category.name"/>">
+                        </td>
                         <td>
                             <input class="btn btn-warning" type="submit" value="<fmt:message
                                     key="label.update"/>"/>
@@ -46,8 +53,17 @@
                 <form action="<c:url value="/controller"/>" method="post">
                     <input type="hidden" name="command" value="create_category">
                     <td>#</td>
-                    <td><input type="text" name="category_name" placeholder="Category name"></td>
-                    <td><input class="btn btn-primary" type="submit" value="<fmt:message
+                    <td>
+                        <input type="text"
+                               maxlength="128"
+                               minlength="3"
+                               name="category_name"
+                               pattern="^(?:[\p{L}]+)(?:[\p{L}0-9 _]*)$"
+                               placeholder="<fmt:message key="label.course.category.name"/>"
+                               required>
+                    </td>
+                    <td>
+                    <td><input class="btn btn-success" type="submit" value="<fmt:message
                                     key="label.create"/>"/>
                     </td>
                 </form>

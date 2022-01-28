@@ -37,6 +37,5 @@
 
 <script src="${pageContext.request.contextPath}/js/timeZone.js"></script>
 <%@include file="jspf/footer.jspf" %>
-
 </body>
 </html>

@@ -52,8 +52,8 @@
 <div id="main">
     <div class="fof">
         <h1>Error ${pageContext.errorData.statusCode}</h1>
-        <c:if test="${not empty error}">
-            <c:out value="${error}"/>
+        <c:if test="${not empty sessionScope.error}">
+            <c:out value="${sessionScope.error}"/>
             <c:remove var="error" scope="session"/>
         </c:if>
         <h2><a href="<c:url value="/controller?command=to_home_page"/>">Go home</a></h2>

@@ -35,7 +35,7 @@ public final class LogInCommand implements Command {
                                 final HttpServletResponse resp)
             throws ServiceException {
 
-        ViewResolver resolver;
+        ViewResolver resolver = new ViewResolver(PageConstant.LOGIN_PAGE);
         String login = req.getParameter(RequestConstant.LOGIN);
         String password = req.getParameter(RequestConstant.PASSWORD);
         User user = userService.login(login, password);
@@ -50,7 +50,6 @@ public final class LogInCommand implements Command {
             String msg = MessageManager.INSTANCE
                     .getMessage(MessageConstant.LOGIN_ERROR);
             req.setAttribute(RequestConstant.ERROR, msg);
-            resolver = new ViewResolver(PageConstant.LOGIN_PAGE);
         }
         return resolver;
     }

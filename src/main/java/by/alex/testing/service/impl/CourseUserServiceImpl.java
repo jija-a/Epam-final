@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class CourseUserServiceImpl implements CourseUserService {
+public class CourseUserServiceImpl implements CourseUserService {
 
     /**
      * @see Logger

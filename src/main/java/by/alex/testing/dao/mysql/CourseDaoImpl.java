@@ -13,67 +13,67 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
+public class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
 
     /**
      * Query creates {@link Course}.
      */
     private static final String SQL_CREATE =
-            "INSERT INTO `course`(`name`, `user_id`, `course_category_id`) VALUES (?, ?, ?);";
+            "INSERT INTO `course`(`title`, `user_id`, `course_category_id`) VALUES (?, ?, ?);";
 
     /**
      * Query select all {@link Course}'s.
      */
     private static final String SQL_SELECT_ALL =
-            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course`";
+            "SELECT `course`.`id`, `course`.`title`, `course`.`user_id`, `course`.`course_category_id` FROM `course`";
 
     /**
      * Query select {@link Course} by id.
      */
     private static final String SQL_SELECT_BY_ID =
-            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`id` = ?;";
+            "SELECT `course`.`id`, `course`.`title`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`id` = ?;";
 
     /**
      * Query select all {@link Course} with limit.
      */
     private static final String SQL_SELECT_ALL_WITH_LIMIT =
-            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` LIMIT ?, ?;";
+            "SELECT `course`.`id`, `course`.`title`, `course`.`user_id`, `course`.`course_category_id` FROM `course` LIMIT ?, ?;";
 
     /**
      * Query select all {@link Course} by title with limit.
      */
     private static final String SQL_SELECT_BY_TITLE_WITH_LIMIT =
-            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`name` LIKE ? LIMIT ?, ?;";
+            "SELECT `course`.`id`, `course`.`title`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`title` LIKE ? LIMIT ?, ?;";
 
     /**
      * Query select all {@link Course} by owner id with limit.
      */
     private static final String SQL_SELECT_BY_OWNER_ID_WITH_LIMIT =
-            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`user_id` = ? LIMIT ?, ?;";
+            "SELECT `course`.`id`, `course`.`title`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`user_id` = ? LIMIT ?, ?;";
 
     /**
      * Query select all {@link Course} by owner id and title with limit.
      */
     private static final String SQL_SELECT_BY_OWNER_ID_AND_NAME =
-            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`user_id` = ? AND `course`.`name` = ?;";
+            "SELECT `course`.`id`, `course`.`title`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE `course`.`user_id` = ? AND `course`.`title` = ?;";
 
     /**
      * Query select all not {@link User} {@link Course}'s with limit.
      */
     private static final String SQL_SELECT_ALL_EXCLUDING =
-            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE NOT EXISTS(SELECT `course_user`.`course_id` FROM `course_user` WHERE `course`.`id` = `course_user`.`course_id` AND `course_user`.`user_id` = ?) LIMIT ?,?;";
+            "SELECT `course`.`id`, `course`.`title`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE NOT EXISTS(SELECT `course_user`.`course_id` FROM `course_user` WHERE `course`.`id` = `course_user`.`course_id` AND `course_user`.`user_id` = ?) LIMIT ?,?;";
 
     /**
      * Query select all not {@link User} {@link Course}'s by title with limit.
      */
     private static final String SQL_SELECT_ALL_EXCLUDING_WITH_SEARCH_REQ =
-            "SELECT `course`.`id`, `course`.`name`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE NOT EXISTS(SELECT `course_user`.`course_id` FROM `course_user` WHERE `course`.`id` = `course_user`.`course_id` AND `course_user`.`user_id` = ?) AND `course`.`name` LIKE ? LIMIT ?,?;";
+            "SELECT `course`.`id`, `course`.`title`, `course`.`user_id`, `course`.`course_category_id` FROM `course` WHERE NOT EXISTS(SELECT `course_user`.`course_id` FROM `course_user` WHERE `course`.`id` = `course_user`.`course_id` AND `course_user`.`user_id` = ?) AND `course`.`title` LIKE ? LIMIT ?,?;";
 
     /**
      * Query updates {@link Course}.
      */
     private static final String SQL_UPDATE =
-            "UPDATE `course` SET `course`.`name` = ?, `course`.`user_id` = ?, `course`.`course_category_id` = ? WHERE `course`.`id` = ?;";
+            "UPDATE `course` SET `course`.`title` = ?, `course`.`user_id` = ?, `course`.`course_category_id` = ? WHERE `course`.`id` = ?;";
 
     /**
      * Query deletes {@link Course}.
@@ -91,7 +91,7 @@ public final class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
      * Query counts all {@link Course}'s by title.
      */
     private static final String SQL_COUNT_ALL_BY_NAME =
-            "SELECT COUNT(*) FROM `course` WHERE `course`.`name` LIKE ?;";
+            "SELECT COUNT(*) FROM `course` WHERE `course`.`title` LIKE ?;";
 
     /**
      * Query counts all {@link Course}'s by owner id.
@@ -109,7 +109,7 @@ public final class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
      * Query counts all not user courses by title.
      */
     private static final String SQL_COUNT_AVAILABLE_COURSES_WITH_SEARCH =
-            "SELECT COUNT(*) FROM `course` WHERE NOT EXISTS(SELECT `course_user`.`course_id` FROM `course_user` WHERE `course`.`id` = `course_user`.`course_id` AND `course_user`.`user_id` = ?) AND `course`.`name` LIKE ?;";
+            "SELECT COUNT(*) FROM `course` WHERE NOT EXISTS(SELECT `course_user`.`course_id` FROM `course_user` WHERE `course`.`id` = `course_user`.`course_id` AND `course_user`.`user_id` = ?) AND `course`.`title` LIKE ?;";
 
     @Override
     public boolean save(final Course course) throws DaoException {
@@ -407,7 +407,7 @@ public final class CourseDaoImpl extends AbstractMySqlDao implements CourseDao {
     private Course mapToEntity(final ResultSet rs) throws SQLException {
         return Course.builder()
                 .id(rs.getLong("course.id"))
-                .name(rs.getString("course.name"))
+                .name(rs.getString("course.title"))
                 .owner(
                         User.builder()
                                 .id(rs.getLong("course.user_id"))

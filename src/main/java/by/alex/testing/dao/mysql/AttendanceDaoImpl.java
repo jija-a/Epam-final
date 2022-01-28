@@ -17,7 +17,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class AttendanceDaoImpl extends AbstractMySqlDao
+public class AttendanceDaoImpl extends AbstractMySqlDao
         implements AttendanceDao {
 
     /**

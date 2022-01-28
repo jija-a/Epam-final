@@ -2,7 +2,7 @@ package by.alex.testing.dao.mysql;
 
 import by.alex.testing.dao.DaoFactory;
 
-public final class MySqlDaoFactory extends DaoFactory {
+public class MySqlDaoFactory extends DaoFactory {
 
     /**
      * {@link MySqlDaoFactory} instance. Singleton pattern.

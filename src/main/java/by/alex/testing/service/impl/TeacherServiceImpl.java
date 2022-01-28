@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class TeacherServiceImpl implements TeacherService {
+public class TeacherServiceImpl implements TeacherService {
 
     /**
      * @see Logger

@@ -13,7 +13,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class CourseCategoryDaoImpl extends AbstractMySqlDao
+public class CourseCategoryDaoImpl extends AbstractMySqlDao
         implements CourseCategoryDao {
 
     /**
@@ -26,37 +26,37 @@ public final class CourseCategoryDaoImpl extends AbstractMySqlDao
      * MySQL query to create {@link CourseCategory}.
      */
     private static final String SQL_CREATE =
-            "INSERT INTO `course_category`(`name`) VALUE (?);";
+            "INSERT INTO `course_category`(`title`) VALUE (?);";
 
     /**
      * MySQL query to select all {@link CourseCategory}'es.
      */
     private static final String SQL_SELECT_ALL =
-            "SELECT `course_category`.`id`, `course_category`.`name` FROM `course_category`";
+            "SELECT `course_category`.`id`, `course_category`.`title` FROM `course_category`";
 
     /**
      * MySQL query to select {@link CourseCategory} by id.
      */
     private static final String SQL_SELECT_BY_ID =
-            "SELECT `course_category`.`id`, `course_category`.`name` FROM `course_category` WHERE `course_category`.`id` = ?";
+            "SELECT `course_category`.`id`, `course_category`.`title` FROM `course_category` WHERE `course_category`.`id` = ?";
 
     /**
      * MySQL query to select all {@link CourseCategory}'es with limit.
      */
     private static final String SQL_SELECT_ALL_WITH_LIMIT =
-            "SELECT `course_category`.`id`, `course_category`.`name` FROM `course_category` LIMIT ?, ?;";
+            "SELECT `course_category`.`id`, `course_category`.`title` FROM `course_category` LIMIT ?, ?;";
 
     /**
      * MySQL query to select {@link CourseCategory}'es by title with limit.
      */
     private static final String SQL_SELECT_BY_TITLE_WITH_LIMIT =
-            "SELECT `course_category`.`id`, `course_category`.`name` FROM `course_category` WHERE `course_category`.`name` LIKE ? LIMIT ?, ?;";
+            "SELECT `course_category`.`id`, `course_category`.`title` FROM `course_category` WHERE `course_category`.`title` LIKE ? LIMIT ?, ?;";
 
     /**
      * MySQL query to update {@link CourseCategory}.
      */
     private static final String SQL_UPDATE =
-            "UPDATE `course_category` SET `course_category`.name = ? WHERE `course_category`.`id` = ?;";
+            "UPDATE `course_category` SET `course_category`.title = ? WHERE `course_category`.`id` = ?;";
 
     /**
      * MySQL query to delete {@link CourseCategory}.
@@ -74,14 +74,14 @@ public final class CourseCategoryDaoImpl extends AbstractMySqlDao
      * MySQL query to count all {@link CourseCategory}'es by title.
      */
     private static final String SQL_COUNT_ALL_BY_TITLE =
-            "SELECT COUNT(*) FROM `course_category` WHERE `course_category`.`name` LIKE ?;";
+            "SELECT COUNT(*) FROM `course_category` WHERE `course_category`.`title` LIKE ?;";
 
     /**
      * MySQL query to find out if {@link CourseCategory}
      * with certain title exists.
      */
     private static final String SQL_EXISTS =
-            "SELECT `course_category`.`id` FROM `course_category` WHERE `course_category`.`name` = ?;";
+            "SELECT `course_category`.`id` FROM `course_category` WHERE `course_category`.`title` = ?;";
 
     @Override
     public boolean save(final CourseCategory category) throws DaoException {
@@ -250,7 +250,7 @@ public final class CourseCategoryDaoImpl extends AbstractMySqlDao
     private CourseCategory mapToEntity(final ResultSet rs) throws SQLException {
         return CourseCategory.builder()
                 .id(rs.getLong("course_category.id"))
-                .name(rs.getString("course_category.name"))
+                .name(rs.getString("course_category.title"))
                 .build();
     }
 

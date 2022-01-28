@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public final class CourseCategoryServiceImpl implements CourseCategoryService {
+public class CourseCategoryServiceImpl implements CourseCategoryService {
 
     /**
      * @see Logger

@@ -12,7 +12,7 @@ import by.alex.testing.service.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class AttendanceServiceImpl implements AttendanceService {
+public class AttendanceServiceImpl implements AttendanceService {
 
     /**
      * @see Logger

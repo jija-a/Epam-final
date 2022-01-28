@@ -37,7 +37,7 @@ public class Attendance extends Entity {
     /**
      * The {@link Lesson} in which the student received the given attendance.
      * Entity contains this field because when it needs to be created in DAO
-     * layer, {@link Lesson} id should be provided.
+     * layer, {@link Lesson} id must be provided.
      *
      * @see by.alex.testing.dao.AttendanceDao
      */

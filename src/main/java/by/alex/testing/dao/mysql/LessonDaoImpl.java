@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class LessonDaoImpl extends AbstractMySqlDao implements LessonDao {
+public class LessonDaoImpl extends AbstractMySqlDao implements LessonDao {
 
     /**
      * Query to select all {@link Lesson}'s.

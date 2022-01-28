@@ -1,10 +1,7 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/login.css">
-
     <title><fmt:message key="head.title.project_name"/> | <fmt:message key="head.title.registration"/></title>
 </head>
 

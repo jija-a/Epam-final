@@ -90,15 +90,9 @@ public class FrontController extends HttpServlet {
             this.dispatch(req, resp, resolver);
         } catch (ParametersException | NumberFormatException e) {
             LOGGER.error(e.getMessage(), e);
-            req.getSession().setAttribute(RequestConstant.ERROR,
-                    MessageManager.INSTANCE
-                            .getMessage(MessageConstant.WRONG_PARAMETERS));
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
         } catch (AccessException e) {
             LOGGER.error(e.getMessage(), e);
-            req.getSession().setAttribute(RequestConstant.ERROR,
-                    MessageManager.INSTANCE
-                            .getMessage(MessageConstant.ACCESS_DENIED));
             resp.sendError(HttpServletResponse.SC_FORBIDDEN);
         } catch (ServiceException e) {
             LOGGER.error("Service provided exception to front controller,"

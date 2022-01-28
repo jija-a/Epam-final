@@ -9,7 +9,7 @@ public final class RegexStorage {
      * Regular expression for title.
      */
     public static final String TITLE_PATTERN =
-            "^[a-zA-Zа-яА-Я0-9]([ ._-](?![ ._-])|[a-zA-Zа-яА-Я0-9]){1,33}[a-zA-Zа-яА-Я0-9]$";
+            "^(?:[\\p{L}]+)(?:[\\p{L}0-9 _]*){3,25}$";
 
     /**
      * Regular expression for password.
@@ -27,5 +27,5 @@ public final class RegexStorage {
      * Regular expression for name.
      */
     public static final String NAME_PATTERN =
-            "^[a-zA-Zа-яА-Я]([ ._-](?![ ._-])|[a-zA-Zа-яА-Я]){1,33}[a-zA-Zа-яА-Я]$";
+            "^(?:[\\p{L}]*){3,25}$";
 }

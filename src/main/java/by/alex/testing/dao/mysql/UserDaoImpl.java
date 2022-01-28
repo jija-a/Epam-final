@@ -13,7 +13,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class UserDaoImpl extends AbstractMySqlDao implements UserDao {
+public class UserDaoImpl extends AbstractMySqlDao implements UserDao {
 
     /**
      * Query to create {@link User}.

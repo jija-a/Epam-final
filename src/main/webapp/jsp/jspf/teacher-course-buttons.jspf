@@ -19,8 +19,13 @@
                     <%@include file="../jspf/entity-number.jspf" %>
                 </th>
                 <td>
-                    <input type="text" maxlength="150" minlength="5" value="${course.name}"
-                           name="course_name">
+                    <input id="name"
+                           type="text"
+                           maxlength="35"
+                           minlength="3"
+                           value="${course.name}"
+                           name="course_name"
+                           pattern="^(?:[\p{L}]+)(?:[\p{L}0-9 _]*)$"/>
                 </td>
                 <td><c:out value="${course.owner.firstName} ${course.owner.lastName}"/></td>
                 <td>
@@ -34,7 +39,8 @@
                         <a class="btn btn-info"
                            href="<c:url value="/controller?command=show_course_users&course_id=${course.id}"/>">
                             <fmt:message key="label.view.users"/></a>
-                        <input class="btn btn-warning" type="submit"
+                        <input id="inputBtn"
+                               class="btn btn-warning" type="submit"
                                value="<fmt:message key="label.update"/>">
                         <a class="btn btn-danger"
                            href="<c:url value="/controller?command=delete_course&course_id=${course.id}"/>">

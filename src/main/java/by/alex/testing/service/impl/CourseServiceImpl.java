@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public final class CourseServiceImpl implements CourseService {
+public class CourseServiceImpl implements CourseService {
 
     /**
      * @see Logger

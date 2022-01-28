@@ -20,7 +20,7 @@
                     <%@include file="../jspf/entity-number.jspf" %>
                 </td>
                 <td>
-                    <input type="text" name="lesson_title" placeholder="Title" required
+                    <input id="lesson" type="text" name="lesson_title" placeholder="Title" required
                            value="${lesson.title}"/>
                 </td>
                 <td><crt:formatDate value="${lesson.startDate}" pattern="dd-MM-yyyy HH:mm"/></td>

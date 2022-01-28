@@ -28,7 +28,9 @@
                     <tbody>
                     <c:forEach var="user" varStatus="st" items="${users}">
                         <tr>
-                            <th scope="row">${st.count}</th>
+                            <th scope="row">
+                                <%@include file="jspf/entity-number.jspf" %>
+                            </th>
                             <td><c:out value="${user.login}"/></td>
                             <td><c:out value="${user.firstName} ${user.lastName}"/></td>
                             <td><c:out value="${user.role.name}"/></td>
